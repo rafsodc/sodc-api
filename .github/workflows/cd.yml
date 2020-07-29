@@ -1,0 +1,17 @@
+name: CD
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  docker-save:
+    name: Docker save build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    timeout-minutes: 10
+    steps:
+    - name: Say Something
+      id: get_tag
+      run: echo "Hello"
