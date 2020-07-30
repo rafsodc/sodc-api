@@ -45,6 +45,8 @@ jobs:
       REACT_APP_API_ENTRYPOINT: https://sodc.jackdipper.com
       VARNISH_IMAGE: rafsodc/api-varnish
     steps:
+        - name: Checkout
+          uses: actions/checkout@v2
         - name: Get tag version
           id: get_tag
           run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
