@@ -57,6 +57,6 @@ jobs:
         - name: Build images
           run: |
             docker login -u ${{ secrets.DH_USERNAME }} -p ${{ secrets.DH_TOKEN }}
-            # docker-compose -f docker-compose-prod/docker-compose.build.yml pull --ignore-pull-failures
-            # docker-compose -f docker-compose-prod/docker-compose.build.yml build --pull
-            # docker-compose -f docker-compose-prod/docker-compose.build.yml push
+            docker-compose -f docker-compose-prod/docker-compose.build.yml pull --ignore-pull-failures
+            docker-compose -f docker-compose-prod/docker-compose.build.yml build --pull
+            docker-compose -f docker-compose-prod/docker-compose.build.yml push
