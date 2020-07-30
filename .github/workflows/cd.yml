@@ -6,15 +6,53 @@ on:
     types: [published]
 
 jobs:
-  docker-save:
-    name: Docker save build
+  docker-build-prod:
+    name: Docker build production (Docker ${{ matrix.docker }})
     runs-on: ubuntu-latest
+    container:
+      image: jdipper/docker_test_env:latest
+      env:
+        DOCKER_CERT_PATH: /certs/client
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_HOST: tcp://docker:2376
+        DOCKER_TLS_VERIFY: '1'
+      options: >-
+        -v /tmp/docker/certs/client:/certs/client
+    services:
+      docker:
+        image: docker:${{ matrix.docker }}-dind
+        env:
+          DOCKER_TLS_CERTDIR: /certs
+        options: >-
+          --privileged
+          -v /home/runner/work:/__w
+          -v /tmp/docker/certs:/certs
+          --health-cmd "docker info"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
+      matrix:
+        docker:
+          - '19.03'
       fail-fast: false
     timeout-minutes: 10
+    env:
+      ADMIN_IMAGE: rafsodc/api-admin:test
+      CLIENT_IMAGE: rafsodc/api-client
+      NGINX_IMAGE: rafsodc/api-nginx
+      PHP_IMAGE: rafsodc/api-php
+      REACT_APP_API_ENTRYPOINT: https://sodc.jackdipper.com
+      VARNISH_IMAGE: rafsodc/api-varnish
     steps:
         - name: Get tag version
           id: get_tag
           run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
         - name: Print version
           run: echo ${{ steps.get_tag.outputs.VERSION }}
+        - name: Fetch production setup
+          run: wget -O - https://github.com/api-platform/docker-compose-prod/archive/master.tar.gz | tar -xzf - && mv docker-compose-prod-master docker-compose-prod
+        - name: Build images
+          run: |
+            docker-compose -f docker-compose-prod/docker-compose.build.yml pull --ignore-pull-failures
+            docker-compose -f docker-compose-prod/docker-compose.build.yml build --pull
