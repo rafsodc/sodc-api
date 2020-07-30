@@ -1,6 +1,7 @@
 name: CD
 
 on:
+  workflow_dispatch:
   release:
     types: [published]
 
@@ -12,6 +13,8 @@ jobs:
       fail-fast: false
     timeout-minutes: 10
     steps:
-    - name: Say Something
-      id: get_tag
-      run: echo "Hello"
+        - name: Get tag version
+          id: get_tag
+          run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+        - name: Print version
+          run: echo ${{ steps.get_tag.outputs.VERSION }}
