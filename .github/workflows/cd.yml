@@ -56,6 +56,7 @@ jobs:
           run: wget -O - https://github.com/api-platform/docker-compose-prod/archive/master.tar.gz | tar -xzf - && mv docker-compose-prod-master docker-compose-prod
         - name: Build images
           run: |
-            docker-compose -f docker-compose-prod/docker-compose.build.yml pull --ignore-pull-failures
-            docker-compose -f docker-compose-prod/docker-compose.build.yml build --pull
-            docker-compose -f docker-compose-prod/docker-compose.build.yml push
+            docker login -u ${{ secrets.DH_USERNAME }} -p ${{ secrets.DH_TOKEN }}
+            # docker-compose -f docker-compose-prod/docker-compose.build.yml pull --ignore-pull-failures
+            # docker-compose -f docker-compose-prod/docker-compose.build.yml build --pull
+            # docker-compose -f docker-compose-prod/docker-compose.build.yml push
