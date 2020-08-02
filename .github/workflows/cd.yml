@@ -42,7 +42,7 @@ jobs:
       CLIENT_IMAGE: rafsodc/api-client
       NGINX_IMAGE: rafsodc/api-nginx
       PHP_IMAGE: rafsodc/api-php
-      REACT_APP_API_ENTRYPOINT: https://sodc.jackdipper.com
+      REACT_APP_API_ENTRYPOINT: https://api.sodc.jackdipper.com
       VARNISH_IMAGE: rafsodc/api-varnish
     steps:
         - name: Checkout
