@@ -47,7 +47,7 @@ jobs:
           run: echo ${{ steps.get_tag.outputs.VERSION }}
         - name: Fetch production setup
           run: wget -O - https://github.com/api-platform/docker-compose-prod/archive/master.tar.gz | tar -xzf - && mv docker-compose-prod-master docker-compose-prod
-        - name: Login to Docker Hun
+        - name: Login to Docker Hub
           run: docker login -u ${{ secrets.DH_USERNAME }} -p ${{ secrets.DH_TOKEN }}
         - name: Build images
           run: |
