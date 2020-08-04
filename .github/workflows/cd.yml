@@ -38,25 +38,18 @@ jobs:
       fail-fast: false
     timeout-minutes: 30
     env:
-      ADMIN_IMAGE: rafsodc/api-admin:test
-      CLIENT_IMAGE: rafsodc/api-client
-      NGINX_IMAGE: rafsodc/api-nginx
-      PHP_IMAGE: rafsodc/api-php
-      REACT_APP_API_ENTRYPOINT: https://api.sodc.jackdipper.com
-      VARNISH_IMAGE: rafsodc/api-varnish
+      ADMIN_IMAGE: ${{ secrets.DH_USERNAME }}/api-admin:test
+      CLIENT_IMAGE: ${{ secrets.DH_USERNAME }}/api-client
+      NGINX_IMAGE: ${{ secrets.DH_USERNAME }}/api-nginx
+      PHP_IMAGE: ${{ secrets.DH_USERNAME }}/api-php
+      REACT_APP_API_ENTRYPOINT: ${{ secrets.API_ENTRY_POINT }}
+      VARNISH_IMAGE: ${{ secrets.DH_USERNAME }}/api-varnish
     steps:
         - name: Checkout
           uses: actions/checkout@v2
         - name: Get tag version
           id: get_tag
-          run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+          run: echo ::set-output name=VERSION::sed -i -e 's/${GITHUB_REF/refs\/tags\//}//g'
         - name: Print version
           run: echo ${{ steps.get_tag.outputs.VERSION }}
-        - name: Fetch production setup
-          run: wget -O - https://github.com/api-platform/docker-compose-prod/archive/master.tar.gz | tar -xzf - && mv docker-compose-prod-master docker-compose-prod
-        - name: Build images
-          run: |
-            docker login -u ${{ secrets.DH_USERNAME }} -p ${{ secrets.DH_TOKEN }}
-            docker-compose -f docker-compose-prod/docker-compose.build.yml pull --ignore-pull-failures
-            docker-compose -f docker-compose-prod/docker-compose.build.yml build --pull
-            docker-compose -f docker-compose-prod/docker-compose.build.yml push
+
