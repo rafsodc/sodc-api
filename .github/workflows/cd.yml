@@ -37,13 +37,6 @@ jobs:
           - '19.03'
       fail-fast: false
     timeout-minutes: 30
-    env:
-      ADMIN_IMAGE: ${{ secrets.DH_USERNAME }}/api-admin:${{ steps.get_tag.outputs.VERSION }}
-      CLIENT_IMAGE: ${{ secrets.DH_USERNAME }}/api-client:${{ steps.get_tag.outputs.VERSION }}
-      NGINX_IMAGE: ${{ secrets.DH_USERNAME }}/api-nginx:${{ steps.get_tag.outputs.VERSION }}
-      PHP_IMAGE: ${{ secrets.DH_USERNAME }}/api-php:${{ steps.get_tag.outputs.VERSION }}
-      VARNISH_IMAGE: ${{ secrets.DH_USERNAME }}/api-varnish:${{ steps.get_tag.outputs.VERSION }}
-      REACT_APP_API_ENTRYPOINT: ${{ secrets.API_ENTRY_POINT }}
     steps:
         - name: Checkout
           uses: actions/checkout@v2
@@ -52,6 +45,19 @@ jobs:
           run: echo ::set-output name=VERSION::$(echo ${GITHUB_REF/refs\/tags\//} | sed 's/refs\/heads\///g')
         - name: Print version
           run: echo ${{ steps.get_tag.outputs.VERSION }}
-        - name: Test Env Variables
-          run: echo $ADMIN_IMAGE
-
+        - name: Fetch production setup
+          run: wget -O - https://github.com/api-platform/docker-compose-prod/archive/master.tar.gz | tar -xzf - && mv docker-compose-prod-master docker-compose-prod
+        - name: Login to Docker Hun
+          run: docker login -u ${{ secrets.DH_USERNAME }} -p ${{ secrets.DH_TOKEN }}
+        - name: Build images
+          run: |
+            docker-compose -f docker-compose-prod/docker-compose.build.yml pull --ignore-pull-failures
+            docker-compose -f docker-compose-prod/docker-compose.build.yml build --pull
+            docker-compose -f docker-compose-prod/docker-compose.build.yml push
+          env:
+            ADMIN_IMAGE: ${{ secrets.DH_USERNAME }}/api-admin:${{ steps.get_tag.outputs.VERSION }}
+            CLIENT_IMAGE: ${{ secrets.DH_USERNAME }}/api-client:${{ steps.get_tag.outputs.VERSION }}
+            NGINX_IMAGE: ${{ secrets.DH_USERNAME }}/api-nginx:${{ steps.get_tag.outputs.VERSION }}
+            PHP_IMAGE: ${{ secrets.DH_USERNAME }}/api-php:${{ steps.get_tag.outputs.VERSION }}
+            VARNISH_IMAGE: ${{ secrets.DH_USERNAME }}/api-varnish:${{ steps.get_tag.outputs.VERSION }}
+            REACT_APP_API_ENTRYPOINT: ${{ secrets.API_ENTRY_POINT }}
