@@ -5,8 +5,8 @@ on:
   pull_request:
     
 jobs:
-  docker-build-test-deploy:
-    name: Docker build/test/deploy (Docker ${{ matrix.docker }})
+  docker-build-test:
+    name: Docker build test (Docker ${{ matrix.docker }})
     runs-on: ubuntu-latest
     container:
       image: rafsodc/docker_test_env:latest
@@ -86,7 +86,7 @@ jobs:
           curl -fk -H 'Host: localhost' https://docker:444 # Admin
           curl -fk -H 'Host: localhost' https://docker:8443 # API
 
-  docker-build-test-deploy-prod:
+  docker-build-test-prod:
     name: Docker build/test/deploy (Docker ${{ matrix.docker }}) (production)
     runs-on: ubuntu-latest
     container:
