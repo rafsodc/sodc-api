@@ -90,7 +90,7 @@ jobs:
     name: Docker build/test/deploy (Docker ${{ matrix.docker }}) (production)
     runs-on: ubuntu-latest
     container:
-      image: ${{ secrets.DH_USERNAME }}/docker_test_env:latest
+      image: rafsodc/docker_test_env:latest
       env:
         DOCKER_CERT_PATH: /certs/client
         DOCKER_CLI_EXPERIMENTAL: enabled
