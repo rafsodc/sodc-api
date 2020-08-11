@@ -8,24 +8,24 @@ jobs:
   docker-cleanup:
     name: Docker Clean Up
     runs-on: ubuntu-latest
-      container:
-        image: rafsodc/docker_test_env:latest
-      strategy:
-        fail-fast: false
-      timeout-minutes: 10
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name: Get tag version
-          id: get_tag
-          run: echo ::set-output name=VERSION::$(echo ${GITHUB_REF/refs\/tags\//} | sed 's/refs\/heads\///g')
-        - name: Login to Docker Hub
-          run: docker login -u ${{ secrets.DH_USERNAME }} -p ${{ secrets.DH_TOKEN }}
-        - name: Delete images
-          run: docker rmi $ADMIN_IMAGE $CLIENT_IMAGE $NGINX_IMAGE $PHP_IMAGE $VARNISH_IMAGE
-          env:
-           ADMIN_IMAGE: ${{ secrets.DH_USERNAME }}/api-admin:${{ steps.get_tag.outputs.VERSION }}
-           CLIENT_IMAGE: ${{ secrets.DH_USERNAME }}/api-client:${{ steps.get_tag.outputs.VERSION }}
-           NGINX_IMAGE: ${{ secrets.DH_USERNAME }}/api-nginx:${{ steps.get_tag.outputs.VERSION }}
-           PHP_IMAGE: ${{ secrets.DH_USERNAME }}/api-php:${{ steps.get_tag.outputs.VERSION }}
-           VARNISH_IMAGE: ${{ secrets.DH_USERNAME }}/api-varnish:${{ steps.get_tag.outputs.VERSION }}
+    container:
+      image: rafsodc/docker_test_env:latest
+    strategy:
+      fail-fast: false
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get tag version
+        id: get_tag
+        run: echo ::set-output name=VERSION::$(echo ${GITHUB_REF/refs\/tags\//} | sed 's/refs\/heads\///g')
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DH_USERNAME }} -p ${{ secrets.DH_TOKEN }}
+      - name: Delete images
+        run: docker rmi $ADMIN_IMAGE $CLIENT_IMAGE $NGINX_IMAGE $PHP_IMAGE $VARNISH_IMAGE
+        env:
+         ADMIN_IMAGE: ${{ secrets.DH_USERNAME }}/api-admin:${{ steps.get_tag.outputs.VERSION }}
+         CLIENT_IMAGE: ${{ secrets.DH_USERNAME }}/api-client:${{ steps.get_tag.outputs.VERSION }}
+         NGINX_IMAGE: ${{ secrets.DH_USERNAME }}/api-nginx:${{ steps.get_tag.outputs.VERSION }}
+         PHP_IMAGE: ${{ secrets.DH_USERNAME }}/api-php:${{ steps.get_tag.outputs.VERSION }}
+         VARNISH_IMAGE: ${{ secrets.DH_USERNAME }}/api-varnish:${{ steps.get_tag.outputs.VERSION }}
