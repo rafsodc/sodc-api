@@ -19,7 +19,7 @@ jobs:
         run: echo ::set-output name=VERSION::$(echo ${GITHUB_REF/refs\/tags\//} | sed 's/refs\/heads\///g')
       - name: Get Access Token
         run: |
-          apt install jq
+          sudo apt install jq
           echo ::set-output name=HUB_TOKEN::$(echo $(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${{ secrets.DH_USERNAME}}'", "password": "'${{ secrets.DH_TOKEN}}'"}' https://hub.docker.com/v2/users/login/ | jq -r .token))
       - name: Delete images
         run: echo $HUB_TOKEN
