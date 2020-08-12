@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   delete:
 
-
 jobs:
   docker-cleanup:
     name: Docker Clean Up
