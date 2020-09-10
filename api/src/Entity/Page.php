@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ApiResource()
  * @ORM\Entity(repositoryClass=PageRepository::class)
+ * @ORM\HasLifecycleCallbacks
  */
 class Page
 {
@@ -27,7 +28,12 @@ class Page
     /**
      * @ORM\Column(type="text")
      */
-    private $content;
+    private $content_html;
+
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $content_md;
 
     /**
      * @ORM\Column(type="datetime")
@@ -43,6 +49,24 @@ class Page
      * @ORM\Column(type="boolean")
      */
     private $isPublished;
+
+    /**
+     * Gets triggered only on insert
+     * @ORM\PrePersist
+     */
+    public function onPrePersist()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
+    /**
+     * Gets triggered every time on update
+     * @ORM\PreUpdate
+     */
+    public function onPreUpdate()
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -61,14 +85,20 @@ class Page
         return $this;
     }
 
-    public function getContent(): ?string
+    public function getContentMd(): ?string
     {
-        return $this->content;
+        return $this->content_md;
+    }
+
+    public function getContentHTML(): ?string
+    {
+        return $this->content_html;
     }
 
     public function setContent(string $content): self
     {
-        $this->content = $content;
+        $this->content_md = $content;
+        $this->content_html = $content;
 
         return $this;
     }
@@ -78,23 +108,9 @@ class Page
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
     public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
     }
 
     public function getIsPublished(): ?bool
