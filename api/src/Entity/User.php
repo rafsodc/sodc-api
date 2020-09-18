@@ -54,7 +54,7 @@ class User implements UserInterface
      * @Groups({"user:read", "user:write"})
      * @Assert\NotBlank()
      * @Assert\Regex(
-     *     pattern = "^[a-zA-Z0-9_]+$"
+     *     pattern = "/^[a-zA-Z0-9_]+$/"
      * )
      */
     private $username;
