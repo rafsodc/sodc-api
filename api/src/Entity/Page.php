@@ -52,11 +52,13 @@ class Page
 
     /**
      * Gets triggered only on insert
+     * We also need to set the updatedAt date when the entity is first created.
      * @ORM\PrePersist
      */
     public function onPrePersist()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     /**
