@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Entity;
-
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -9,13 +8,27 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\SerializedName;
+use App\Dto\UserOutput;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="`user`")
  * @ApiResource(
- *     normalizationContext={"groups"={"user:read"}},
- *     denormalizationContext={"groups"={"user:write"}},
+ *     security="is_granted('ROLE_USER')",
+ *     output=UserOutput::CLASS,
+ *     collectionOperations={
+ *          "get",
+ *          "post"={
+ *                  "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
+ *                  "validation_groups"={"Default", "create_user"}
+ *          },
+ *     },
+ *     itemOperations={
+ *          "get",
+ *          "put"={"security"="is_granted('USER_EDIT', object)"},
+ *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
+ *     },
  * )
  * @UniqueEntity(fields={"username"})
  * @UniqueEntity(fields={"email"})
@@ -31,7 +44,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user:read", "user:write"})
+     * @Groups({"user:write"})
      * @Assert\NotBlank()
      * @Assert\Email()
      */
@@ -43,6 +56,13 @@ class User implements UserInterface
     private $roles = [];
 
     /**
+     * @Groups("user:write")
+     * @SerializedName("password")
+     * @Assert\NotBlank(groups={"create_user"})
+     */
+    private $plainPassword;
+
+    /**
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Groups({"user:write"})
@@ -51,13 +71,19 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"user:read", "user:write"})
+     * @Groups({"user:write"})
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern = "/^[a-zA-Z0-9_]+$/"
      * )
      */
     private $username;
+
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     * @Groups({"user:write"})
+     */
+    private $phoneNumber;
 
     public function getId(): ?int
     {
@@ -120,6 +146,32 @@ class User implements UserInterface
         return $this;
     }
 
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @return self
+     * @param mixed $plainPassword
+     */
+    public function setPlainPassword($plainPassword): self
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+
     /**
      * @see UserInterface
      */
@@ -134,13 +186,20 @@ class User implements UserInterface
     public function eraseCredentials()
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        $this->plainPassword = null;
     }
 
-    public function setUsername(string $username): self
+    public function getPhoneNumber(): ?string
     {
-        $this->username = $username;
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): self
+    {
+        $this->phoneNumber = $phoneNumber;
 
         return $this;
     }
+
+
 }
