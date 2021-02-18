@@ -5,16 +5,44 @@ namespace App\ApiPlatform;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Metadata\Resource\ResourceMetadata;
 
+/**
+ * Provides dynamic groups that can be viewed in API documentation.
+ *
+ * The class provides dynamic groups based on entity class, whether it's an item or collection, and whether it's a normalisation (read)
+ * or denormalisation (write) action.
+ *
+ * @see https://symfonycasts.com/screencast/api-platform-security/resource-metadata-factory
+ *
+ * @package App\ApiPlatform
+ */
 class AutoGroupResourceMetadataFactory implements ResourceMetadataFactoryInterface
 {
+    /**
+     * @var ResourceMetadataFactoryInterface
+     */
     private $decorated;
+    /**
+     * Contains any previously cached resourceMetadata values
+     * @var array
+     */
     private $resourceMetadata = [];
 
+    /**
+     * AutoGroupResourceMetadataFactory constructor.
+     * @param ResourceMetadataFactoryInterface $decorated
+     */
     public function __construct(ResourceMetadataFactoryInterface $decorated)
     {
         $this->decorated = $decorated;
     }
 
+    /**
+     * Returns ResourceMetadata with created groups.
+     *
+     * @param string $resourceClass
+     * @return ResourceMetadata
+     * @throws \ApiPlatform\Core\Exception\ResourceClassNotFoundException
+     */
     public function create(string $resourceClass): ResourceMetadata
     {
         // Cache the results for future uses on page load
@@ -37,7 +65,12 @@ class AutoGroupResourceMetadataFactory implements ResourceMetadataFactoryInterfa
     }
 
     /**
-     * Function based on https://symfonycasts.com/screencast/api-platform-security/resource-metadata-factory
+     * Sets 'groups' element to 'normalization_context' and 'denormalization_context' if they do not exist, and merges with created groups
+     *
+     * @param array $operations
+     * @param string $shortName
+     * @param bool $isItem
+     * @return array
      */
     private function updateContextOnOperations(array $operations, string $shortName, bool $isItem)
     {
@@ -58,6 +91,17 @@ class AutoGroupResourceMetadataFactory implements ResourceMetadataFactoryInterfa
         }
         return $operations;
     }
+
+    /**
+     * Creates default groups based on entity class, whether it's an item or collection, and whether it's a normalisation (read)
+     * or denormalisation (write) action.
+     *
+     * @param string $shortName
+     * @param bool $normalization
+     * @param bool $isItem
+     * @param string $operationName
+     * @return array
+     */
     private function getDefaultGroups(string $shortName, bool $normalization, bool $isItem, string $operationName)
     {
         $shortName = strtolower($shortName);

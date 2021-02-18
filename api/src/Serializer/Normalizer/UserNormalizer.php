@@ -52,7 +52,7 @@ class UserNormalizer implements ContextAwareNormalizerInterface, CacheableSuppor
         if (!$authenticatedUser) {
             return false;
         }
-        return $authenticatedUser->getEmail() === $user->getEmail();
+        return $authenticatedUser->getId() === $user->getId();
     }
 
     public function hasCacheableSupportsMethod(): bool
