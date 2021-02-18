@@ -1,0 +1,206 @@
+<?php
+
+namespace App\Entity;
+
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Repository\TicketTypeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ApiResource()
+ * @ORM\Entity(repositoryClass=TicketTypeRepository::class)
+ */
+class TicketType
+{
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="ticketTypes")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $event;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $symposium;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $dinner;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $serving;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $student;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $guest;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $createdDate;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $price;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="ticketType")
+     */
+    private $tickets;
+
+    public function __construct()
+    {
+        $this->tickets = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getEvent(): ?Event
+    {
+        return $this->event;
+    }
+
+    public function setEvent(?Event $event): self
+    {
+        $this->event = $event;
+
+        return $this;
+    }
+
+    public function getSymposium(): ?bool
+    {
+        return $this->symposium;
+    }
+
+    public function setSymposium(bool $symposium): self
+    {
+        $this->symposium = $symposium;
+
+        return $this;
+    }
+
+    public function getDinner(): ?bool
+    {
+        return $this->dinner;
+    }
+
+    public function setDinner(bool $dinner): self
+    {
+        $this->dinner = $dinner;
+
+        return $this;
+    }
+
+    public function getServing(): ?bool
+    {
+        return $this->serving;
+    }
+
+    public function setServing(bool $serving): self
+    {
+        $this->serving = $serving;
+
+        return $this;
+    }
+
+    public function getStudent(): ?bool
+    {
+        return $this->student;
+    }
+
+    public function setStudent(bool $student): self
+    {
+        $this->student = $student;
+
+        return $this;
+    }
+
+    public function getGuest(): ?bool
+    {
+        return $this->guest;
+    }
+
+    public function setGuest(bool $guest): self
+    {
+        $this->guest = $guest;
+
+        return $this;
+    }
+
+    public function getCreatedDate(): ?\DateTimeInterface
+    {
+        return $this->createdDate;
+    }
+
+    public function setCreatedDate(\DateTimeInterface $createdDate): self
+    {
+        $this->createdDate = $createdDate;
+
+        return $this;
+    }
+
+    public function getPrice(): ?float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(float $price): self
+    {
+        $this->price = $price;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Ticket[]
+     */
+    public function getTickets(): Collection
+    {
+        return $this->tickets;
+    }
+
+    public function addTicket(Ticket $ticket): self
+    {
+        if (!$this->tickets->contains($ticket)) {
+            $this->tickets[] = $ticket;
+            $ticket->setTicketType($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTicket(Ticket $ticket): self
+    {
+        if ($this->tickets->contains($ticket)) {
+            $this->tickets->removeElement($ticket);
+            // set the owning side to null (unless already changed)
+            if ($ticket->getTicketType() === $this) {
+                $ticket->setTicketType(null);
+            }
+        }
+
+        return $this;
+    }
+}
