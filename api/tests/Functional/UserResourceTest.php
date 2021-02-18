@@ -4,7 +4,6 @@ namespace App\Tests\Functional;
 use App\Test\CustomApiTestCase;
 use App\Entity\User;
 use App\Test\CsvFileIterator;
-use phpDocumentor\Reflection\Types\Object_;
 
 class UserResourceTest extends CustomApiTestCase {
 
@@ -17,11 +16,6 @@ class UserResourceTest extends CustomApiTestCase {
         'email',
         'username'
     ];
-
-    public static function setUpBeforeClass(): void
-    {
-        parent::setUpBeforeClass();
-    }
 
     public static function generateUsers(): void
     {
@@ -91,7 +85,7 @@ class UserResourceTest extends CustomApiTestCase {
         $response = $client->request('POST', '/users', [
             'json' => []
         ]);
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(422);
         $this->checkResponse($response, $this->requiredFields);
 
         // Test a user can be created
@@ -107,7 +101,7 @@ class UserResourceTest extends CustomApiTestCase {
             'json' => $newUser
         ]);
 
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(422);
         $this->checkResponse($request, $this->uniqueFields);
 
         return $location;

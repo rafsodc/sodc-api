@@ -4,4 +4,3 @@
 /.idea/
 !/helm/api-platform/charts/.gitignore
 /helm/api-platform/charts/*
-/api/.env.test

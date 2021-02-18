@@ -89,7 +89,7 @@ class EventResourceTest extends CustomApiTestCase {
         $response = $client->request('POST', '/events', [
             'json' => []
         ]);
-        $this->assertResponseStatusCodeSame(400);
+        $this->assertResponseStatusCodeSame(422);
         $this->checkResponse($response, $this->requiredFields);
 
         // Test an event can be created

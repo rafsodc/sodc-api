@@ -158,6 +158,9 @@
     "monolog/monolog": {
         "version": "2.2.0"
     },
+    "myclabs/deep-copy": {
+        "version": "1.10.2"
+    },
     "nelmio/cors-bundle": {
         "version": "1.5",
         "recipe": {

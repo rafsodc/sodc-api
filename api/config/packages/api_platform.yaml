@@ -12,7 +12,7 @@ api_platform:
         hub_url: '%env(MERCURE_SUBSCRIBE_URL)%'
     # Good defaults value for REST APIs
     defaults:
-        stateless: true
+        stateless: false
         # Good cache defaults
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
