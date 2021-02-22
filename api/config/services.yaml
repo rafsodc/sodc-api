@@ -42,3 +42,7 @@ services:
         # our service is never cached (which, of course, can have performance
         # implications!)
         decoration_priority: -20
+        
+    App\ApiPlatform\JwtDecorator:
+        decorates: 'api_platform.openapi.factory'
+        autoconfigure: false
