@@ -46,3 +46,30 @@ services:
     App\ApiPlatform\JwtDecorator:
         decorates: 'api_platform.openapi.factory'
         autoconfigure: false
+
+    # Check refresh cookie each time the JWT token is decoded and verified
+    App\Authentication\CheckRefreshCookieListener:
+        class: App\Authentication\CheckRefreshCookieListener
+        arguments: [ '@request_stack' ]
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_decoded, method: onJWTDecoded }
+
+    # Add the refresh token as a cookie
+    App\Authentication\RefreshCookieAuthenticationSuccessListener:
+        class: App\Authentication\RefreshCookieAuthenticationSuccessListener
+        arguments:
+            - '@App\Authentication\AuthenticationService'
+            - "%gesdinet_jwt_refresh_token.token_parameter_name%"
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse, priority: -10 }
+
+    # Authenticate with the cookie content instead of the request json body
+    App\Authentication\CookieRefreshTokenAuthenticator:
+        class: App\Authentication\CookieRefreshTokenAuthenticator
+        decorates: 'gesdinet.jwtrefreshtoken.authenticator'
+        decoration_on_invalid: exception
+        arguments:
+            - "@gesdinet.jwtrefreshtoken.user_checker"
+            - "%gesdinet_jwt_refresh_token.token_parameter_name%"
+            - '@App\Authentication\AuthenticationService'
+        decoration_priority: -20

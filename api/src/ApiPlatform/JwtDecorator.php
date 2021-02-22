@@ -125,6 +125,34 @@ final class JwtDecorator implements OpenApiFactoryInterface
 
         $openApi->getPaths()->addPath('/token/refresh', $pathItem);
 
+        $pathItem = new Model\PathItem(
+            ref: 'JWT Token Logout',
+            description: 'Logout',
+            post: new Model\Operation(
+                operationId: 'getLogout',
+                tags: ['Token'],
+                responses: [
+                '200' => [
+                    'description' => 'Logout',
+                    'content' => [
+                        'application/json' => [
+                            ],
+                        ],
+                    ],
+                ],
+                summary: 'Logout user',
+                requestBody: new Model\RequestBody(
+                    description: 'Logout user',
+                    content: new ArrayObject([
+                        'application/json' => [
+                        ],
+                    ]),
+                ),
+            ),
+        );
+
+        $openApi->getPaths()->addPath('/logout', $pathItem);
+
         return $openApi;
     }
 }
