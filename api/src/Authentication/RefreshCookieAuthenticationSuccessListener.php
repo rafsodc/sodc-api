@@ -37,7 +37,7 @@ class RefreshCookieAuthenticationSuccessListener
             if ($securityCookie) {
                 $event->getResponse()->headers->setCookie($securityCookie);
             }
-            // Don't add the resfresh token in the response, the frontend doesn't have to known about it
+            // Don't add the refresh token in the response, the frontend doesn't have to known about it
             unset($data[$this->refreshTokenparameterName]);
         }
         $event->setData($data);

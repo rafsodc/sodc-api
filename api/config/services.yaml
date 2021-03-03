@@ -46,6 +46,7 @@ services:
     App\ApiPlatform\JwtDecorator:
         decorates: 'api_platform.openapi.factory'
         autoconfigure: false
+        decoration_priority: -20
 
     # Check refresh cookie each time the JWT token is decoded and verified
     App\Authentication\CheckRefreshCookieListener:
@@ -62,6 +63,13 @@ services:
             - "%gesdinet_jwt_refresh_token.token_parameter_name%"
         tags:
             - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse, priority: -10 }
+                
+    # Add iri to JWT
+    App\Authentication\SetIriJWTCreatedListener:
+        class: App\Authentication\SetIriJWTCreatedListener
+        tags:
+           # - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_authenticated, method: onJWTAuthenticated }
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_created, method: onJWTCreated }
 
     # Authenticate with the cookie content instead of the request json body
     App\Authentication\CookieRefreshTokenAuthenticator:

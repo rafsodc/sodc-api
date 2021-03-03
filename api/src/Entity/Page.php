@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\PageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource()
@@ -22,18 +23,15 @@ class Page
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"page:write", "page:read"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"page:write", "page:read"})
      */
-    private $content_html;
-
-    /**
-     * @ORM\Column(type="text")
-     */
-    private $content_md;
+    private $content;
 
     /**
      * @ORM\Column(type="datetime")
@@ -47,6 +45,7 @@ class Page
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"page:write", "page:read"})
      */
     private $isPublished;
 
@@ -87,20 +86,14 @@ class Page
         return $this;
     }
 
-    public function getContentMd(): ?string
+    public function getContent(): ?string
     {
-        return $this->content_md;
-    }
-
-    public function getContentHTML(): ?string
-    {
-        return $this->content_html;
+        return $this->content;
     }
 
     public function setContent(string $content): self
     {
-        $this->content_md = $content;
-        $this->content_html = $content;
+        $this->content = $content;
 
         return $this;
     }

@@ -43,6 +43,7 @@ class CheckRefreshCookieListener
             }
         }
 
+        //Uncomment this if no check is requirede for the refresh cookie
         $event->markAsInvalid();
     }
 }
