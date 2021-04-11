@@ -81,3 +81,8 @@ services:
             - "%gesdinet_jwt_refresh_token.token_parameter_name%"
             - '@App\Authentication\AuthenticationService'
         decoration_priority: -20
+        
+        
+    # Service for setting ticker owner
+    App\Doctrine\TicketSetOwnerListener:
+        tags: [ doctrine.orm.entity_listener ]

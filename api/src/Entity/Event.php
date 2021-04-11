@@ -8,14 +8,19 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Dto\EventOutput;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use App\Filters\EventDateFilter;
 
 /**
  * @ORM\Entity(repositoryClass=EventRepository::class)
  * @ORM\Table(name="`event`")
  * @ApiResource(
  *     security="is_granted('ROLE_ADMIN')",
+ *     output=EventOutput::CLASS,
  *     collectionOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
  *          "post"
@@ -26,6 +31,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "delete"
  *     },
  * )
+ * @ApiFilter(EventDateFilter::class)
  */
 class Event
 {
@@ -39,53 +45,53 @@ class Event
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="date")
      * @Assert\NotBlank()
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write"})
      */
     private $date;
 
     /**
      * @ORM\Column(type="date")
      * @Assert\NotBlank()
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write"})
      */
     private $bookingOpen;
 
     /**
      * @ORM\Column(type="date")
      * @Assert\NotBlank()
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write"})
      */
     private $bookingClose;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write"})
      */
     private $venue;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write"})
      */
-    private $princpalSpeaker;
+    private $principalSpeaker;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write"})
      */
     private $sponsor;
 
@@ -184,14 +190,14 @@ class Event
         return $this;
     }
 
-    public function getPrincpalSpeaker(): ?string
+    public function getPrincipalSpeaker(): ?string
     {
-        return $this->princpalSpeaker;
+        return $this->principalSpeaker;
     }
 
-    public function setPrincpalSpeaker(?string $princpalSpeaker): self
+    public function setPrincipalSpeaker(?string $principalSpeaker): self
     {
-        $this->princpalSpeaker = $princpalSpeaker;
+        $this->principalSpeaker = $principalSpeaker;
 
         return $this;
     }
@@ -269,4 +275,5 @@ class Event
 
         return $this;
     }
+
 }

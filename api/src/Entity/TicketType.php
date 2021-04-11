@@ -7,9 +7,21 @@ use App\Repository\TicketTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     security="is_granted('ROLE_ADMIN')",
+ *     collectionOperations={
+ *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "post"
+ *     },
+ *     itemOperations={
+ *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "put",
+ *          "delete"
+ *     },
+ * )
  * @ORM\Entity(repositoryClass=TicketTypeRepository::class)
  */
 class TicketType
@@ -22,43 +34,51 @@ class TicketType
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"tickettype:write", "tickettype:read", "event:item:read"})
+     */
+    private $description;
+
+    /**
      * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="ticketTypes")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"tickettype:write", "tickettype:read"})
      */
     private $event;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"tickettype:write", "tickettype:read"})
      */
     private $symposium;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"tickettype:write", "tickettype:read"})
      */
     private $dinner;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"tickettype:write", "tickettype:read"})
      */
     private $serving;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"tickettype:write", "tickettype:read"})
      */
     private $student;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"tickettype:write", "tickettype:read"})
      */
     private $guest;
 
     /**
-     * @ORM\Column(type="date")
-     */
-    private $createdDate;
-
-    /**
      * @ORM\Column(type="float")
+     * @Groups({"tickettype:write", "tickettype:read", "event:item:read"})
      */
     private $price;
 
@@ -149,18 +169,6 @@ class TicketType
         return $this;
     }
 
-    public function getCreatedDate(): ?\DateTimeInterface
-    {
-        return $this->createdDate;
-    }
-
-    public function setCreatedDate(\DateTimeInterface $createdDate): self
-    {
-        $this->createdDate = $createdDate;
-
-        return $this;
-    }
-
     public function getPrice(): ?float
     {
         return $this->price;
@@ -171,6 +179,22 @@ class TicketType
         $this->price = $price;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param mixed $description
+     */
+    public function setDescription($description): void
+    {
+        $this->description = $description;
     }
 
     /**

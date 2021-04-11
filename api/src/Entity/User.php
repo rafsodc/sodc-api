@@ -12,6 +12,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use App\Dto\UserOutput;
+use App\Filters\UserFilter;
+use ApiPlatform\Core\Annotation\ApiFilter;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -34,6 +36,7 @@ use App\Dto\UserOutput;
  * )
  * @UniqueEntity(fields={"username"})
  * @UniqueEntity(fields={"email"})
+ * @ApiFilter(UserFilter::class)
  */
 class User implements UserInterface
 {
