@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\TicketRepository;
 use App\Validator\IsEventOpen;
 use App\Validator\IsValidOwner;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ApiResource(
@@ -18,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "post"={"security"="is_granted('ROLE_USER')"},
  *     },
  *     itemOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "get"={"security"="is_granted('TICKET_EDIT', object)"},
  *          "patch"={"security"="is_granted('TICKET_EDIT', object)"},
  *          "put",
  *          "delete"
@@ -26,6 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  * @ORM\Entity(repositoryClass=TicketRepository::class)
  * @ORM\EntityListeners({"App\Doctrine\TicketSetOwnerListener"})
+ * @ApiFilter(SearchFilter::class, properties={"event": "exact", "owner": "exact"});
  */
 class Ticket
 {
@@ -33,6 +35,7 @@ class Ticket
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"event:item:read"})
      */
     private $id;
 
@@ -40,7 +43,7 @@ class Ticket
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false)
      * @IsValidOwner()
-     * @Groups({"ticket:write"})
+     * @Groups({"ticket:write", "ticket:read"})
      */
     private $owner;
 
@@ -48,44 +51,44 @@ class Ticket
      * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false)
      * @IsEventOpen()
-     * @Groups({"ticket:write"})
+     * @Groups({"ticket:write", "ticket:read"})
      */
     private $event;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write"})
+     * @Groups({"ticket:write", "ticket:read"})
      */
     private $rank;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write"})
+     * @Groups({"ticket:write", "ticket:read"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write"})
+     * @Groups({"ticket:write", "ticket:read"})
      */
     private $lastname;
 
     /**
      * @ORM\ManyToOne(targetEntity=TicketType::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"ticket:write"})
+     * @Groups({"ticket:write", "ticket:read"})
      */
     private $ticketType;
 
     /**
      * @ORM\Column(type="array")
-     * @Groups({"ticket:write"})
+     * @Groups({"ticket:write", "ticket:read"})
      */
     private $seatingPreference = [];
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write"})
+     * @Groups({"ticket:write", "ticket:read"})
      */
     private $dietary;
 
@@ -98,6 +101,11 @@ class Ticket
      * @ORM\Column(type="date")
      */
     private $createdDate;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Transaction::class, inversedBy="ticket")
+     */
+    private $transaction;
 
     public function __construct()
     {
@@ -221,5 +229,17 @@ class Ticket
     public function getCreatedDate(): ?\DateTimeInterface
     {
         return $this->createdDate;
+    }
+
+    public function getTransaction(): ?Transaction
+    {
+        return $this->transaction;
+    }
+
+    public function setTransaction(?Transaction $transaction): self
+    {
+        $this->transaction = $transaction;
+
+        return $this;
     }
 }

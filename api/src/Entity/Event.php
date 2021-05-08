@@ -2,7 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Repository\EventRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -45,72 +47,69 @@ class Event
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"event:write"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="date")
      * @Assert\NotBlank()
-     * @Groups({"event:write"})
      */
     private $date;
 
     /**
      * @ORM\Column(type="date")
      * @Assert\NotBlank()
-     * @Groups({"event:write"})
      */
     private $bookingOpen;
 
     /**
      * @ORM\Column(type="date")
      * @Assert\NotBlank()
-     * @Groups({"event:write"})
      */
     private $bookingClose;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Groups({"event:write"})
      */
     private $venue;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"event:write"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write"})
      */
     private $principalSpeaker;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write"})
      */
     private $sponsor;
 
     /**
      * @ORM\OneToMany(targetEntity=TicketType::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"event:read"})
      */
     private $ticketTypes;
 
     /**
      * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"admin:read"})
      */
     private $tickets;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="event")
+     */
+    private $transactions;
 
     public function __construct()
     {
         $this->ticketTypes = new ArrayCollection();
         $this->tickets = new ArrayCollection();
+        $this->orders = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -270,6 +269,36 @@ class Event
             // set the owning side to null (unless already changed)
             if ($ticket->getEvent() === $this) {
                 $ticket->setEvent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Transaction[]
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transaction $transaction): self
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions[] = $transaction;
+            $transaction->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transaction $transaction): self
+    {
+        if ($this->transactions->removeElement($transaction)) {
+            // set the owning side to null (unless already changed)
+            if ($transaction->getEvent() === $this) {
+                $transaction->setEvent(null);
             }
         }
 

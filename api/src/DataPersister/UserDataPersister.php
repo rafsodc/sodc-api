@@ -6,16 +6,19 @@ use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Security;
 
 class UserDataPersister implements DataPersisterInterface
 {
     private $entityManager;
     private $userPasswordEncoder;
+    private $security;
 
-    public function __construct(EntityManagerInterface $entityManager, UserPasswordEncoderInterface $userPasswordEncoder)
+    public function __construct(EntityManagerInterface $entityManager, UserPasswordEncoderInterface $userPasswordEncoder, Security $security)
     {
         $this->entityManager = $entityManager;
         $this->userPasswordEncoder = $userPasswordEncoder;
+        $this->security = $security;
     }
 
     public function supports($data): bool
@@ -34,6 +37,8 @@ class UserDataPersister implements DataPersisterInterface
             );
             $data->eraseCredentials();
         }
+
+        $data->setIsMe($this->security->getUser() === $data);
         $this->entityManager->persist($data);
         $this->entityManager->flush();
     }

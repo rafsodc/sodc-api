@@ -28,6 +28,7 @@ class EventOutputDataTransformer implements DataTransformerInterface
         $output->sponsor = $event->getSponsor();
         $output->ticketTypes = $event->getTicketTypes();
         $output->isBookingOpen = $this->isBookingOpen($event);
+        $output->tickets = $event->getTickets();
         return $output;
     }
 

@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Security;
 
-class TicketVoter extends Voter
+class TransactionVoter extends Voter
 {
     private $security;
     public function __construct(Security $security)
@@ -20,8 +20,8 @@ class TicketVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['TICKET_EDIT'])
-            && $subject instanceof \App\Entity\Ticket;
+        return in_array($attribute, ['TRANSACTION_EDIT'])
+            && $subject instanceof \App\Entity\Transaction;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
@@ -37,7 +37,7 @@ class TicketVoter extends Voter
 
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
-            case 'TICKET_EDIT':
+            case 'TRANSACTION_EDIT':
                 if ($subject->getOwner() === $user) {
                     return true;
                 }

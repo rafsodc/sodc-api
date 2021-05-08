@@ -11,7 +11,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\SerializedName;
-use App\Dto\UserOutput;
 use App\Filters\UserFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
 
@@ -20,7 +19,6 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  * @ORM\Table(name="`user`")
  * @ApiResource(
  *     security="is_granted('ROLE_USER')",
- *     output=UserOutput::CLASS,
  *     collectionOperations={
  *          "get",
  *          "post"={
@@ -49,7 +47,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user:write"})
+     * @Groups({"user:write", "user:read"})
      * @Assert\NotBlank()
      * @Assert\Email()
      */
@@ -76,7 +74,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"user:write"})
+     * @Groups({"user:write", "user:read"})
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern = "/^[a-zA-Z0-9_]+$/"
@@ -86,7 +84,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:write"})
+     * @Groups({"user:write", "user:read"})
      */
     private $phoneNumber;
 
@@ -95,9 +93,23 @@ class User implements UserInterface
      */
     private $tickets;
 
+    /**
+     * Returns true if this is the currently authenticated user
+     *
+     * @Groups({"user:read"})
+     */
+    private $isMe;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="owner")
+     */
+    private $transactions;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
+        $this->orders = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -241,6 +253,49 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($ticket->getOwner() === $this) {
                 $ticket->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getIsMe(): bool
+    {
+        if ($this->isMe === null) {
+            throw new \LogicException('The isMe field has not been initialized');
+        }
+
+        return $this->isMe;
+    }
+    public function setIsMe(bool $isMe)
+    {
+        $this->isMe = $isMe;
+    }
+
+    /**
+     * @return Collection|Transaction[]
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transaction $transaction): self
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions[] = $transaction;
+            $transaction->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transaction $transaction): self
+    {
+        if ($this->transactions->removeElement($transaction)) {
+            // set the owning side to null (unless already changed)
+            if ($transaction->getOwner() === $this) {
+                $transaction->setOwner(null);
             }
         }
 

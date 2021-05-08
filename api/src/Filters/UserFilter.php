@@ -17,10 +17,6 @@ class UserFilter extends AbstractFilter
 {
     protected $security;
 
-    /**
-     * UserFilter constructor.
-     * @param $security
-     */
     public function __construct(Security $security, ManagerRegistry $managerRegistry, ?RequestStack $requestStack = null, LoggerInterface $logger = null, array $properties = null, NameConverterInterface $nameConverter = null)
     {
         parent::__construct($managerRegistry, $requestStack, $logger = null, $properties = null, $nameConverter = null);

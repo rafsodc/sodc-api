@@ -5,6 +5,8 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     google_recaptcha_secret_key: '%env(GOOGLE_RECAPTCHA_SECRET_KEY)%'
+    ipg_secret_key: '%env(IPG_SECRET_KEY)%'
+    ipg_store_id: '%env(IPG_STORE_ID)%'
 
 services:
     # default configuration for services in *this* file
@@ -83,6 +85,15 @@ services:
         decoration_priority: -20
         
         
-    # Service for setting ticker owner
+    # Service for setting ticket owner
     App\Doctrine\TicketSetOwnerListener:
         tags: [ doctrine.orm.entity_listener ]
+        
+    # Service for setting transaction owner
+    App\Doctrine\TransactionCreateListener:
+        tags: [ doctrine.orm.entity_listener ]
+        
+    App\DataProvider\UserDataProvider:
+        bind:
+            $collectionDataProvider: '@api_platform.doctrine.orm.default.collection_data_provider'
+            $itemDataProvider: '@api_platform.doctrine.orm.default.item_data_provider'

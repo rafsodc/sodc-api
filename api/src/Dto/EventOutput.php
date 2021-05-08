@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Dto;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class EventOutput
@@ -64,4 +65,10 @@ class EventOutput
      * @Groups({"event:read"})
      */
     public $isBookingOpen;
+
+    /**
+     * @var bool
+     * @Groups({"event:read"})
+     */
+    public $tickets;
 }
