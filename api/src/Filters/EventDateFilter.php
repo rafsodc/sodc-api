@@ -20,7 +20,7 @@ class EventDateFilter extends AbstractFilter
                 $where = ($value === "true") ? $query : $queryBuilder->expr()->not($query);
                 break;
             case "future":
-                $query = $queryBuilder->expr()->lte(sprintf('%s.date', $alias), ':now');
+                $query = $queryBuilder->expr()->gte(sprintf('%s.date', $alias), ':now');
                 $where = ($value === "true") ? $query : $queryBuilder->expr()->not($query);
                 break;
             default:
