@@ -5,8 +5,8 @@ services:
     build:
       context: ./api
       target: api_platform_php
-    depends_on:
-      - database
+    # depends_on:
+    #   - database
     restart: unless-stopped
     volumes:
       - php_socket:/var/run/php
@@ -18,7 +18,7 @@ services:
 
   pwa:
     build:
-      context: ./pwa
+      context: ./../SODC-React-Members
       target: api_platform_pwa_prod
     environment:
       API_PLATFORM_CLIENT_GENERATOR_ENTRYPOINT: http://caddy
@@ -32,7 +32,7 @@ services:
       - pwa
     environment:
       PWA_UPSTREAM: pwa:3000
-      SERVER_NAME: ${SERVER_NAME:-localhost, caddy:80}
+      SERVER_NAME: ${SERVER_NAME:-test1.jackdipper.com, localhost, caddy:80}
       MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY:-!ChangeMe!}
       MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY:-!ChangeMe!}
     restart: unless-stopped
@@ -54,19 +54,19 @@ services:
         published: 443
         protocol: udp
 
-  database:
-    image: postgres:13-alpine
-    environment:
-      - POSTGRES_DB=api
-      - POSTGRES_PASSWORD=!ChangeMe!
-      - POSTGRES_USER=api-platform
-    volumes:
-      - db_data:/var/lib/postgresql/data:rw
-      # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./api/docker/db/data:/var/lib/postgresql/data:rw
+  # database:
+  #   image: postgres:13-alpine
+  #   environment:
+  #     - POSTGRES_DB=api
+  #     - POSTGRES_PASSWORD=!ChangeMe!
+  #     - POSTGRES_USER=api-platform
+  #   volumes:
+  #     - db_data:/var/lib/postgresql/data:rw
+  #     # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+  #     # - ./api/docker/db/data:/var/lib/postgresql/data:rw
 
 volumes:
   php_socket:
-  db_data:
+  # db_data:
   caddy_data:
   caddy_config:
