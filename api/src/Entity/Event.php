@@ -46,61 +46,72 @@ class Event
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"event:write"})
      * @Assert\NotBlank()
      */
     private $title;
 
     /**
      * @ORM\Column(type="date")
+     * @Groups({"event:write"})
      * @Assert\NotBlank()
      */
     private $date;
 
     /**
      * @ORM\Column(type="date")
+     * @Groups({"event:write"})
      * @Assert\NotBlank()
      */
     private $bookingOpen;
 
     /**
      * @ORM\Column(type="date")
+     * @Groups({"event:write"})
      * @Assert\NotBlank()
      */
     private $bookingClose;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"event:write"})
      * @Assert\NotBlank()
      */
     private $venue;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Groups({"event:write"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"event:write"})
      */
     private $principalSpeaker;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"event:write"})
      */
     private $sponsor;
 
     /**
      * @ORM\OneToMany(targetEntity=TicketType::class, mappedBy="event", orphanRemoval=true)
+     * @Groups({"event:write"})
      */
     private $ticketTypes;
 
     /**
      * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="event", orphanRemoval=true)
+     * @Groups({"event:write"})
      */
     private $tickets;
 
     /**
      * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="event")
+     * @Groups({"event:write"})
      */
     private $transactions;
 
