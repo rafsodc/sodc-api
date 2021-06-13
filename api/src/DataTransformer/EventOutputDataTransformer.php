@@ -18,6 +18,7 @@ class EventOutputDataTransformer implements DataTransformerInterface
     public function transform($event, string $to, array $context = [])
     {
         $output = new EventOutput();
+        $output->id = $event->getId();
         $output->title = $event->getTitle();
         $output->date = $event->getDate();
         $output->bookingOpen = $event->getBookingOpen();

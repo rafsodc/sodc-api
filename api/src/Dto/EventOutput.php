@@ -7,6 +7,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class EventOutput
 {
     /**
+     * @var int
+     * @Groups({"event:read"})
+     */
+    public $id;
+
+    /**
      * @var string
      * @Groups({"event:read"})
      */
