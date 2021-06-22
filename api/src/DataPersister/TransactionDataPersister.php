@@ -7,6 +7,7 @@ use App\Entity\Transaction;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Security;
+use Doctrine\Common\Collections\Criteria;
 
 class TransactionDataPersister implements DataPersisterInterface
 {
@@ -29,7 +30,9 @@ class TransactionDataPersister implements DataPersisterInterface
      */
     public function persist($data)
     {
-        $user = $data->getOwner();
+        // Set up a criteria for the getTickets request - see https://symfonycasts.com/screencast/collections/criteria-collection-filtering#play
+        $ticketCriteria = Criteria::create()->andWhere(Criteria::expr()->eq('paid', false));
+        $data->setTickets($data->getOwner()->getTickets()->matching($ticketCriteria));
         dd($data);
         //$this->entityManager->persist($data);
         //$this->entityManager->flush();
