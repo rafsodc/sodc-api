@@ -36,8 +36,8 @@ class TicketVoter extends Voter
         /** @var Ticket $subject **/
 
         // Check that the booking is open
-        
-
+        //if ($subject->getEvent()->)
+        dd($subject->getEvent()->getTestOpen());
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'TICKET_GET':

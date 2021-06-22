@@ -316,4 +316,9 @@ class Event
         return $this;
     }
 
+    public function getTestOpen(): bool {
+        $now = new \DateTime();
+        return ($now >= $this->getBookingOpen()) && ($now <= $this->getBookingClose());
+    }
+
 }
