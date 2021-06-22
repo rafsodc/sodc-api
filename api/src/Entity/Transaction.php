@@ -19,12 +19,12 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *     security="is_granted('ROLE_ADMIN')",
  *     output=TransactionOutput::CLASS,
  *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "post"={"security"="is_granted('ROLE_USER')"},
+ *          "get"={"security"="is_granted('TRANSACTION_GET', object)"},
+ *          "post"={"security"="is_granted('TRANSACTION_POST', object)"},
  *     },
  *     itemOperations={
- *          "get"={"security"="is_granted('TRANSACTION_EDIT', object)"},
- *          "patch"={"security"="is_granted('TRANSACTION_EDIT', object)"},
+ *          "get"={"security"="is_granted('TRANSACTION_GET', object)"},
+ *          "patch"={"security"="is_granted('TRANSACTION_PATCH', object)"},
  *          "put",
  *          "delete"
  *     },

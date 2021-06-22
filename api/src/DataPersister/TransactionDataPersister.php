@@ -32,7 +32,11 @@ class TransactionDataPersister implements DataPersisterInterface
     {
         // Set up a criteria for the getTickets request - see https://symfonycasts.com/screencast/collections/criteria-collection-filtering#play
         $ticketCriteria = Criteria::create()->andWhere(Criteria::expr()->eq('paid', false));
-        $data->setTickets($data->getOwner()->getTickets()->matching($ticketCriteria));
+        $tickets = $data->getOwner()->getTickets()->matching($ticketCriteria);
+        foreach($tickets as $ticket) {
+            $data->addTicket($ticket);
+        }
+
         dd($data);
         //$this->entityManager->persist($data);
         //$this->entityManager->flush();

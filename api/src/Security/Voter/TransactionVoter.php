@@ -2,7 +2,7 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\Ticket;
+use App\Entity\Transaction;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -20,7 +20,7 @@ class TransactionVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['TRANSACTION_EDIT'])
+        return in_array($attribute, ['TRANSACTION_GET', 'TRANSACTION_PATCH', 'TRANSACTION_POST'])
             && $subject instanceof \App\Entity\Transaction;
     }
 
@@ -33,11 +33,13 @@ class TransactionVoter extends Voter
             return false;
         }
 
-        /** @var Ticket $subject */
+        /** @var Transaction $subject */
 
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
-            case 'TRANSACTION_EDIT':
+            case 'TRANSACTION_GET':
+            case 'TRANSACTION_PATCH':
+            case 'TRANSACTION_POST':
                 if ($subject->getOwner() === $user) {
                     return true;
                 }
