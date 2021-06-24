@@ -15,12 +15,12 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  * @ApiResource(
  *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
- *          "get"={"security"="is_granted('TICKET_GET', object)"},
- *          "post"={"security"="is_granted('TICKET_POST', object)"},
+ *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "post"={"security"="is_granted('ROLE_USER')"},
  *     },
  *     itemOperations={
- *          "get"={"security"="is_granted('TICKET_GET', object)"},
- *          "patch"={"security"="is_granted('TICKET_PATCH', object)"},
+ *          "get"={"security"="is_granted('TICKET_VIEW', object)"},
+ *          "patch"={"security"="is_granted('TICKET_EDIT', object)"},
  *          "put",
  *          "delete"
  *     },

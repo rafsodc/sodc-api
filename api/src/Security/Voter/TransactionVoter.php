@@ -20,7 +20,7 @@ class TransactionVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['TRANSACTION_GET', 'TRANSACTION_PATCH', 'TRANSACTION_POST'])
+        return in_array($attribute, ['TRANSACTION_VIEW', 'TRANSACTION_EDIT'])
             && $subject instanceof \App\Entity\Transaction;
     }
 
@@ -28,6 +28,7 @@ class TransactionVoter extends Voter
     {
 
         $user = $token->getUser();
+ 
         // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
@@ -37,9 +38,8 @@ class TransactionVoter extends Voter
 
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
-            case 'TRANSACTION_GET':
-            case 'TRANSACTION_PATCH':
-            case 'TRANSACTION_POST':
+            case 'TRANSACTION_VIEW':
+            case 'TRANSACTION_EDIT':
                 if ($subject->getOwner() === $user) {
                     return true;
                 }

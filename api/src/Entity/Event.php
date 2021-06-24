@@ -22,7 +22,6 @@ use App\Filters\EventDateFilter;
  * @ORM\Table(name="`event`")
  * @ApiResource(
  *     security="is_granted('ROLE_ADMIN')",
- *     output=EventOutput::CLASS,
  *     collectionOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
  *          "post"
@@ -35,85 +34,92 @@ use App\Filters\EventDateFilter;
  * )
  * @ApiFilter(EventDateFilter::class)
  */
+////*     output=EventOutput::CLASS,
 class Event
 {
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"event:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      * @Assert\NotBlank()
      */
     private $title;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      * @Assert\NotBlank()
      */
     private $date;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      * @Assert\NotBlank()
      */
     private $bookingOpen;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      * @Assert\NotBlank()
      */
     private $bookingClose;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      * @Assert\NotBlank()
      */
     private $venue;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      */
     private $principalSpeaker;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      */
     private $sponsor;
 
     /**
      * @ORM\OneToMany(targetEntity=TicketType::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      */
     private $ticketTypes;
 
     /**
      * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      */
     private $tickets;
 
     /**
      * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="event")
-     * @Groups({"event:write"})
+     * @Groups({"event:write", "event:read"})
      */
     private $transactions;
+
+    /**
+     * @Groups({"event:read"})
+     */
+    private $isBookingOpen;
 
     public function __construct()
     {
@@ -316,9 +322,17 @@ class Event
         return $this;
     }
 
-    public function getTestOpen(): bool {
-        $now = new \DateTime();
-        return ($now >= $this->getBookingOpen()) && ($now <= $this->getBookingClose());
+    public function getIsBookingOpen(): bool
+    {
+        if ($this->isBookingOpen === null) {
+            throw new \LogicException('The isBookingOpen field has not been initialized');
+        }
+
+        return $this->isBookingOpen;
+    }
+    public function setIsBookingOpen(bool $isBookingOpen)
+    {
+        $this->isBookingOpen = $isBookingOpen;
     }
 
 }

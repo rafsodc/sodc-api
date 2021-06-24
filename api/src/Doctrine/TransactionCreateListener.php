@@ -34,7 +34,7 @@ class TransactionCreateListener
 
     function setTickets(Transaction $transaction)
     {
-        $tickets = $this->entityManager->getRepository(Ticket::class)->findBy(['owner' => $transaction->getOwner(), 'event' => $transaction->getEvent()]);
+        $tickets = $this->entityManager->getRepository(Ticket::class)->findBy(['owner' => $transaction->getOwner(), 'event' => $transaction->getEvent(), 'paid' => false]);
         /** @var Ticket $ticket */
         foreach($tickets as $ticket) {
             $transaction->addTicket($ticket);

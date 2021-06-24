@@ -34,8 +34,12 @@ class IsEventOpenValidator extends ConstraintValidator
             throw new \InvalidArgumentException('@IsValidOwner constraint must be put on a property containing a User object');
         }
 
-        $now = new DateTime();
-        if ($value->getBookingOpen() <= $now && $value->getBookingClose() >= $now) {
+        //$now = new DateTime();
+        //if ($value->getBookingOpen() <= $now && $value->getBookingClose() >= $now) {
+        //    return;
+        //}
+
+        if ($value->getIsBookingOpen()) {
             return;
         }
 

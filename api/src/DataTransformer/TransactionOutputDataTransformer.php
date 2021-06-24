@@ -11,6 +11,7 @@ use App\Entity\Transaction;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Security\Core\Security;
 use DateTime;
+use DateTimeZone;
 
 class TransactionOutputDataTransformer implements DataTransformerInterface
 {
@@ -33,8 +34,9 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
         $output->event = $transaction->getEvent();
         $output->tickets = $transaction->getTickets();
         $output->amount = $transaction->getAmount();
-        $output->paid = $transaction->getPaid();
+        $output->isPaid = $transaction->getIsPaid();
         $output->ipg = $this->getIpgObject($transaction);
+        $output->isValid = $transaction->getIsValid();
         return $output;
     }
 
@@ -47,29 +49,31 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
      * @param Transaction $transaction
      */
     private function getIpgObject($transaction) {
+        $dateTime = $transaction->getCreatedDate();
+        $dateTime->setTimezone(new DateTimeZone('Europe/London'));
         $currency = 826;
         return [
-            'action' => 'https://test.ipg-online.com/connect/gateway/processing',
+            'action' => 'https://www.ipg-online.com/connect/gateway/processing',
+            'checkoutoption' => "simpleform",
+            'hostURI' => 'https://test1.jackdipper.com',
             'txntype' => 'sale',
-            'timezone' => 'txndatetime',
-            'hash_alogorithm' => 'SHA256',
-            'hash' => $this->createHash($transaction, $currency),
+            'timezone' => $dateTime->getTimezone(),
+            'txndatetime' => $dateTime->format("Y:m:d-H:i:s"),
+            'hash_algorithm' => 'SHA256',
+            'hash' => $this->createHash($transaction, $currency, $dateTime),
             'storename' => $this->params->get('ipg_store_id'),
-            'mode' => '',
+            'chargetotal' => number_format($transaction->getAmount(), 2),
+            'currency' => $currency,
+            'mode' => 'payonly',
             'oid' => $transaction->getId(),
-            'email' => $transaction->getOwner()->getEmail(),
-            'chargetotal' => $transaction->getAmount(),
-            'currency' => $currency
             //More fields - email, basketitems(?), chargetotal, currrency
         ];
     }
 
-    private function createHash($transaction, $currency) {
-        $dateTime = new DateTime();
+    private function createHash($transaction, $currency, $dateTime) {
 
-        $stringToHash = $this->params->get('ipg_store_id') . $dateTime->format("Y:m:d-H:i:s") . $transaction->getAmount() . $currency . $this->params->get('ipg_secret_key');
+        $stringToHash = $this->params->get('ipg_store_id') . $dateTime->format("Y:m:d-H:i:s") . number_format($transaction->getAmount(), 2) . $currency . $this->params->get('ipg_secret_key');
         $ascii = bin2hex($stringToHash);
-
         return hash('sha256',$ascii);
     }
 }

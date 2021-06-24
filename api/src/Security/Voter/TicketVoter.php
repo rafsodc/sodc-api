@@ -20,7 +20,7 @@ class TicketVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['TICKET_GET', 'TICKET_PATCH', 'TICKET_POST'])
+        return in_array($attribute, ['TICKET_VIEW', 'TICKET_EDIT'])
             && $subject instanceof \App\Entity\Ticket;
     }
 
@@ -35,14 +35,10 @@ class TicketVoter extends Voter
 
         /** @var Ticket $subject **/
 
-        // Check that the booking is open
-        //if ($subject->getEvent()->)
-        dd($subject->getEvent()->getTestOpen());
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
-            case 'TICKET_GET':
-            case 'TICKET_PATCH':
-            case 'TICKET_POST':
+            case 'TICKET_VIEW':
+            case 'TICKET_EDIT':
                 if ($subject->getOwner() === $user) {
                     return true;
                 }

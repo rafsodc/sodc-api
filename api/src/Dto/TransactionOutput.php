@@ -33,12 +33,17 @@ class TransactionOutput
     /**
      * @Groups({"transaction:read"})
      */
-    public $paid;
+    public $isPaid;
 
     /**
      * @Groups({"transaction:read"})
      */
     public $ipg;
+
+    /**
+     * @Groups({"transaction:read"})
+     */
+    public $isValid;
 
 
 }

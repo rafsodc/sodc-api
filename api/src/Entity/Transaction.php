@@ -11,6 +11,7 @@ use App\Validator\IsValidOwner;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Dto\TransactionOutput;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
 
 /**
@@ -19,18 +20,19 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *     security="is_granted('ROLE_ADMIN')",
  *     output=TransactionOutput::CLASS,
  *     collectionOperations={
- *          "get"={"security"="is_granted('TRANSACTION_GET', object)"},
- *          "post"={"security"="is_granted('TRANSACTION_POST', object)"},
+ *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "post"={"security"="is_granted('ROLE_USER')"},
  *     },
  *     itemOperations={
- *          "get"={"security"="is_granted('TRANSACTION_GET', object)"},
- *          "patch"={"security"="is_granted('TRANSACTION_PATCH', object)"},
+ *          "get"={"security"="is_granted('TRANSACTION_VIEW', object)"},
+ *          "patch"={"security"="is_granted('TRANSACTION_EDIT', object)"},
  *          "put",
  *          "delete"
  *     },
  * )
  * @ORM\EntityListeners({"App\Doctrine\TransactionCreateListener"})
  * @ApiFilter(SearchFilter::class, properties={"event": "exact", "owner": "exact"});
+ * @ApiFilter(BooleanFilter::class, properties={"isValid"});
  */
 class Transaction
 {
@@ -66,13 +68,25 @@ class Transaction
     private $amount = 0;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
-    private $paid = false;
+    private $isPaid = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"transaction:write"})
+     */
+    private $isValid = true;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdDate;
 
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
+        $this->createdDate = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -154,15 +168,32 @@ class Transaction
         return $this;
     }
 
-    public function getPaid(): ?bool
+    public function getIsPaid(): ?bool
     {
-        return $this->paid;
+        return $this->isPaid;
     }
 
-    public function setPaid(bool $paid): self
+    public function setIsPaid(bool $isPaid): self
     {
-        $this->paid = $paid;
+        $this->isPaid = $isPaid;
 
         return $this;
+    }
+
+    public function getIsValid(): ?bool
+    {
+        return $this->isValid;
+    }
+
+    public function setIsValid(bool $isValid): self
+    {
+        $this->isValid = $isValid;
+
+        return $this;
+    }
+
+    public function getCreatedDate(): ?\DateTimeInterface
+    {
+        return $this->createdDate;
     }
 }
