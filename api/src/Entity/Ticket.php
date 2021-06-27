@@ -35,7 +35,7 @@ class Ticket
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"event:item:read"})
+     * @Groups({"event:item:read", "transaction:read"})
      */
     private $id;
 

@@ -58,7 +58,7 @@ class Transaction
     private $event;
 
     /**
-     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="transaction")
+     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="transaction", cascade={"persist"})
      */
     private $tickets;
 

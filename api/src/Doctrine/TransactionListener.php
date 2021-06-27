@@ -6,7 +6,7 @@ use App\Entity\Ticket;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
-class TransactionCreateListener
+class TransactionListener
 {
     private $security;
     private $entityManager;
@@ -16,10 +16,16 @@ class TransactionCreateListener
         $this->security = $security;
         $this->entityManager = $entityManager;
     }
+
     public function prePersist(Transaction $transaction)
     {
         $this->setOwner($transaction);
         $this->setTickets($transaction);
+    }
+
+    public function preRemove(Transaction $transaction)
+    {
+        $this->removeTickets($transaction);
     }
 
     function setOwner(Transaction $transaction)
@@ -38,6 +44,14 @@ class TransactionCreateListener
         /** @var Ticket $ticket */
         foreach($tickets as $ticket) {
             $transaction->addTicket($ticket);
+        }
+    }
+
+    function removeTickets(Transaction $transaction)
+    {
+        $tickets = $transaction->getTickets();
+        foreach($tickets as $ticket) {
+            $transaction->removeTicket($ticket);
         }
     }
 

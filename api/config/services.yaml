@@ -89,8 +89,8 @@ services:
     App\Doctrine\TicketSetOwnerListener:
         tags: [ doctrine.orm.entity_listener ]
         
-    # Service for setting transaction owner
-    App\Doctrine\TransactionCreateListener:
+    # Service for transaction listener
+    App\Doctrine\TransactionListener:
         tags: [ doctrine.orm.entity_listener ]
         
     App\DataProvider\UserDataProvider:
