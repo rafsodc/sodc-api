@@ -30,13 +30,11 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
     {
         $output = new TransactionOutput();
         $output->id = $transaction->getId();
-        $output->owner = $transaction->getOwner();
-        $output->event = $transaction->getEvent();
-        $output->tickets = $transaction->getTickets();
-        $output->amount = $transaction->getAmount();
-        $output->isPaid = $transaction->getIsPaid();
-        $output->ipg = $this->getIpgObject($transaction);
-        $output->isValid = $transaction->getIsValid();
+        $output->status = $transaction->getStatus();
+        $output->isExpired = $transaction->getIsExpired();
+        $output->basket = $transaction->getBasket();
+
+        //$output->ipg = $this->getIpgObject($transaction);
         return $output;
     }
 
@@ -49,8 +47,9 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
      * @param Transaction $transaction
      */
     private function getIpgObject($transaction) {
-        $dateTime = $transaction->getCreatedDate();
-        $dateTime->setTimezone(new DateTimeZone('Europe/London'));
+        $dateTime = $transaction->getCreatedAt();
+        //$dateTime->setTimezone(new DateTimeZone('Europe/London'));
+        $amount = number_format($transaction->getBasket()->getAmount(), 2);
         $currency = 826;
         return [
             'action' => 'https://www.ipg-online.com/connect/gateway/processing',
@@ -60,9 +59,9 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
             'timezone' => $dateTime->getTimezone(),
             'txndatetime' => $dateTime->format("Y:m:d-H:i:s"),
             'hash_algorithm' => 'SHA256',
-            'hash' => $this->createHash($transaction, $currency, $dateTime),
+            'hash' => $this->createHash($amount, $currency, $dateTime),
             'storename' => $this->params->get('ipg_store_id'),
-            'chargetotal' => number_format($transaction->getAmount(), 2),
+            'chargetotal' => $amount,
             'currency' => $currency,
             'mode' => 'payonly',
             'oid' => $transaction->getId(),
@@ -70,9 +69,9 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
         ];
     }
 
-    private function createHash($transaction, $currency, $dateTime) {
+    private function createHash($amount, $currency, $dateTime) {
 
-        $stringToHash = $this->params->get('ipg_store_id') . $dateTime->format("Y:m:d-H:i:s") . number_format($transaction->getAmount(), 2) . $currency . $this->params->get('ipg_secret_key');
+        $stringToHash = $this->params->get('ipg_store_id') . $dateTime->format("Y:m:d-H:i:s") . $amount. $currency . $this->params->get('ipg_secret_key');
         $ascii = bin2hex($stringToHash);
         return hash('sha256',$ascii);
     }

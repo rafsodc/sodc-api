@@ -13,6 +13,7 @@ use App\Dto\TransactionOutput;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=TransactionRepository::class)
@@ -30,7 +31,6 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *          "delete"
  *     },
  * )
- * @ORM\EntityListeners({"App\Doctrine\TransactionCreateListener"})
  * @ApiFilter(SearchFilter::class, properties={"event": "exact", "owner": "exact"});
  * @ApiFilter(BooleanFilter::class, properties={"isValid"});
  */
@@ -44,49 +44,28 @@ class Transaction
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="transactions")
-     * @ORM\JoinColumn(nullable=false)
-     * @IsValidOwner()
-     * @Groups({"transaction:write"})
+     * @ORM\Column(type="string", length=255)
      */
-    private $owner;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="transactions")
-     * @Groups({"transaction:write"})
-     */
-    private $event;
-
-    /**
-     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="transaction", cascade={"persist"})
-     */
-    private $tickets;
-
-    /**
-     * @ORM\Column(type="float")
-     */
-    private $amount = 0;
-
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $isPaid = false;
-
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"transaction:write"})
-     */
-    private $isValid = true;
+    private $status;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $createdDate;
+    private $createdAt;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Basket::class, mappedBy="transaction", cascade={"persist", "remove"})
+     * @Groups({"transaction:write"})
+     */
+    private $basket;
+
+    private $isExpired;
 
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
-        $this->createdDate = new \DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->status = "Active";
     }
 
     public function getId(): ?int
@@ -94,106 +73,40 @@ class Transaction
         return $this->id;
     }
 
-    public function getOwner(): ?User
+    public function getStatus(): ?string
     {
-        return $this->owner;
+        return $this->status;
     }
 
-    public function setOwner(?User $owner): self
+    public function setStatus(string $status): self
     {
-        $this->owner = $owner;
+        $this->status = $status;
 
         return $this;
     }
 
-    public function getEvent(): ?Event
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->event;
+        return $this->createdAt;
     }
 
-    public function setEvent(?Event $event): self
+    public function getBasket(): ?Basket
     {
-        $this->event = $event;
+        //dd($this->basket);
+        return $this->basket;
+    }
 
+    public function setBasket(?Basket $basket): self
+    {
+        $this->basket = $basket;
+        $basket->setTransaction($this);
         return $this;
     }
 
-    /**
-     * @return Collection|Ticket[]
-     */
-    public function getTickets(): Collection
+    public function getIsExpired(): bool
     {
-        return $this->tickets;
+        $expiry = new \DateTime('-1 hour');
+        return ($this->getCreatedAt() < $expiry);
     }
 
-    public function addTicket(Ticket $ticket): self
-    {
-        if (!$this->tickets->contains($ticket)) {
-            $this->tickets[] = $ticket;
-            $ticket->setTransaction($this);
-            $this->addAmount($ticket->getTicketType()->getPrice());
-        }
-
-        return $this;
-    }
-
-    public function removeTicket(Ticket $ticket): self
-    {
-        if ($this->tickets->removeElement($ticket)) {
-            // set the owning side to null (unless already changed)
-            if ($ticket->getTransaction() === $this) {
-                $ticket->setTransaction(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getAmount(): ?float
-    {
-        return $this->amount;
-    }
-
-    public function setAmount(float $amount): self
-    {
-        $this->amount = $amount;
-
-        return $this;
-    }
-
-    public function addAmount(float $amount): self
-    {
-        $this->amount += $amount;
-
-        return $this;
-    }
-
-    public function getIsPaid(): ?bool
-    {
-        return $this->isPaid;
-    }
-
-    public function setIsPaid(bool $isPaid): self
-    {
-        $this->isPaid = $isPaid;
-
-        return $this;
-    }
-
-    public function getIsValid(): ?bool
-    {
-        return $this->isValid;
-    }
-
-    public function setIsValid(bool $isValid): self
-    {
-        $this->isValid = $isValid;
-
-        return $this;
-    }
-
-    public function getCreatedDate(): ?\DateTimeInterface
-    {
-        return $this->createdDate;
-    }
 }

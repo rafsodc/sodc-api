@@ -101,9 +101,9 @@ class User implements UserInterface
     private $isMe;
 
     /**
-     * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="owner")
+     * @ORM\OneToMany(targetEntity=Basket::class, mappedBy="owner")
      */
-    private $transactions;
+    private $baskets;
 
     public function __construct()
     {
@@ -273,29 +273,29 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection|Transaction[]
+     * @return Collection|Basket[]
      */
-    public function getTransactions(): Collection
+    public function getBaskets(): Collection
     {
-        return $this->transactions;
+        return $this->baskets;
     }
 
-    public function addTransaction(Transaction $transaction): self
+    public function addBasket(Basket $basket): self
     {
-        if (!$this->transactions->contains($transaction)) {
-            $this->transactions[] = $transaction;
-            $transaction->setOwner($this);
+        if (!$this->baskets->contains($basket)) {
+            $this->baskets[] = $basket;
+            $basket->setOwner($this);
         }
 
         return $this;
     }
 
-    public function removeTransaction(Transaction $transaction): self
+    public function removeBasket(Basket $basket): self
     {
-        if ($this->transactions->removeElement($transaction)) {
+        if ($this->baskets->removeElement($basket)) {
             // set the owning side to null (unless already changed)
-            if ($transaction->getOwner() === $this) {
-                $transaction->setOwner(null);
+            if ($basket->getOwner() === $this) {
+                $basket->setOwner(null);
             }
         }
 

@@ -111,10 +111,10 @@ class Event
     private $tickets;
 
     /**
-     * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="event")
+     * @ORM\OneToMany(targetEntity=Basket::class, mappedBy="event")
      * @Groups({"event:write", "event:read"})
      */
-    private $transactions;
+    private $baskets;
 
     /**
      * @Groups({"event:read"})
@@ -293,29 +293,29 @@ class Event
     }
 
     /**
-     * @return Collection|Transaction[]
+     * @return Collection|Basket[]
      */
-    public function getTransactions(): Collection
+    public function getBaskets(): Collection
     {
-        return $this->transactions;
+        return $this->baskets;
     }
 
-    public function addTransaction(Transaction $transaction): self
+    public function addBasket(Basket $basket): self
     {
-        if (!$this->transactions->contains($transaction)) {
-            $this->transactions[] = $transaction;
-            $transaction->setEvent($this);
+        if (!$this->baskets->contains($baskets)) {
+            $this->baskets[] = $basket;
+            $basket->setEvent($this);
         }
 
         return $this;
     }
 
-    public function removeTransaction(Transaction $transaction): self
+    public function removeBasket(Basket $basket): self
     {
-        if ($this->transactions->removeElement($transaction)) {
+        if ($this->baskets->removeElement($basket)) {
             // set the owning side to null (unless already changed)
-            if ($transaction->getEvent() === $this) {
-                $transaction->setEvent(null);
+            if ($basket->getEvent() === $this) {
+                $basket->setEvent(null);
             }
         }
 

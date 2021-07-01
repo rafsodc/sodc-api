@@ -89,6 +89,10 @@ services:
     App\Doctrine\TicketSetOwnerListener:
         tags: [ doctrine.orm.entity_listener ]
         
+    # Service for basket listener
+    App\Doctrine\BasketListener:
+        tags: [ doctrine.orm.entity_listener ]
+
     # Service for transaction listener
     App\Doctrine\TransactionListener:
         tags: [ doctrine.orm.entity_listener ]

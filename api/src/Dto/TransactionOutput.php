@@ -13,37 +13,23 @@ class TransactionOutput
     /**
      * @Groups({"transaction:read"})
      */
-    public $owner;
+    public $status;
 
     /**
      * @Groups({"transaction:read"})
      */
-    public $event;
+    public $isExpired;
 
     /**
      * @Groups({"transaction:read"})
      */
-    public $tickets;
-
-    /**
-     * @Groups({"transaction:read"})
-     */
-    public $amount;
-
-    /**
-     * @Groups({"transaction:read"})
-     */
-    public $isPaid;
+    public $basket;
 
     /**
      * @Groups({"transaction:read"})
      */
     public $ipg;
 
-    /**
-     * @Groups({"transaction:read"})
-     */
-    public $isValid;
 
 
 }

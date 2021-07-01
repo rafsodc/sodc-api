@@ -40,7 +40,7 @@ class TransactionVoter extends Voter
         switch ($attribute) {
             case 'TRANSACTION_VIEW':
             case 'TRANSACTION_EDIT':
-                if ($subject->getOwner() === $user) {
+                if ($subject->getBasket()->getOwner() === $user) {
                     return true;
                 }
                 if ($this->security->isGranted('ROLE_ADMIN')) {

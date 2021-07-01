@@ -7,6 +7,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\TicketRepository;
 use App\Validator\IsEventOpen;
 use App\Validator\IsValidOwner;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
@@ -35,7 +37,7 @@ class Ticket
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"event:item:read", "transaction:read"})
+     * @Groups({"event:item:read"})
      */
     private $id;
 
@@ -94,6 +96,7 @@ class Ticket
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"ticket:read"})
      */
     private $paid;
 
@@ -103,14 +106,16 @@ class Ticket
     private $createdDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Transaction::class, inversedBy="ticket")
+     * @ORM\ManyToMany(targetEntity=Basket::class, mappedBy="tickets")
+     * @Groups({"ticket:read"})
      */
-    private $transaction;
+    private $baskets;
 
     public function __construct()
     {
         $this->createdDate = new \DateTimeImmutable();
         $this->paid = false;
+        $this->baskets = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -231,14 +236,29 @@ class Ticket
         return $this->createdDate;
     }
 
-    public function getTransaction(): ?Transaction
+    /**
+     * @return Collection|Basket[]
+     */
+    public function getBaskets(): Collection
     {
-        return $this->transaction;
+        return $this->baskets;
     }
 
-    public function setTransaction(?Transaction $transaction): self
+    public function addBasket(Basket $basket): self
     {
-        $this->transaction = $transaction;
+        if (!$this->baskets->contains($basket)) {
+            $this->baskets[] = $basket;
+            $basket->addTickets($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBasket(Basket $basket): self
+    {
+        if ($this->baskets->removeElement($basket)) {
+            $basket->removeTickets($this);
+        }
 
         return $this;
     }
