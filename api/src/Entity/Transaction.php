@@ -7,7 +7,7 @@ use App\Repository\TransactionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use App\Validator\IsValidOwner;
+use App\Validator\IsBasketFree;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Dto\TransactionOutput;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
@@ -56,6 +56,7 @@ class Transaction
     /**
      * @ORM\OneToOne(targetEntity=Basket::class, mappedBy="transaction", cascade={"persist", "remove"})
      * @Groups({"transaction:write"})
+     * @IsBasketFree
      */
     private $basket;
 

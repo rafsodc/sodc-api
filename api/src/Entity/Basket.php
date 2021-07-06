@@ -74,6 +74,12 @@ class Basket
     private $transaction;
 
     /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"basket:read"})
+     */
+    private $isTransaction;
+
+    /**
      * @ORM\ManyToMany(targetEntity=Ticket::class, inversedBy="baskets")
      * @Groups({"basket:read"})
      */
@@ -84,6 +90,7 @@ class Basket
         $this->tickets = new ArrayCollection();
         $this->createdDate = new \DateTimeImmutable();
         $this->tickets_new = new ArrayCollection();
+        $this->isTransaction = false;
     }
 
     public function getId(): ?int
@@ -192,6 +199,18 @@ class Basket
         }
 
         $this->transaction = $transaction;
+
+        return $this;
+    }
+
+    public function getIsTransaction(): ?bool
+    {
+        return $this->isTransaction;
+    }
+
+    public function setIsTransaction(bool $isTransaction): self
+    {
+        $this->isTransaction = $isTransaction;
 
         return $this;
     }

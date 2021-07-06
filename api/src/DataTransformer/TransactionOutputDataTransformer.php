@@ -33,8 +33,7 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
         $output->status = $transaction->getStatus();
         $output->isExpired = $transaction->getIsExpired();
         $output->basket = $transaction->getBasket();
-
-        //$output->ipg = $this->getIpgObject($transaction);
+        $output->ipg = $this->getIpgObject($transaction);
         return $output;
     }
 

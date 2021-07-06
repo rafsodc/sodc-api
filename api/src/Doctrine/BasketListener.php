@@ -3,6 +3,7 @@ namespace App\Doctrine;
 
 use App\Entity\Basket;
 use App\Entity\Ticket;
+use App\Entity\Transaction;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -22,6 +23,11 @@ class BasketListener
         $this->removeBaskets($basket);   
         $this->setOwner($basket);
         $this->setTickets($basket);
+    }
+
+    public function preUpdate(Basket $basket)
+    {
+        $this->setIsTransaction($basket);
     }
 
     public function preRemove(Basket $basket)
@@ -55,6 +61,10 @@ class BasketListener
         foreach($tickets as $ticket) {
             $basket->addTicket($ticket);
         }
+    }
+
+    function setIsTransaction($basket) {
+        $basket->setIsTransaction($basket->getTransaction() instanceof Transaction);
     }
 
     function removeTickets(Basket $basket)
