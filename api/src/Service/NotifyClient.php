@@ -6,7 +6,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\HttpClient\HttpClient;
 use Psr\Http\Client\ClientInterface as ClientInterface;
 
-class NotificationClient
+class NotifyClient
 {
   public $client;
   public $templates;

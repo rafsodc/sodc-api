@@ -111,7 +111,7 @@ services:
             $itemDataProvider: '@api_platform.doctrine.orm.default.item_data_provider'
 
     # Notification Client Settings
-    App\Service\NotificationClient:
+    App\Service\NotifyClient:
         arguments:
             $key: '%notification_client.key%'
             $templates: '%notification_client.templates%'

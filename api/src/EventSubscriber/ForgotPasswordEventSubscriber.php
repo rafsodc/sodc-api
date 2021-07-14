@@ -4,7 +4,9 @@ namespace App\EventSubscriber;
 
 use CoopTilleuls\ForgotPasswordBundle\Event\CreateTokenEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use App\Service\NotificationClient;
+use App\Service\NotifyClient;
+use App\Message\EmailPasswordResetLink;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final class ForgotPasswordEventSubscriber implements EventSubscriberInterface
 {
@@ -15,10 +17,13 @@ final class ForgotPasswordEventSubscriber implements EventSubscriberInterface
 
     private $template;
 
-    public function __construct(NotificationClient $notificationClient)
+    private $messageBus;
+
+    public function __construct(NotifyClient $notifyClient, MessageBusInterface $messageBus)
     {
-        $this->template = $notificationClient->templates['password_reset'];
-        $this->client = $notificationClient->client;
+        $this->template = $notifyClient->templates['password_reset'];
+        $this->client = $notifyClient->client;
+        $this->messageBus = $messageBus;
     }
 
     public static function getSubscribedEvents()
@@ -30,13 +35,13 @@ final class ForgotPasswordEventSubscriber implements EventSubscriberInterface
 
     public function onCreateToken(CreateTokenEvent $event)
     {
-        $passwordToken = $event->getPasswordToken();
-        $user = $passwordToken->getUser();
+        $message = new EmailPasswordResetLink($event->getPasswordToken()->getId());
+        $this->messageBus->dispatch($message);
 
-        $this->client->sendEmail(
-            $user->getEmail(),
-            $this->template
-        );
+        //$this->client->sendEmail(
+        //    $user->getEmail(),
+        //    $this->template
+        //);
 
         /* $message = (new Email())
             ->from('no-reply@example.com')
