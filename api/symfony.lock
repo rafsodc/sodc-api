@@ -1,4 +1,7 @@
 {
+    "alphagov/notifications-php-client": {
+        "version": "3.2.0"
+    },
     "api-platform/core": {
         "version": "2.5",
         "recipe": {
@@ -131,6 +134,9 @@
     "fig/link-util": {
         "version": "1.1.2"
     },
+    "firebase/php-jwt": {
+        "version": "v5.4.0"
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "2.16",
         "recipe": {
@@ -157,6 +163,12 @@
     },
     "guzzlehttp/psr7": {
         "version": "1.7.0"
+    },
+    "ircmaxell/random-lib": {
+        "version": "v1.2.0"
+    },
+    "ircmaxell/security-lib": {
+        "version": "v1.1.0"
     },
     "laminas/laminas-code": {
         "version": "4.0.0"
@@ -209,6 +221,18 @@
     "nikic/php-parser": {
         "version": "v4.10.4"
     },
+    "nyholm/psr7": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "0cd4d2d0e7f646fda75f9944f747a56e6ed13d4c"
+        },
+        "files": [
+            "config/packages/nyholm_psr7.yaml"
+        ]
+    },
     "ocramius/package-versions": {
         "version": "1.9.0"
     },
@@ -217,6 +241,9 @@
     },
     "php-cs-fixer/diff": {
         "version": "v1.3.1"
+    },
+    "php-http/message-factory": {
+        "version": "v1.0.2"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -237,6 +264,9 @@
         "version": "1.0.0"
     },
     "psr/http-client": {
+        "version": "1.0.1"
+    },
+    "psr/http-factory": {
         "version": "1.0.1"
     },
     "psr/http-message": {
@@ -583,6 +613,19 @@
             "version": "1.0",
             "ref": "fe5a50faf580eb58f08ada2abe8afbd2d4941e05"
         }
+    },
+    "tilleuls/forgot-password-bundle": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "48ab9b5581997a68245b79ac21e355152e29fcde"
+        },
+        "files": [
+            "config/packages/coop_tilleuls_forgot_password.yaml",
+            "config/routes/coop_tilleuls_forgot_password.yaml"
+        ]
     },
     "twig/twig": {
         "version": "v3.2.1"

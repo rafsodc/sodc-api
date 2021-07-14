@@ -5,8 +5,11 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     google_recaptcha_secret_key: '%env(GOOGLE_RECAPTCHA_SECRET_KEY)%'
+    notification_client.key: '%env(NOTIFICATION_CLIENT_KEY)%'
     ipg_secret_key: '%env(IPG_SECRET_KEY)%'
     ipg_store_id: '%env(IPG_STORE_ID)%'
+    notification_client.templates:
+        password_reset: '66a1b58b-a992-455a-89ef-f42a81767aac'
 
 services:
     # default configuration for services in *this* file
@@ -106,3 +109,10 @@ services:
         bind:
             $collectionDataProvider: '@api_platform.doctrine.orm.default.collection_data_provider'
             $itemDataProvider: '@api_platform.doctrine.orm.default.item_data_provider'
+
+    # Notification Client Settings
+    App\Service\NotificationClient:
+        arguments:
+            $key: '%notification_client.key%'
+            $templates: '%notification_client.templates%'
+
