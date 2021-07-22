@@ -10,6 +10,7 @@ parameters:
     ipg_store_id: '%env(IPG_STORE_ID)%'
     notification_client.templates:
         password_reset: '66a1b58b-a992-455a-89ef-f42a81767aac'
+    google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -96,9 +97,24 @@ services:
     App\Doctrine\BasketListener:
         tags: [ doctrine.orm.entity_listener ]
 
+    # # Service for transaction listener
+    # App\Doctrine\TransactionListener:
+    #     tags: [ doctrine.orm.entity_listener ]
+
     # Service for transaction listener
-    App\Doctrine\TransactionListener:
-        tags: [ doctrine.orm.entity_listener ]
+    App\EventListener\PasswordTokenListener:
+        tags: 
+            -
+                name: 'doctrine.orm.entity_listener'
+                event: 'prePersist'
+                entity: 'App\Entity\PasswordToken'
+
+    #         # Service for transaction listener
+    # App\EventListener\CaptchaListener:
+    #     tags: 
+    #         -   name: 'doctrine.event_listener'
+    #             # this is the only required option for the lifecycle listener tag
+    #             event: 'prePersist'
         
     App\DataProvider\UserDataProvider:
         bind:
