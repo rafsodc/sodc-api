@@ -20,7 +20,7 @@ class TicketVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['TICKET_VIEW', 'TICKET_EDIT'])
+        return in_array($attribute, ['TICKET_VIEW', 'TICKET_EDIT', 'TICKET_DELETE'])
             && $subject instanceof \App\Entity\Ticket;
     }
 
@@ -35,6 +35,10 @@ class TicketVoter extends Voter
 
         /** @var Ticket $subject **/
 
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            return true;
+        }
+
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'TICKET_VIEW':
@@ -42,11 +46,12 @@ class TicketVoter extends Voter
                 if ($subject->getOwner() === $user) {
                     return true;
                 }
-                if ($this->security->isGranted('ROLE_ADMIN')) {
-                    //return true;
+            case 'TICKET_DELETE':
+                if ($subject->getOwner() === $user && !$subject->getPaid()) {
+                     return true;
                 }
-                return false;
         }
+        return false;
 
         throw new \Exception(sprintf('Unhandled attribute "%s"', $attribute));
     }

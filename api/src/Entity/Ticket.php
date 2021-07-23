@@ -26,7 +26,7 @@ use Ramsey\Uuid\UuidInterface;
  *          "get"={"security"="is_granted('TICKET_VIEW', object)"},
  *          "patch"={"security"="is_granted('TICKET_EDIT', object)"},
  *          "put",
- *          "delete"
+ *          "delete"={"security"="is_granted('TICKET_DELETE', object)"},
  *     },
  * )
  * @ORM\Entity(repositoryClass=TicketRepository::class)
