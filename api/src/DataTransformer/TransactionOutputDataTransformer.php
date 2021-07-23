@@ -51,7 +51,7 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
         $amount = number_format($transaction->getBasket()->getAmount(), 2);
         $currency = 826;
         return [
-            'action' => 'https://www.ipg-online.com/connect/gateway/processing',
+            'action' => $this->params->get('ipg_store_url'),
             'checkoutoption' => "simpleform",
             'hostURI' => 'https://test1.jackdipper.com',
             'txntype' => 'sale',
@@ -69,7 +69,6 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
     }
 
     private function createHash($amount, $currency, $dateTime) {
-
         $stringToHash = $this->params->get('ipg_store_id') . $dateTime->format("Y:m:d-H:i:s") . $amount. $currency . $this->params->get('ipg_secret_key');
         $ascii = bin2hex($stringToHash);
         return hash('sha256',$ascii);

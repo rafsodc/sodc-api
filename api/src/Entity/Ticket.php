@@ -12,6 +12,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Annotation\ApiProperty;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ApiResource(
@@ -37,9 +39,16 @@ class Ticket
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"event:item:read"})
+     * @ApiProperty(identifier=false)
      */
     private $id;
+
+    /**
+     * @ORM\Column(type="uuid", unique=true)
+     * @Groups({"ticket:write", "event:item:read"})
+     * @ApiProperty(identifier=true)
+     */
+    private $uuid;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tickets")
@@ -121,6 +130,18 @@ class Ticket
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setUuid(UuidInterface $uuid): self
+    {
+        $this->uuid = $uuid;
+
+        return $this;
+    }
+
+    public function getUuid(): UuidInterface
+    {
+        return $this->uuid;
     }
 
     public function getOwner(): ?User

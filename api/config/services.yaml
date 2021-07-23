@@ -8,6 +8,7 @@ parameters:
     notification_client.key: '%env(NOTIFICATION_CLIENT_KEY)%'
     ipg_secret_key: '%env(IPG_SECRET_KEY)%'
     ipg_store_id: '%env(IPG_STORE_ID)%'
+    ipg_store_url: '%env(IPG_STORE_URL)%'
     notification_client.templates:
         password_reset: '66a1b58b-a992-455a-89ef-f42a81767aac'
     google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
