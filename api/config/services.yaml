@@ -102,12 +102,12 @@ services:
     #     tags: [ doctrine.orm.entity_listener ]
 
     # Service for transaction listener
-    App\EventListener\PasswordTokenListener:
-        tags: 
-            -
-                name: 'doctrine.orm.entity_listener'
-                event: 'prePersist'
-                entity: 'App\Entity\PasswordToken'
+    #App\EventListener\PasswordTokenListener:
+    #    tags: 
+    #        -
+    #            name: 'doctrine.orm.entity_listener'
+    #            event: 'prePersist'
+    #            entity: 'App\Entity\PasswordToken'
 
     #         # Service for transaction listener
     # App\EventListener\CaptchaListener:
@@ -132,3 +132,9 @@ services:
             $key: '%notification_client.key%'
             $templates: '%notification_client.templates%'
 
+    App\EventListener\PasswordRequestEventListener:
+        tags:
+            -
+                name: 'kernel.event_listener'
+                event: 'kernel.request'
+                method: 'decodeRequest'
