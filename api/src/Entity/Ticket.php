@@ -45,7 +45,7 @@ class Ticket
 
     /**
      * @ORM\Column(type="uuid", unique=true)
-     * @Groups({"ticket:write", "event:item:read"})
+     * @Groups({"ticket:write", "basket:read", "event:item:read"})
      * @ApiProperty(identifier=true)
      */
     private $uuid;
@@ -68,26 +68,26 @@ class Ticket
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read"})
      */
     private $rank;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read"})
      */
     private $lastname;
 
     /**
      * @ORM\ManyToOne(targetEntity=TicketType::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"ticket:write", "ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read"})
      */
     private $ticketType;
 

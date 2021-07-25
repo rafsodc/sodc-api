@@ -35,7 +35,7 @@ class TicketType
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"tickettype:write", "tickettype:read", "event:item:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "basket:read", "event:item:read"})
      */
     private $description;
 
@@ -78,7 +78,7 @@ class TicketType
 
     /**
      * @ORM\Column(type="float")
-     * @Groups({"tickettype:write", "tickettype:read", "event:item:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "event:item:read", "basket:read"})
      */
     private $price;
 
