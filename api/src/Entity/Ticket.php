@@ -14,7 +14,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use Ramsey\Uuid\UuidInterface;
-
+use App\Validator\Constraints\TicketPaid;
+use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ApiResource(
  *     security="is_granted('ROLE_ADMIN')",
@@ -32,6 +33,7 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\Entity(repositoryClass=TicketRepository::class)
  * @ORM\EntityListeners({"App\Doctrine\TicketSetOwnerListener"})
  * @ApiFilter(SearchFilter::class, properties={"event": "exact", "owner": "exact"});
+ * @TicketPaid
  */
 class Ticket
 {
@@ -47,6 +49,7 @@ class Ticket
      * @ORM\Column(type="uuid", unique=true)
      * @Groups({"ticket:write", "basket:read", "event:item:read"})
      * @ApiProperty(identifier=true)
+     * @Assert\NotBlank()
      */
     private $uuid;
 
@@ -55,6 +58,7 @@ class Ticket
      * @ORM\JoinColumn(nullable=false)
      * @IsValidOwner()
      * @Groups({"ticket:write", "ticket:read"})
+     * @Assert\NotBlank()
      */
     private $owner;
 
@@ -63,6 +67,7 @@ class Ticket
      * @ORM\JoinColumn(nullable=false)
      * @IsEventOpen()
      * @Groups({"ticket:write", "ticket:read"})
+     * @Assert\NotBlank()
      */
     private $event;
 
@@ -81,6 +86,7 @@ class Ticket
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"ticket:write", "ticket:read", "basket:read"})
+     * @Assert\NotBlank()
      */
     private $lastname;
 
@@ -88,6 +94,7 @@ class Ticket
      * @ORM\ManyToOne(targetEntity=TicketType::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"ticket:write", "ticket:read", "basket:read"})
+     * @Assert\NotBlank()
      */
     private $ticketType;
 

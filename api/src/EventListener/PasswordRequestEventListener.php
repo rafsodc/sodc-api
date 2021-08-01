@@ -34,9 +34,7 @@ final class PasswordRequestEventListener
     /**
      * @param string $userPasswordField
      */
-    public function __construct(
-        ValidatorInterface $validator
-    ) {
+    public function __construct(ValidatorInterface $validator) {
         $this->validator = $validator;
     }
 

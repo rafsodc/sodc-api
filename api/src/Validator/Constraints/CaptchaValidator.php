@@ -30,9 +30,9 @@ final class CaptchaValidator extends ConstraintValidator
             ->verify($value, $request->getClientIp());
 
         if (!$resp->isSuccess()) {
-            $msg = implode("; ", $resp->getErrorCodes());
+            //$msg = implode("; ", $resp->getErrorCodes());
             //$msg = $request->getHost();
-            $this->context->buildViolation($value)->addViolation();
+            $this->context->buildViolation($constraint->message)->addViolation();
         }
     }
 }

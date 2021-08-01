@@ -62,11 +62,17 @@ class Transaction
 
     private $isExpired;
 
+    /**
+     * @ORM\OneToMany(targetEntity=IPGReturn::class, mappedBy="transaction")
+     */
+    private $IPGReturns;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->status = "Active";
+        $this->IPGReturns = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -108,6 +114,36 @@ class Transaction
     {
         $expiry = new \DateTime('-1 hour');
         return ($this->getCreatedAt() < $expiry);
+    }
+
+    /**
+     * @return Collection|IPGReturn[]
+     */
+    public function getIPGReturns(): Collection
+    {
+        return $this->IPGReturns;
+    }
+
+    public function addIPGReturn(IPGReturn $iPGReturn): self
+    {
+        if (!$this->IPGReturns->contains($iPGReturn)) {
+            $this->IPGReturns[] = $iPGReturn;
+            $iPGReturn->setTransaction($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIPGReturn(IPGReturn $iPGReturn): self
+    {
+        if ($this->IPGReturns->removeElement($iPGReturn)) {
+            // set the owning side to null (unless already changed)
+            if ($iPGReturn->getTransaction() === $this) {
+                $iPGReturn->setTransaction(null);
+            }
+        }
+
+        return $this;
     }
 
 }

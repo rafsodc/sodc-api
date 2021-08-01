@@ -85,6 +85,12 @@ class Basket
      */
     private $tickets;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"basket:read"})
+     */
+    private $isPaid = false;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -211,6 +217,24 @@ class Basket
     public function setIsTransaction(bool $isTransaction): self
     {
         $this->isTransaction = $isTransaction;
+
+        return $this;
+    }
+
+    public function getIsPaid(): ?bool
+    {
+        return $this->isPaid;
+    }
+
+    public function setIsPaid(bool $isPaid): self
+    {
+        $this->isPaid = $isPaid;
+
+        if($isPaid) {
+            foreach($this->getTickets() as $ticket) {
+                $ticket->setPaid(true);
+            }
+        }
 
         return $this;
     }
