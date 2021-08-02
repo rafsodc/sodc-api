@@ -49,9 +49,10 @@ final class PasswordRequestEventListener
 
         $content = $request->getContent();
         $data = json_decode($content, true);
+        $captcha = isset($data['captcha']) ? $data['captcha'] : '';
 
         $passwordToken = new PasswordToken();
-        $passwordToken->setCaptcha($data['captcha']);
+        $passwordToken->setCaptcha($captcha);
 
         $errors = $this->validator->validate($passwordToken);
         if($errors->count() > 0) {

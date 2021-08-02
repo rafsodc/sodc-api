@@ -30,6 +30,7 @@ class PasswordToken extends AbstractPasswordToken
 
     /**
     * @Captcha
+    * @Assert\NotBlank()
     */
     private $captcha = "";
 

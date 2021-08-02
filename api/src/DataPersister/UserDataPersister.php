@@ -10,13 +10,13 @@ use Symfony\Component\Security\Core\Security;
 
 class UserDataPersister implements DataPersisterInterface
 {
-    private $entityManager;
+    private $decoratedDataPersister;
     private $userPasswordEncoder;
     private $security;
 
-    public function __construct(EntityManagerInterface $entityManager, UserPasswordEncoderInterface $userPasswordEncoder, Security $security)
+    public function __construct(DataPersisterInterface $decoratedDataPersister, UserPasswordEncoderInterface $userPasswordEncoder, Security $security)
     {
-        $this->entityManager = $entityManager;
+        $this->decoratedDataPersister = $decoratedDataPersister;
         $this->userPasswordEncoder = $userPasswordEncoder;
         $this->security = $security;
     }
@@ -39,13 +39,11 @@ class UserDataPersister implements DataPersisterInterface
         }
 
         $data->setIsMe($this->security->getUser() === $data);
-        $this->entityManager->persist($data);
-        $this->entityManager->flush();
+        $this->decoratedDataPersister->persist($data);
     }
 
     public function remove($data)
     {
-        $this->entityManager->remove($data);
-        $this->entityManager->flush();
+        $this->decoratedDataPersister->remove($data);
     }
 }
