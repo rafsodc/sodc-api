@@ -2,12 +2,17 @@ version: "3.4"
 
 # Production environment override
 services:
+  pwa:
+    image: ${API_PWA_IMAGE}
+
   php:
+    image: ${API_PHP_IMAGE}
     environment:
       APP_ENV: prod
       APP_SECRET: ${APP_SECRET}
 
   caddy:
+    image: ${API_CADDY_IMAGE}
     environment:
       MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY}
       MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY}
