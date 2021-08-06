@@ -5,8 +5,6 @@ services:
     build:
       context: ./api
       target: api_platform_php
-    # depends_on:
-    #   - database
     restart: unless-stopped
     volumes:
       - php_socket:/var/run/php
@@ -19,7 +17,8 @@ services:
   pwa:
     build:
       context: ./../SODC-React-Members
-      target: api_platform_pwa_prod
+      target: react_app_prod
+    restart: unless-stopped
     environment:
       API_PLATFORM_CLIENT_GENERATOR_ENTRYPOINT: http://caddy
 
