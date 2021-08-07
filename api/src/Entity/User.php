@@ -105,6 +105,36 @@ class User implements UserInterface
      */
     private $baskets;
 
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $mobileNumber;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $firstName;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $lastName;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $postNominals;
+
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $serviceNumber;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $modnetEmail;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -298,6 +328,78 @@ class User implements UserInterface
                 $basket->setOwner(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getMobileNumber(): ?string
+    {
+        return $this->mobileNumber;
+    }
+
+    public function setMobileNumber(?string $mobileNumber): self
+    {
+        $this->mobileNumber = $mobileNumber;
+
+        return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(?string $firstName): self
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(?string $lastName): self
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getPostNominals(): ?string
+    {
+        return $this->postNominals;
+    }
+
+    public function setPostNominals(?string $postNominals): self
+    {
+        $this->postNominals = $postNominals;
+
+        return $this;
+    }
+
+    public function getServiceNumber(): ?string
+    {
+        return $this->serviceNumber;
+    }
+
+    public function setServiceNumber(?string $serviceNumber): self
+    {
+        $this->serviceNumber = $serviceNumber;
+
+        return $this;
+    }
+
+    public function getModnetEmail(): ?string
+    {
+        return $this->modnetEmail;
+    }
+
+    public function setModnetEmail(?string $modnetEmail): self
+    {
+        $this->modnetEmail = $modnetEmail;
 
         return $this;
     }
