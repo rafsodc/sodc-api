@@ -19,8 +19,8 @@ services:
       context: ./../SODC-React-Members
       target: react_app_prod
     restart: unless-stopped
-    environment:
-      API_PLATFORM_CLIENT_GENERATOR_ENTRYPOINT: http://caddy
+#    environment:
+#      API_PLATFORM_CLIENT_GENERATOR_ENTRYPOINT: http://caddy
 
   caddy:
     build:

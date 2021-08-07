@@ -98,7 +98,7 @@ COPY templates templates/
 RUN set -eux; \
 	mkdir -p var/cache var/log; \
 	composer dump-autoload --classmap-authoritative --no-dev; \
-	composer dump-env prod; \
+	#composer dump-env prod; \
 	composer run-script --no-dev post-install-cmd; \
 	chmod +x bin/console; sync
 VOLUME /srv/api/var
@@ -112,6 +112,9 @@ COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
 
 ENV SYMFONY_PHPUNIT_VERSION=9
+
+COPY docker/php/docker-variables.sh /usr/local/bin/docker-variables
+RUN chmod +x /usr/local/bin/docker-variables
 
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
