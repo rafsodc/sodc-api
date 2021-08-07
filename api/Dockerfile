@@ -113,8 +113,8 @@ RUN chmod +x /usr/local/bin/docker-entrypoint
 
 ENV SYMFONY_PHPUNIT_VERSION=9
 
-COPY docker/php/docker-variables.sh /usr/local/bin/docker-variables
-RUN chmod +x /usr/local/bin/docker-variables
+#COPY docker/php/docker-variables.sh /usr/local/bin/docker-variables
+#RUN chmod +x /usr/local/bin/docker-variables
 
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
