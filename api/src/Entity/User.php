@@ -135,6 +135,26 @@ class User implements UserInterface
      */
     private $modnetEmail;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Rank::class, inversedBy="users")
+     */
+    private $rank;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $workDetails;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isShared;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $oldUid;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -400,6 +420,54 @@ class User implements UserInterface
     public function setModnetEmail(?string $modnetEmail): self
     {
         $this->modnetEmail = $modnetEmail;
+
+        return $this;
+    }
+
+    public function getRank(): ?Rank
+    {
+        return $this->rank;
+    }
+
+    public function setRank(?Rank $rank): self
+    {
+        $this->rank = $rank;
+
+        return $this;
+    }
+
+    public function getWorkDetails(): ?string
+    {
+        return $this->workDetails;
+    }
+
+    public function setWorkDetails(?string $workDetails): self
+    {
+        $this->workDetails = $workDetails;
+
+        return $this;
+    }
+
+    public function getIsShared(): ?bool
+    {
+        return $this->isShared;
+    }
+
+    public function setIsShared(bool $isShared): self
+    {
+        $this->isShared = $isShared;
+
+        return $this;
+    }
+
+    public function getOldUid(): ?int
+    {
+        return $this->oldUid;
+    }
+
+    public function setOldUid(?int $oldUid): self
+    {
+        $this->oldUid = $oldUid;
 
         return $this;
     }
