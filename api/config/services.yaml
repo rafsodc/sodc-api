@@ -12,6 +12,7 @@ parameters:
     notification_client.templates:
         password_reset: '66a1b58b-a992-455a-89ef-f42a81767aac'
     google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
+    server_name: '%env(SERVER_NAME)%'
 
 services:
     # default configuration for services in *this* file

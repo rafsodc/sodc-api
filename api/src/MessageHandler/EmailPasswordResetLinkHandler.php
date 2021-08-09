@@ -4,18 +4,21 @@ use App\Message\EmailPasswordResetLink;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use App\Service\NotifyClient;
 use App\Repository\PasswordTokenRepository;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class EmailPasswordResetLinkHandler implements MessageHandlerInterface
 {
   private $notifyClient;
   private $template;
   private $passwordTokenRepository;
+  private $params;
 
-  public function __construct(NotifyClient $notifyClient, PasswordTokenRepository $passwordTokenRepository)
+  public function __construct(NotifyClient $notifyClient, PasswordTokenRepository $passwordTokenRepository, ParameterBagInterface $params)
   {
     $this->notifyClient = $notifyClient->client;
     $this->template = $notifyClient->templates['password_reset'];
     $this->passwordTokenRepository = $passwordTokenRepository;
+    $this->params = $params;
   }
 
   public function __invoke(EmailPasswordResetLink $emailPasswordResetLink)
@@ -25,7 +28,8 @@ class EmailPasswordResetLinkHandler implements MessageHandlerInterface
       
       $email = $passwordToken->getUser()->getEmail();
       $firstname = $passwordToken->getUser()->getUsername();
-      $link = sprintf('https://test1.jackdipper.com/forgot-password/%s', $passwordToken->getToken());
+      $server = $this->params->get('server_name');
+      $link = sprintf('https://%s/forgot-password/%s', $server, $passwordToken->getToken());
 
       $this->notifyClient->sendEmail(
         $email,
