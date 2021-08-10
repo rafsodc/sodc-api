@@ -9,15 +9,13 @@ services:
     image: ${API_PHP_IMAGE}
     environment:
       APP_ENV: prod
-      APP_SECRET: ${APP_SECRET}
-      SITE_HOST: ${SITE_HOST}
+      SERVER_NAME: ${SERVER_NAME:-!CHANGEME!}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS-!CHANGEME!}
     volumes:
-      - ./../config/secrets:/srv/api/config/secrets
       - ./../config/jwt:/srv/api/config/jwt
+      - ./../config/secrets:/srv/api/config/secrets
 
   caddy:
     image: ${API_CADDY_IMAGE}
     environment:
-      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_PUBLISHER_JWT_KEY}
-      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_SUBSCRIBER_JWT_KEY}
       PWA_UPSTREAM: pwa:80
