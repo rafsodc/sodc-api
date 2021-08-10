@@ -11,7 +11,13 @@ use App\Validator\Constraints\Captcha;
   * @ApiResource(
  *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
+ *          "get",
  *          "post"={"security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"},
+ *     },
+ *     itemOperations={
+ *          "get"={"security"="is_granted('TICKET_VIEW', object)"},
+ *          "patch"={"security"="is_granted('TICKET_EDIT', object)"},
+ *          "delete"={"security"="is_granted('TICKET_DELETE', object)"},
  *     },
  * )
  * @ORM\Entity(repositoryClass=ContactRepository::class)

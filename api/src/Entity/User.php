@@ -27,8 +27,9 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *          },
  *     },
  *     itemOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"}
- *          "put"={"security"="is_granted('USER_EDIT', object)"}
+ *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "patch"={"security"="is_granted('USER_EDIT', object)"},
+ *          "delete"
  *     },
  * )
  * @UniqueEntity(fields={"username"})

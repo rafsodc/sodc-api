@@ -25,7 +25,6 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *     itemOperations={
  *          "get"={"security"="is_granted('BASKET_VIEW', object)"},
  *          "patch"={"security"="is_granted('BASKET_EDIT', object)"},
- *          "put",
  *          "delete"
  *     },
  * )

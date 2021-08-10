@@ -27,7 +27,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     itemOperations={
  *          "get"={"security"="is_granted('TRANSACTION_VIEW', object)"},
  *          "patch"={"security"="is_granted('TRANSACTION_EDIT', object)"},
- *          "put",
  *          "delete"
  *     },
  * )

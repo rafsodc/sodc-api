@@ -28,7 +28,7 @@ use App\Filters\EventDateFilter;
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "put",
+ *          "patch",
  *          "delete"
  *     },
  * )

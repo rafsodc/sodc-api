@@ -10,9 +10,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
 * @ApiResource(
  *     security="is_granted('ROLE_ADMIN')",
+ *     collectionOperations={
+ *          "get",
+ *          "post"
+ *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"},
- *     },
+ *          "patch",
+ *          "delete"
+ *     }
  * )
  * @ORM\Entity(repositoryClass=PageRepository::class)
  * @ORM\HasLifecycleCallbacks

@@ -13,8 +13,14 @@ use Doctrine\ORM\Mapping as ORM;
  * @ApiResource(
  *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"}
- *     }
+ *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "post"
+ *     },
+ *     itemOperations={
+ *          "get",
+ *          "patch",
+ *          "delete"
+ *     },
  * )
  */
 class Rank

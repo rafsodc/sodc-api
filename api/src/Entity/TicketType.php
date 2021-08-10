@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "put",
+ *          "patch",
  *          "delete"
  *     },
  * )
