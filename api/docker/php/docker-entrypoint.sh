@@ -20,7 +20,8 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
   if [ "$APP_ENV" = 'prod' ]; then
     php bin/console secrets:decrypt-to-local --force --env=prod
     composer dump-env prod
-		chmod +R 0644 /srv/api/config/jwt/*
+		chmod 0755 /srv/api/config/jwt
+		chmod -R 0644 /srv/api/config/jwt/*
   fi
 	
 	if [ "$APP_ENV" != 'prod' ]; then
