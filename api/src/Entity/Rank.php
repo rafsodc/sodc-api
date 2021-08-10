@@ -11,16 +11,10 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=RankRepository::class)
  * @ApiResource(
- *     security="is_granted('ROLE_USER')",
+ *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
- *          "get",
- *          "post"={"security"="is_granted('ROLE_ADMIN')"}
- *     },
- *     itemOperations={
- *          "get",
- *          "put"={"security"="is_granted('ROLE_ADMIN')"},
- *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
- *     },
+ *          "get"={"security"="is_granted('ROLE_USER')"}
+ *     }
  * )
  */
 class Rank

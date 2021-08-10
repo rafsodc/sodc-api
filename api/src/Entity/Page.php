@@ -8,7 +8,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+* @ApiResource(
+ *     security="is_granted('ROLE_ADMIN')",
+ *     itemOperations={
+ *          "get"={"security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"},
+ *     },
+ * )
  * @ORM\Entity(repositoryClass=PageRepository::class)
  * @ORM\HasLifecycleCallbacks
  */

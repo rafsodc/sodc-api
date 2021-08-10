@@ -8,7 +8,12 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Validator\Constraints\Captcha;
 
 /**
- * @ApiResource()
+  * @ApiResource(
+ *     security="is_granted('ROLE_ADMIN')",
+ *     collectionOperations={
+ *          "post"={"security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"},
+ *     },
+ * )
  * @ORM\Entity(repositoryClass=ContactRepository::class)
  */
 class Contact
