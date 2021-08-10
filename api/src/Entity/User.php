@@ -20,7 +20,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  * @ApiResource(
  *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
- *          "get"={security="is_granted('ROLE_ADMIN')"},
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
  *          "post"={
  *                  "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
  *                  "validation_groups"={"Default", "create_user"}
