@@ -87,10 +87,6 @@ class LoadUsersFromCsvCommand extends Command
         $user = $this->userRepository->findOneBy(['oldUid' => $data[$this->keyToIndex['uid']]]);
         
         if($user !== null) {
-
-            dd($user);
-            //$this->entityManager->remove($user);
-            //$this->entityManager->flush();
             return;
         }
 
