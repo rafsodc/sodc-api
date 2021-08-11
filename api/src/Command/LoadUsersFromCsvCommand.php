@@ -91,7 +91,7 @@ class LoadUsersFromCsvCommand extends Command
         }
 
         // If email address is not valid
-        if($this->keyToIndex['email'] === '\\N' || $this->keyToIndex['email'] === '' || $this->keyToIndex['email'] === 'secretary@sodc.net') {
+        if($this->keyToIndex['email'] === '\N' || $this->keyToIndex['email'] === '' || $this->keyToIndex['email'] === 'secretary@sodc.net') {
             return;
         }
         
