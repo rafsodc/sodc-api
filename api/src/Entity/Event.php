@@ -28,12 +28,11 @@ use App\Filters\EventDateFilter;
  *     itemOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
  *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
- *          "delete={"security"="is_granted('ROLE_ADMIN')"}"
+ *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  * )
  * @ApiFilter(EventDateFilter::class)
  */
-////*     output=EventOutput::CLASS,
 class Event
 {
     /**

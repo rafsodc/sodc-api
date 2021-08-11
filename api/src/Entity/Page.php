@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 * @ApiResource(
  *     collectionOperations={
  *          "get"={"security"="is_granted('ROLE_ADMIN')"},
- *          "post={"security"="is_granted('ROLE_ADMIN')"}"
+ *          "post"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"},
