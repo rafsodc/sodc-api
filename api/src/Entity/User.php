@@ -26,7 +26,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *          },
  *     },
  *     itemOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
  *          "patch"={"security"="is_granted('USER_EDIT', object)"},
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
