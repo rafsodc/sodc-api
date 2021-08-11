@@ -93,6 +93,11 @@ class LoadUsersFromCsvCommand extends Command
             //$this->entityManager->flush();
             return;
         }
+
+        // If email address is not valid
+        if($this->keyToIndex['email'] === '\\N' || $this->keyToIndex['email'] === '' || $this->keyToIndex['email'] === 'secretary@sodc.net') {
+            return;
+        }
         
 
         $roles = [];
