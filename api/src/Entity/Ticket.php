@@ -18,7 +18,6 @@ use App\Validator\Constraints\TicketPaid;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ApiResource(
- *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
  *          "post"={"security"="is_granted('ROLE_USER')"},

@@ -21,15 +21,14 @@ use App\Filters\EventDateFilter;
  * @ORM\Entity(repositoryClass=EventRepository::class)
  * @ORM\Table(name="`event`")
  * @ApiResource(
- *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "post"
+ *          "post"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "patch",
- *          "delete"
+ *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "delete={"security"="is_granted('ROLE_ADMIN')"}"
  *     },
  * )
  * @ApiFilter(EventDateFilter::class)

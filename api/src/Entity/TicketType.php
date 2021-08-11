@@ -11,15 +11,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "post"
+ *          "post"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "patch",
- *          "delete"
+ *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  * )
  * @ORM\Entity(repositoryClass=TicketTypeRepository::class)

@@ -18,16 +18,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=TransactionRepository::class)
  * @ApiResource(
- *     security="is_granted('ROLE_ADMIN')",
  *     output=TransactionOutput::CLASS,
  *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
  *          "post"={"security"="is_granted('ROLE_USER')"},
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('TRANSACTION_VIEW', object)"},
  *          "patch"={"security"="is_granted('TRANSACTION_EDIT', object)"},
- *          "delete"
+ *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  * )
  * @ApiFilter(SearchFilter::class, properties={"event": "exact", "owner": "exact"});

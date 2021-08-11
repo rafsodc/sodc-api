@@ -9,15 +9,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
 * @ApiResource(
- *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
- *          "get",
- *          "post"
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "post={"security"="is_granted('ROLE_ADMIN')"}"
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"},
- *          "patch",
- *          "delete"
+ *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     }
  * )
  * @ORM\Entity(repositoryClass=PageRepository::class)
