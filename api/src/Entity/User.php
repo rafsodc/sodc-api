@@ -18,7 +18,6 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="`user`")
  * @ApiResource(
- *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={
  *          "get"={"security"="is_granted('ROLE_ADMIN')"},
  *          "post"={
@@ -29,7 +28,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *     itemOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
  *          "patch"={"security"="is_granted('USER_EDIT', object)"},
- *          "delete"
+ *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  * )
  * @UniqueEntity(fields={"username"})
