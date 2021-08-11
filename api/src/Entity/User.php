@@ -146,7 +146,9 @@ class User implements UserInterface
     private $workDetails;
 
     /**
+     * @Groups("user:write")
      * @ORM\Column(type="boolean")
+     * @Assert\NotBlank(groups={"create_user"})
      */
     private $isShared;
 
