@@ -19,7 +19,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  * @ORM\Table(name="`user`")
  * @ApiResource(
  *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "get"={"security"="is_granted('ROLE_USER')"},
  *          "post"={
  *                  "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
  *                  "validation_groups"={"Default", "create_user"}
