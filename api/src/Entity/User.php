@@ -26,7 +26,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *          },
  *     },
  *     itemOperations={
- *          "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "get"={"security"="is_granted('ROLE_USER')"},
  *          "patch"={"security"="is_granted('USER_EDIT', object)"},
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
@@ -46,7 +46,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user:write", "user:read"})
+     * @Groups({"user:write"})
      * @Assert\NotBlank()
      * @Assert\Email()
      */
@@ -73,7 +73,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"user:write", "user:read"})
+     * @Groups({"user:write"})
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern = "/^[a-zA-Z0-9_]+$/"
@@ -83,7 +83,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:write", "user:read"})
+     * @Groups({"user:write"})
      */
     private $phoneNumber;
 
@@ -111,11 +111,13 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"user:write", "user:read"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"user:write", "user:read"})
      */
     private $lastName;
 
@@ -136,6 +138,7 @@ class User implements UserInterface
 
     /**
      * @ORM\ManyToOne(targetEntity=Rank::class, inversedBy="users")
+     * @Groups({"user:write", "user:read"})
      */
     private $rank;
 
@@ -150,6 +153,12 @@ class User implements UserInterface
      * @Assert\NotBlank(groups={"create_user"})
      */
     private $isShared;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Assert\NotBlank(groups={"create_user"})
+     */
+    private $isMember;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
@@ -204,7 +213,11 @@ class User implements UserInterface
 
     public function setRoles(array $roles): self
     {
-        $this->roles = $roles;
+        $this->roles = array_unique($roles);
+
+        if(in_array('ROLE_MEMBER', $roles)) {
+            $this->setIsMember(true);
+        }
 
         return $this;
     }
@@ -457,6 +470,18 @@ class User implements UserInterface
     public function setIsShared(bool $isShared): self
     {
         $this->isShared = $isShared;
+
+        return $this;
+    }
+
+    public function getIsMember(): ?bool
+    {
+        return $this->isMember;
+    }
+
+    public function setIsMember(bool $isMember): self
+    {
+        $this->isMember = $isMember;
 
         return $this;
     }

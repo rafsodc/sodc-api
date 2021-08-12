@@ -31,7 +31,7 @@ final class CurrentUserTicketExtension implements QueryCollectionExtensionInterf
 
     private function addWhere(QueryBuilder $queryBuilder, string $resourceClass): void
     {
-        if (Ticket::class !== $resourceClass || $this->security->isGranted('ROLE_ADMIN2') || null === $user = $this->security->getUser()) {
+        if (Ticket::class !== $resourceClass || $this->security->isGranted('ROLE_ADMIN') || null === $user = $this->security->getUser()) {
             return;
         }
 
