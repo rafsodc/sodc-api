@@ -32,7 +32,7 @@ final class UserQueryExtension implements QueryCollectionExtensionInterface, Que
 
     public function applyToItem(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, array $identifiers, string $operationName = null, array $context = []): void
     {
-        if (User::class !== $resourceClass || $this->security->isGranted('ROLE_ADMIN2') || null === $user = $this->security->getUser()) {
+        if (User::class !== $resourceClass || $this->security->isGranted('ROLE_ADMIN') || null === $user = $this->security->getUser()) {
             return;
         }
 
