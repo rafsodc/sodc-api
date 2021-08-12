@@ -323,7 +323,8 @@ class Event
     public function getIsBookingOpen(): bool
     {
         if ($this->isBookingOpen === null) {
-            throw new \LogicException('The isBookingOpen field has not been initialized');
+            return false;
+            //throw new \LogicException('The isBookingOpen field has not been initialized');
         }
 
         return $this->isBookingOpen;
