@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use App\Filters\UserFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -33,6 +34,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  * )
  * @UniqueEntity(fields={"username"})
  * @UniqueEntity(fields={"email"})
+ * @ApiFilter(SearchFilter::class, properties={"id": "exact"});
  * @ApiFilter(UserFilter::class)
  */
 class User implements UserInterface
