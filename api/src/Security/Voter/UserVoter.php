@@ -19,26 +19,34 @@ class UserVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['USER_EDIT'])
+        return in_array($attribute, ['USER_VIEW', 'USER_EDIT'])
             && $subject instanceof \App\Entity\User;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-
         $user = $token->getUser();
         // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
         }
 
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            return true;
+        }
+
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
-            case 'USER_EDIT':
+            case 'USER_VIEW':
+                if($user->isShared()) {
+                    return true;
+                }
                 if ($subject === $user) {
                     return true;
                 }
-                if ($this->security->isGranted('ROLE_ADMIN')) {
+                return false;
+            case 'USER_EDIT':
+                if ($subject === $user) {
                     return true;
                 }
                 return false;

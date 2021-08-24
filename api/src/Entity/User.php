@@ -27,7 +27,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  *          },
  *     },
  *     itemOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "get"={"security"="is_granted('USER_VIEW', object)"},
  *          "patch"={"security"="is_granted('USER_EDIT', object)"},
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
@@ -48,7 +48,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user:write"})
+     * @Groups({"user:item:read", "user:write"})
      * @Assert\NotBlank()
      * @Assert\Email()
      */
@@ -56,6 +56,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="json")
+     * @Groups({"admin:write"})
      */
     private $roles = [];
 
@@ -75,7 +76,6 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"user:write"})
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern = "/^[a-zA-Z0-9_]+$/"
@@ -85,7 +85,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:write"})
+     * @Groups({"user:item:read", "user:write"})
      */
     private $phoneNumber;
 
@@ -108,49 +108,54 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
+     * @Groups({"user:item:read", "user:write"})
      */
     private $mobileNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:write", "user:read"})
+     * @Groups({"user:read", "user:write"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:write", "user:read"})
+     * @Groups({"user:read", "user:write"})
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"user:item:read", "user:write"})
      */
     private $postNominals;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
+     * @Groups({"user:item:read", "user:write"})
      */
     private $serviceNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"user:item:read", "user:write"})
      */
     private $modnetEmail;
 
     /**
      * @ORM\ManyToOne(targetEntity=Rank::class, inversedBy="users")
-     * @Groups({"user:write", "user:read"})
+     * @Groups({"user:read", "user:write"})
      */
     private $rank;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Groups({"owner:read", "user:write"})
      */
     private $workDetails;
 
     /**
-     * @Groups("user:write")
+     * @Groups({"owner:read", "user:write"})
      * @ORM\Column(type="boolean")
      * @Assert\NotBlank(groups={"create_user"})
      */
@@ -158,7 +163,6 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="boolean")
-     * @Assert\NotBlank(groups={"create_user"})
      */
     private $isMember;
 

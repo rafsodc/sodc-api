@@ -33,8 +33,6 @@ class TicketVoter extends Voter
             return false;
         }
 
-        /** @var Ticket $subject **/
-
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
         }
