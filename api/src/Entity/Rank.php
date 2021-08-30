@@ -8,6 +8,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Filters\RankFilter;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity(repositoryClass=RankRepository::class)
@@ -22,6 +25,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  * )
+ * @ApiFilter(SearchFilter::class, properties={"id": "exact"});
+ * @ApiFilter(RankFilter::class)
  */
 class Rank
 {
