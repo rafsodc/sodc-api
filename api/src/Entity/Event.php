@@ -99,6 +99,7 @@ class Event
     /**
      * @ORM\OneToMany(targetEntity=TicketType::class, mappedBy="event", orphanRemoval=true)
      * @Groups({"event:write", "event:read"})
+     * @ORM\OrderBy({"description" = "ASC"})
      */
     private $ticketTypes;
 
