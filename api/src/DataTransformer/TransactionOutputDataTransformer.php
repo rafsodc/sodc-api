@@ -53,7 +53,7 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
         return [
             'action' => $this->params->get('ipg_store_url'),
             'checkoutoption' => "simpleform",
-            'hostURI' => 'https://test1.jackdipper.com',
+            'hostURI' => 'https://www.sodc.net',
             'txntype' => 'sale',
             'timezone' => $dateTime->getTimezone(),
             'txndatetime' => $dateTime->format("Y:m:d-H:i:s"),
