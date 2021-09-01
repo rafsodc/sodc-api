@@ -6,6 +6,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ContactRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Validator\Constraints\Captcha;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
   * @ApiResource(
@@ -32,26 +33,31 @@ class Contact
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"contact:write", "contact:read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"contact:write", "contact:read"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"contact:write", "contact:read"})
      */
     private $subject;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"contact:write", "contact:read"})
      */
     private $message;
 
     /**
      * @Captcha
+     * @Groups({"contact:write"})
      */
     private $captcha = "";
 
