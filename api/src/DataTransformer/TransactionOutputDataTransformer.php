@@ -17,10 +17,12 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
 {
 
     private $params;
+    private $security;
 
-    public function __construct(ParameterBagInterface $params)
+    public function __construct(ParameterBagInterface $params, Security $security)
     {
         $this->params = $params;
+        $this->security = $security;
     }
 
     /**
@@ -50,6 +52,7 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
         //$dateTime->setTimezone(new DateTimeZone('Europe/London'));
         $amount = number_format($transaction->getBasket()->getAmount(), 2);
         $currency = 826;
+        $user = $this->security->getUser();
         return [
             'action' => $this->params->get('ipg_store_url'),
             'checkoutoption' => "simpleform",
@@ -64,6 +67,8 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
             'currency' => $currency,
             'mode' => 'payonly',
             'oid' => $transaction->getId(),
+            'email' => $user->getEmail(),
+            'bname' => $user->getFirstName() . " " .$user->getLastName()
             //More fields - email, basketitems(?), chargetotal, currrency
         ];
     }
