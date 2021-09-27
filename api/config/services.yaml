@@ -13,6 +13,14 @@ parameters:
         password_reset: '66a1b58b-a992-455a-89ef-f42a81767aac'
     google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
     server_name: '%env(SERVER_NAME)%'
+    rollbar.config:
+        access_token: '%env(ROLLBAR_TOKEN)%'
+        environment: '%env(APP_ENV)%'
+        code_version: '1.0.1'
+        allow_exec: false
+        exception_sample_rates:
+            Symfony\Component\HttpKernel\Exception\HttpException: 0
+        # any other options available in https://docs.rollbar.com/docs/php-configuration-reference
 
 services:
     # default configuration for services in *this* file
@@ -125,3 +133,12 @@ services:
                 name: 'kernel.event_listener'
                 event: 'kernel.request'
                 method: 'decodeRequest'
+
+    # Rollbar settings
+    App\Logger\Handler\RollbarHandlerFactory:
+        $config: '%rollbar.config%'
+
+    Rollbar\Monolog\Handler\RollbarHandler:
+        factory: ['@App\Logger\Handler\RollbarHandlerFactory', createRollbarHandler]
+        tags:
+            - { name: monolog.logger, channel: rollbar }
