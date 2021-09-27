@@ -3,10 +3,10 @@ version: "3.4"
 # Production environment override
 services:
   pwa:
-    image: ${API_PWA_IMAGE}
+    image: ${API_PWA_IMAGE}:${API_PWA_TAG}
 
   php:
-    image: ${API_PHP_IMAGE}
+    image: ${API_PHP_IMAGE}:${API_PHP_TAG}
     environment:
       APP_ENV: prod
       SERVER_NAME: ${SERVER_NAME:-!CHANGEME!}
