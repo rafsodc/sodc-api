@@ -16,10 +16,9 @@ parameters:
     rollbar.config:
         access_token: '%env(ROLLBAR_TOKEN)%'
         environment: '%env(APP_ENV)%'
-        code_version: '1.0.1'
         allow_exec: false
-        exception_sample_rates:
-            Symfony\Component\HttpKernel\Exception\HttpException: 0
+        # exception_sample_rates:
+        #     Symfony\Component\HttpKernel\Exception\HttpException: 1
         # any other options available in https://docs.rollbar.com/docs/php-configuration-reference
 
 services:

@@ -26,9 +26,9 @@ class TestController extends AbstractController
     /**
      * Runs after login event.
      *
-     * @Route("/test", name="app_ipg", methods={"POST", "GET"})
+     * @Route("/test", name="app_test", methods={"POST", "GET"})
      */
-    public function ipg(RequestStack $request, TransactionRepository $transactionRepository,  ValidatorInterface $validator, EntityManagerInterface $entityManager, LoggerInterface $logger)
+    public function test(RequestStack $request, TransactionRepository $transactionRepository,  ValidatorInterface $validator, EntityManagerInterface $entityManager, LoggerInterface $logger)
     {
         $logger->error('Test error');
         

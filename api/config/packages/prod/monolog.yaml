@@ -2,10 +2,13 @@ monolog:
     handlers:
         main:
             type: fingers_crossed
-            action_level: error
+            action_level: debug
             handler: nested
-            excluded_http_codes: [404, 405]
+            #excluded_http_codes: [404, 405]
             buffer_size: 50 # How many messages should be saved? Prevent memory leaks
+        rollbar:
+            type: service
+            id: Rollbar\Monolog\Handler\RollbarHandler
         nested:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
@@ -14,6 +17,4 @@ monolog:
             type: console
             process_psr_3_messages: false
             channels: ["!event", "!doctrine"]
-        rollbar:
-            type: service
-            id: Rollbar\Monolog\Handler\RollbarHandler
+
