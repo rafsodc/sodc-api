@@ -39,7 +39,7 @@ class Rank
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"rank:read", "user:read"})
+     * @Groups({"rank:read"})
      */
     private $rank;
 

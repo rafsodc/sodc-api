@@ -48,7 +48,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      * @Assert\NotBlank()
      * @Assert\Email()
      */
@@ -61,7 +61,7 @@ class User implements UserInterface
     private $roles = [];
 
     /**
-     * @Groups("user:write")
+     * @Groups("user:write", "create_user")
      * @SerializedName("password")
      * @Assert\NotBlank(groups={"create_user"})
      */
@@ -76,7 +76,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Assert\NotBlank()
+     * @Groups("owner:read", "user:write", "create_user")
      * @Assert\Regex(
      *     pattern = "/^[a-zA-Z0-9_]+$/"
      * )
@@ -85,7 +85,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      */
     private $phoneNumber;
 
@@ -108,56 +108,59 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      */
     private $mobileNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
+     * @Groups({"user:read", "user:write", "create_user"})
+     * @Assert\NotBlank()
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
+     * @Groups({"user:read", "user:write", "create_user"})
+     * @Assert\NotBlank()
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      */
     private $postNominals;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      */
     private $serviceNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      */
     private $modnetEmail;
 
     /**
      * @ORM\ManyToOne(targetEntity=Rank::class, inversedBy="users")
-     * @Groups({"user:read", "user:write"})
+     * @Groups({"user:read", "user:write", "create_user"})
      */
     private $rank;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"owner:read", "user:write"})
+     * @Groups({"owner:read", "user:write", "create_user"})
      */
     private $workDetails;
 
     /**
-     * @Groups({"owner:read", "user:write"})
+     * @Groups({"owner:read", "user:write", "create_user"})
      * @ORM\Column(type="boolean")
-     * @Assert\NotBlank(groups={"create_user"})
+     * @Assert\Type("bool")
+     * @Assert\NotNull
      */
     private $isShared;
 
