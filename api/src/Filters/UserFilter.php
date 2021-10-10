@@ -32,11 +32,11 @@ class UserFilter extends AbstractFilter
             case "name":
                 $where = $queryBuilder->expr()->orX(
                     $queryBuilder->expr()->like(
-                        $queryBuilder->expr()->concat(sprintf('%s.firstName', $alias), $queryBuilder->expr()->concat($queryBuilder->expr()->literal(' '), sprintf('%s.lastName', $alias))),
+                        $queryBuilder->expr()->concat(sprintf('LOWER(%s.firstName)', $alias), $queryBuilder->expr()->concat($queryBuilder->expr()->literal(' '), sprintf('LOWER(%s.lastName)', $alias))),
                         ':value'
                     ),
                     $queryBuilder->expr()->like(
-                        $queryBuilder->expr()->concat(sprintf('%s.lastName', $alias), $queryBuilder->expr()->concat($queryBuilder->expr()->literal(' '), sprintf('%s.firstName', $alias))),
+                        $queryBuilder->expr()->concat(sprintf('LOWER(%s.lastName)', $alias), $queryBuilder->expr()->concat($queryBuilder->expr()->literal(' '), sprintf('LOWER(%s.firstName)', $alias))),
                         ':value'
                     ),
                 );
