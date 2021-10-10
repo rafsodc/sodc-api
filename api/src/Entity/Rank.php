@@ -16,7 +16,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  * @ORM\Entity(repositoryClass=RankRepository::class)
  * @ApiResource(
  *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "get"={"security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"},
  *          "post"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  *     itemOperations={
