@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 use App\Filters\UserFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use App\Validator\Constraints\Captcha;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -22,17 +23,19 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  *     collectionOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
  *          "post"={
- *                  "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
- *                  "validation_groups"={"Default", "create_user"}
+ *              "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
+ *              "validation_groups"={"create_user"}
  *          },
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('USER_VIEW', object)"},
- *          "patch"={"security"="is_granted('USER_EDIT', object)"},
+ *          "patch"={
+ *              "security"="is_granted('USER_EDIT', object)",
+ *              "validation_groups"={"user:write"},
+ *          },
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  * )
- * @UniqueEntity(fields={"username"})
  * @UniqueEntity(fields={"email"})
  * @ApiFilter(SearchFilter::class, properties={"id": "exact"});
  * @ApiFilter(UserFilter::class)
@@ -48,7 +51,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      * @Assert\NotBlank()
      * @Assert\Email()
      */
@@ -61,7 +64,7 @@ class User implements UserInterface
     private $roles = [];
 
     /**
-     * @Groups("user:write")
+     * @Groups("user:write", "create_user")
      * @SerializedName("password")
      * @Assert\NotBlank(groups={"create_user"})
      */
@@ -75,17 +78,8 @@ class User implements UserInterface
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=true)
-     * @Assert\NotBlank()
-     * @Assert\Regex(
-     *     pattern = "/^[a-zA-Z0-9_]+$/"
-     * )
-     */
-    private $username;
-
-    /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      */
     private $phoneNumber;
 
@@ -108,68 +102,78 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      */
     private $mobileNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
+     * @Groups({"user:read", "user:write", "create_user"})
+     * @Assert\NotBlank()
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
+     * @Groups({"user:read", "user:write", "create_user"})
+     * @Assert\NotBlank()
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      */
     private $postNominals;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      */
     private $serviceNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:item:read", "user:write"})
+     * @Groups({"user:item:read", "user:write", "create_user"})
      */
     private $modnetEmail;
 
     /**
      * @ORM\ManyToOne(targetEntity=Rank::class, inversedBy="users")
-     * @Groups({"user:read", "user:write"})
+     * @Groups({"user:read", "user:write", "create_user"})
      */
     private $rank;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"owner:read", "user:write"})
+     * @Groups({"owner:read", "user:write", "create_user"})
      */
     private $workDetails;
 
     /**
-     * @Groups({"owner:read", "user:write"})
+     * @Groups({"owner:read", "user:write", "create_user"})
      * @ORM\Column(type="boolean")
-     * @Assert\NotBlank(groups={"create_user"})
+     * @Assert\Type("bool")
+     * @Assert\NotNull
      */
     private $isShared;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", options={"default":false})
      */
-    private $isMember;
+    private $isMember = false;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
     private $oldUid;
+
+    /**
+     * @Captcha
+     * @Groups({"create_user"})
+     */
+    private $captcha = "";
+
 
     public function __construct()
     {
@@ -195,14 +199,12 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
+     /**
      * @see UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->username;
+        return $this->email;
     }
 
     /**
@@ -212,7 +214,7 @@ class User implements UserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        //$roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
@@ -239,13 +241,6 @@ class User implements UserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
-
-        return $this;
-    }
-
-    public function setUsername(string $username): self
-    {
-        $this->username = $username;
 
         return $this;
     }
@@ -502,6 +497,18 @@ class User implements UserInterface
         $this->oldUid = $oldUid;
 
         return $this;
+    }
+
+     
+    public function setCaptcha(string $captcha): self
+    {
+        $this->captcha = $captcha;
+        return $this;
+    }
+
+    public function getCaptcha(): ?string
+    {
+        return $this->captcha;
     }
 
 

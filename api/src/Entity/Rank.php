@@ -16,7 +16,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  * @ORM\Entity(repositoryClass=RankRepository::class)
  * @ApiResource(
  *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "get"={"security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"},
  *          "post"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
  *     itemOperations={
@@ -39,7 +39,7 @@ class Rank
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"rank:read", "user:read"})
+     * @Groups({"rank:read"})
      */
     private $rank;
 
