@@ -133,6 +133,14 @@ services:
                 event: 'kernel.request'
                 method: 'decodeRequest'
 
+    App\EventListener\LoginEventListener:
+        tags:
+            -
+                name: 'kernel.event_listener'
+                event: 'kernel.request'
+                method: 'decodeRequest'
+                priority: 20
+
     # Rollbar settings
     App\Logger\Handler\RollbarHandlerFactory:
         $config: '%rollbar.config%'
