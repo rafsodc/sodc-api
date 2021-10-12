@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the CoopTilleulsForgotPasswordBundle package.
- *
- * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\EventListener;
@@ -24,10 +15,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Entity\PasswordToken;
 use App\Exception\InvalidCaptchaHttpException;
 
-/**
- * @author Vincent Chalamon <vincent@les-tilleuls.coop>
- */
-final class PasswordRequestEventListener
+final class LoginEventListener
 {
     private $validator;
 
@@ -40,25 +28,15 @@ final class PasswordRequestEventListener
 
     public function decodeRequest(KernelEvent $event): void
     {
-      dd('bah');
         $request = $event->getRequest();
         $routeName = $request->attributes->get('_route');
         
-        if (!$event->isMasterRequest() || 'coop_tilleuls_forgot_password.reset' !== $routeName) {
+        if (!$event->isMasterRequest() || 'app_login' !== $routeName) {
           return;
         };
 
         $content = $request->getContent();
         $data = json_decode($content, true);
-        $captcha = isset($data['captcha']) ? $data['captcha'] : '';
-
-        $passwordToken = new PasswordToken();
-        $passwordToken->setCaptcha($captcha);
-
-        $errors = $this->validator->validate($passwordToken);
-        if($errors->count() > 0) {
-          //throw new InvalidCaptchaHttpException();
-        }
 
         // Resend request with lower case email
         $data['email'] = strtolower($data['email']);
