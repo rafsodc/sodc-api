@@ -157,7 +157,6 @@ class LoadUsersFromCsvCommand extends Command
         //dd($roles);
         $user = new User;
         $user->setOldUid($data[$this->keyToIndex['uid']]);
-        $user->setUsername($data[$this->keyToIndex['username']]);
         $user->setFirstName($data[$this->keyToIndex['firstname']]);
         $user->setLastName($data[$this->keyToIndex['lastname']]);
         $user->setEmail($data[$this->keyToIndex['email']]);
