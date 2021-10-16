@@ -40,7 +40,6 @@ final class PasswordRequestEventListener
 
     public function decodeRequest(KernelEvent $event): void
     {
-      dd('bah');
         $request = $event->getRequest();
         $routeName = $request->attributes->get('_route');
         
