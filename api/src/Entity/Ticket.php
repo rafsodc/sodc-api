@@ -27,6 +27,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "patch"={"security"="is_granted('TICKET_EDIT', object)"},
  *          "delete"={"security"="is_granted('TICKET_DELETE', object)"},
  *     },
+ *     attributes={
+ *          "pagination_enabled"=false
+ *     }
  * )
  * @ORM\Entity(repositoryClass=TicketRepository::class)
  * @ORM\EntityListeners({"App\Doctrine\TicketSetOwnerListener"})
