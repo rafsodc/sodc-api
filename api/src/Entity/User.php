@@ -174,6 +174,11 @@ class User implements UserInterface
      */
     private $captcha = "";
 
+    /**
+     * @Groups("ticket:read")
+     */
+    private $fullName;
+
 
     public function __construct()
     {
@@ -511,5 +516,8 @@ class User implements UserInterface
         return $this->captcha;
     }
 
-
+    public function getFullName(): string
+    {
+        return "{$this->getLastName()}, {$this->getFirstName()}";
+    }
 }
