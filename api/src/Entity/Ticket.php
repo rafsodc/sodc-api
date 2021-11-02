@@ -28,7 +28,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "delete"={"security"="is_granted('TICKET_DELETE', object)"},
  *     },
  *     attributes={
- *          "pagination_enabled"=false
+ *          "pagination_enabled"=false,
+ *          "order"={"owner.lastName", "owner.firstName", "lastname", "firstname"}
  *     }
  * )
  * @ORM\Entity(repositoryClass=TicketRepository::class)
