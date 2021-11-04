@@ -25,7 +25,7 @@ monolog:
     handlers:
         main:
             type: fingers_crossed
-            action_level: debug
+            action_level: warning
             handler: rollbar
         #    excluded_http_codes: []
             buffer_size: 50 # How many messages should be saved? Prevent memory leaks
