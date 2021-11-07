@@ -120,12 +120,18 @@ class Event
      */
     private $isBookingOpen;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Agendum::class, mappedBy="event", orphanRemoval=true)
+     */
+    private $agendums;
+
     public function __construct()
     {
         $this->ticketTypes = new ArrayCollection();
         $this->tickets = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->agendums = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -333,6 +339,36 @@ class Event
     public function setIsBookingOpen(bool $isBookingOpen)
     {
         $this->isBookingOpen = $isBookingOpen;
+    }
+
+    /**
+     * @return Collection|Agendum[]
+     */
+    public function getAgendums(): Collection
+    {
+        return $this->agendums;
+    }
+
+    public function addAgendum(Agendum $agendum): self
+    {
+        if (!$this->agendums->contains($agendum)) {
+            $this->agendums[] = $agendum;
+            $agendum->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAgendum(Agendum $agendum): self
+    {
+        if ($this->agendums->removeElement($agendum)) {
+            // set the owning side to null (unless already changed)
+            if ($agendum->getEvent() === $this) {
+                $agendum->setEvent(null);
+            }
+        }
+
+        return $this;
     }
 
 }
