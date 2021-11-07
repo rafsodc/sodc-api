@@ -7,9 +7,19 @@ use App\Repository\MediaRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ApiResource(
+ *     collectionOperations={
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "post"={"security"="is_granted('ROLE_ADMIN')"},
+ *     },
+ *     itemOperations={
+ *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
+ *     },
+ * )
  * @ORM\Entity(repositoryClass=MediaRepository::class)
  */
-#[ApiResource]
 class Media
 {
     /**
