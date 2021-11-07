@@ -9,9 +9,23 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ApiResource(
+ *     collectionOperations={
+ *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "post"={"security"="is_granted('ROLE_ADMIN')"},
+ *     },
+ *     itemOperations={
+ *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
+ *     },
+ *     attributes={
+ *          "pagination_enabled"=false,
+ *          "order"={"start"}
+ *     }
+ * )
  * @ORM\Entity(repositoryClass=AgendumRepository::class)
  */
-#[ApiResource]
 class Agendum
 {
     /**
