@@ -16,6 +16,9 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use Ramsey\Uuid\UuidInterface;
 use App\Validator\Constraints\TicketPaid;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Dto\EventTicketOutput;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 /**
  * @ApiResource(
  *     collectionOperations={
@@ -30,6 +33,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     attributes={
  *          "pagination_enabled"=false,
  *          "order"={"owner.lastName", "owner.firstName", "lastname", "firstname"}
+ *     },
+ *     subresourceOperations={
+ *          "api_events_tickets_get_subresource"= {
+ *              "method"="GET",
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "normalization_context"={"groups"={"event_ticket:read"}}
+ *          }
  *     }
  * )
  * @ORM\Entity(repositoryClass=TicketRepository::class)
@@ -59,7 +69,7 @@ class Ticket
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false)
      * @IsValidOwner()
-     * @Groups({"ticket:write", "ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "event_ticket:read"})
      * @Assert\NotBlank()
      */
     private $owner;
@@ -75,19 +85,19 @@ class Ticket
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read", "basket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read", "event_ticket:read"})
      */
     private $rank;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read", "basket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read", "event_ticket:read"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read", "basket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read", "event_ticket:read"})
      * @Assert\NotBlank()
      */
     private $lastname;
@@ -95,20 +105,19 @@ class Ticket
     /**
      * @ORM\ManyToOne(targetEntity=TicketType::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"ticket:write", "ticket:read", "basket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read", "event_ticket:read"})
      * @Assert\NotBlank()
      */
     private $ticketType;
 
     /**
      * @ORM\Column(type="array")
-     * @Groups({"ticket:write", "ticket:read"})
      */
     private $seatingPreference = [];
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "event_ticket:read"})
      */
     private $dietary;
 
@@ -129,11 +138,19 @@ class Ticket
      */
     private $baskets;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class)
+     * @Groups({"ticket:write", "ticket:read"})
+     * @ApiProperty(readableLink=false, writableLink=false)
+     */
+    private $seatingPreferences;
+
     public function __construct()
     {
         $this->createdDate = new \DateTimeImmutable();
         $this->paid = false;
         $this->baskets = new ArrayCollection();
+        $this->seatingPreferences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -289,6 +306,42 @@ class Ticket
         if ($this->baskets->removeElement($basket)) {
             $basket->removeTickets($this);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getSeatingPreferences(): Collection
+    {
+        return $this->seatingPreferences;
+    }
+
+    /**
+     * @return Collection|User[]
+     * @Groups({"event_ticket:read"})
+     * @SerializedName("seatingPreferences")
+     * We already have the serialized name seatingPreferences, but that's only referenced in a ticket:read/write call.  For an event_ticket:read call, we want
+     * to display the fullname, and not the IRI.
+     */
+    public function getSeatingPreferenceNames(): Collection
+    {
+        return $this->seatingPreferences;
+    }
+
+    public function addSeatingPreference(User $seatingPreference): self
+    {
+        if (!$this->seatingPreferences->contains($seatingPreference)) {
+            $this->seatingPreferences[] = $seatingPreference;
+        }
+
+        return $this;
+    }
+
+    public function removeSeatingPreference(User $seatingPreference): self
+    {
+        $this->seatingPreferences->removeElement($seatingPreference);
 
         return $this;
     }
