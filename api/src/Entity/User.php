@@ -175,7 +175,7 @@ class User implements UserInterface
     private $captcha = "";
 
     /**
-     * @Groups("ticket:read")
+     * @Groups("ticket:read", "event_ticket:read")
      */
     private $fullName;
 

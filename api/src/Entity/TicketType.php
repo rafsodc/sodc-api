@@ -48,19 +48,19 @@ class TicketType
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read"})
      */
     private $symposium;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read"})
      */
     private $dinner;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read"})
      */
     private $serving;
 
@@ -72,13 +72,13 @@ class TicketType
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read"})
      */
     private $guest;
 
     /**
      * @ORM\Column(type="float")
-     * @Groups({"tickettype:write", "tickettype:read", "event:item:read", "basket:read", "ticket:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "event:item:read", "basket:read", "ticket:read", "event_ticket:read"})
      */
     private $price;
 

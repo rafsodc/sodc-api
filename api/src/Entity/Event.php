@@ -106,6 +106,7 @@ class Event
     /**
      * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="event", orphanRemoval=true)
      * @Groups({"event:write", "event:read"})
+     * @ApiSubresource()
      */
     private $tickets;
 
