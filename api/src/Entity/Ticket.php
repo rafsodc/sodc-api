@@ -123,7 +123,7 @@ class Ticket
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"ticket:read"})
+     * @Groups({"ticket:read", "event_ticket:read"})
      */
     private $paid;
 
