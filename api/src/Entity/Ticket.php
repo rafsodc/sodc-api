@@ -37,7 +37,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
  *     subresourceOperations={
  *          "api_events_tickets_get_subresource"= {
  *              "method"="GET",
- *              "security"="is_granted('ROLE_ADMIN')",
+ *              "security"="is_granted('ROLE_USER')",
  *              "normalization_context"={"groups"={"event_ticket:read"}}
  *          }
  *     }
