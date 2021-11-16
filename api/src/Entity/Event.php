@@ -121,9 +121,10 @@ class Event
     private $isBookingOpen;
 
     /**
-     * @ORM\OneToMany(targetEntity=Agendum::class, mappedBy="event", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Agenda::class, mappedBy="event", orphanRemoval=true)
+     * @ApiSubresource()
      */
-    private $agendums;
+    private $agendas;
 
     public function __construct()
     {
@@ -131,7 +132,7 @@ class Event
         $this->tickets = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->transactions = new ArrayCollection();
-        $this->agendums = new ArrayCollection();
+        $this->agendas = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -342,29 +343,29 @@ class Event
     }
 
     /**
-     * @return Collection|Agendum[]
+     * @return Collection|Agenda[]
      */
-    public function getAgendums(): Collection
+    public function getAgendas(): Collection
     {
-        return $this->agendums;
+        return $this->agendas;
     }
 
-    public function addAgendum(Agendum $agendum): self
+    public function addAgenda(Agenda $agenda): self
     {
-        if (!$this->agendums->contains($agendum)) {
-            $this->agendums[] = $agendum;
-            $agendum->setEvent($this);
+        if (!$this->agendas->contains($agenda)) {
+            $this->agendas[] = $agenda;
+            $agenda->setEvent($this);
         }
 
         return $this;
     }
 
-    public function removeAgendum(Agendum $agendum): self
+    public function removeAgenda(Agenda $agenda): self
     {
-        if ($this->agendums->removeElement($agendum)) {
+        if ($this->agendas->removeElement($agenda)) {
             // set the owning side to null (unless already changed)
-            if ($agendum->getEvent() === $this) {
-                $agendum->setEvent(null);
+            if ($agenda->getEvent() === $this) {
+                $agenda->setEvent(null);
             }
         }
 

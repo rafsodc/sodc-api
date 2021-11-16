@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\Agendum;
+use App\Entity\Agenda;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Agendum|null find($id, $lockMode = null, $lockVersion = null)
- * @method Agendum|null findOneBy(array $criteria, array $orderBy = null)
- * @method Agendum[]    findAll()
- * @method Agendum[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Agenda|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Agenda|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Agenda[]    findAll()
+ * @method Agenda[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class AgendumRepository extends ServiceEntityRepository
+class AgendaRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Agendum::class);
+        parent::__construct($registry, Agenda::class);
     }
 
     // /**
-    //  * @return Agendum[] Returns an array of Agendum objects
+    //  * @return Agenda[] Returns an array of Agenda objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class AgendumRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?Agendum
+    public function findOneBySomeField($value): ?Agenda
     {
         return $this->createQueryBuilder('a')
             ->andWhere('a.exampleField = :val')

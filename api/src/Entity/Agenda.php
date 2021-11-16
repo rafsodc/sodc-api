@@ -3,10 +3,11 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\AgendumRepository;
+use App\Repository\AgendaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
@@ -22,11 +23,18 @@ use Doctrine\ORM\Mapping as ORM;
  *     attributes={
  *          "pagination_enabled"=false,
  *          "order"={"start"}
+ *     },
+ *     subresourceOperations={
+ *          "api_events_agendas_get_subresource"= {
+ *              "method"="GET",
+ *              "security"="is_granted('ROLE_USER')",
+ *              "normalization_context"={"groups"={"agenda:read"}}
+ *          }
  *     }
  * )
- * @ORM\Entity(repositoryClass=AgendumRepository::class)
+ * @ORM\Entity(repositoryClass=AgendaRepository::class)
  */
-class Agendum
+class Agenda
 {
     /**
      * @ORM\Id
@@ -36,43 +44,51 @@ class Agendum
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="agendums")
+     * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="agendas")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"agenda:write"})
      */
     private $event;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Speaker::class, inversedBy="agendums")
+     * @ORM\ManyToMany(targetEntity=Speaker::class, inversedBy="agendas")
+     * @Groups({"agenda:read", "agenda:write"})
      */
     private $speakers;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"agenda:read", "agenda:write"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"agenda:write"})
      */
     private $description;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="datetime")
+     * @Groups({"agenda:read", "agenda:write"})
      */
     private $start;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="datetime")
+     * @Groups({"agenda:read", "agenda:write"})
      */
     private $finish;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"agenda:write"})
      */
     private $hidden;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"agenda:read", "agenda:write"})
      */
     private $break;
 

@@ -7,6 +7,7 @@ use App\Repository\SpeakerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
@@ -37,21 +38,25 @@ class Speaker
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"speaker:read", "speaker:write"})
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"speaker:read", "speaker:write"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"speaker:read", "speaker:write"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"speaker:read", "speaker:write"})
      */
     private $biography;
 
@@ -61,13 +66,13 @@ class Speaker
     private $photograph;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Agendum::class, mappedBy="speakers")
+     * @ORM\ManyToMany(targetEntity=Agenda::class, mappedBy="speakers")
      */
-    private $agendums;
+    private $agendas;
 
     public function __construct()
     {
-        $this->agendums = new ArrayCollection();
+        $this->agendas = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -136,29 +141,36 @@ class Speaker
     }
 
     /**
-     * @return Collection|Agendum[]
+     * @return Collection|Agenda[]
      */
-    public function getAgendums(): Collection
+    public function getAgendas(): Collection
     {
-        return $this->agendums;
+        return $this->agendas;
     }
 
-    public function addAgendum(Agendum $agendum): self
+    public function addAgenda(Agenda $agenda): self
     {
-        if (!$this->agendums->contains($agendum)) {
-            $this->agendums[] = $agendum;
-            $agendum->addSpeaker($this);
+        if (!$this->agendas->contains($agendas)) {
+            $this->agendas[] = $agendas;
+            $agendas->addSpeaker($this);
         }
 
         return $this;
     }
 
-    public function removeAgendum(Agendum $agendum): self
+    public function removeAgenda(Agenda $agenda): self
     {
-        if ($this->agendums->removeElement($agendum)) {
-            $agendum->removeSpeaker($this);
+        if ($this->agendas->removeElement($agenda)) {
+            $agenda->removeSpeaker($this);
         }
 
         return $this;
+    }
+
+    /**
+     * @Groups({"agenda:read"})
+     */
+    public function getFullname(): string {
+        return sprintf("%s %s %s", $this->title, $this->firstname, $this->lastname);
     }
 }
