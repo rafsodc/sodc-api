@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20211116090439 extends AbstractMigration
+final class Version20211116193711 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -23,7 +23,7 @@ final class Version20211116090439 extends AbstractMigration
         $this->addSql('CREATE SEQUENCE agenda_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE media_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE speaker_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE agenda (id INT NOT NULL, event_id INT NOT NULL, title VARCHAR(255) NOT NULL, description TEXT NOT NULL, start DATE NOT NULL, finish DATE NOT NULL, hidden BOOLEAN NOT NULL, break BOOLEAN NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE agenda (id INT NOT NULL, event_id INT NOT NULL, title VARCHAR(255) NOT NULL, description TEXT NOT NULL, start TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, finish TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, hidden BOOLEAN NOT NULL, break BOOLEAN NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_2CEDC87771F7E88B ON agenda (event_id)');
         $this->addSql('CREATE TABLE agenda_speaker (agenda_id INT NOT NULL, speaker_id INT NOT NULL, PRIMARY KEY(agenda_id, speaker_id))');
         $this->addSql('CREATE INDEX IDX_F841B920EA67784A ON agenda_speaker (agenda_id)');
@@ -35,7 +35,6 @@ final class Version20211116090439 extends AbstractMigration
         $this->addSql('ALTER TABLE agenda_speaker ADD CONSTRAINT FK_F841B920EA67784A FOREIGN KEY (agenda_id) REFERENCES agenda (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE agenda_speaker ADD CONSTRAINT FK_F841B920D04A0F27 FOREIGN KEY (speaker_id) REFERENCES speaker (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE speaker ADD CONSTRAINT FK_7B85DB61D8BBBEC7 FOREIGN KEY (photograph_id) REFERENCES media (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('DROP TABLE ticket_user');
     }
 
     public function down(Schema $schema): void
@@ -48,11 +47,6 @@ final class Version20211116090439 extends AbstractMigration
         $this->addSql('DROP SEQUENCE agenda_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE media_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE speaker_id_seq CASCADE');
-        $this->addSql('CREATE TABLE ticket_user (ticket_id INT NOT NULL, user_id INT NOT NULL, PRIMARY KEY(ticket_id, user_id))');
-        $this->addSql('CREATE INDEX idx_bf48c371700047d2 ON ticket_user (ticket_id)');
-        $this->addSql('CREATE INDEX idx_bf48c371a76ed395 ON ticket_user (user_id)');
-        $this->addSql('ALTER TABLE ticket_user ADD CONSTRAINT fk_bf48c371700047d2 FOREIGN KEY (ticket_id) REFERENCES ticket (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE ticket_user ADD CONSTRAINT fk_bf48c371a76ed395 FOREIGN KEY (user_id) REFERENCES "user" (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('DROP TABLE agenda');
         $this->addSql('DROP TABLE agenda_speaker');
         $this->addSql('DROP TABLE media');

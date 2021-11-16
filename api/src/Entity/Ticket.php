@@ -59,7 +59,7 @@ class Ticket
 
     /**
      * @ORM\Column(type="uuid", unique=true)
-     * @Groups({"ticket:write", "basket:read", "event:item:read"})
+     * @Groups({"ticket:write", "basket:read", "event:item:read", "event_ticket:read"})
      * @ApiProperty(identifier=true)
      * @Assert\NotBlank()
      */
