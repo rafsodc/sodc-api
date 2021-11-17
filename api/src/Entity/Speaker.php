@@ -70,6 +70,18 @@ class Speaker
      */
     private $agendas;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"speaker:read", "speaker:write"})
+     */
+    private $postnominals;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"speaker:read", "speaker:write", "agenda:read"})
+     */
+    private $position;
+
     public function __construct()
     {
         $this->agendas = new ArrayCollection();
@@ -171,6 +183,37 @@ class Speaker
      * @Groups({"agenda:read"})
      */
     public function getFullname(): string {
-        return sprintf("%s %s %s", $this->title, $this->firstname, $this->lastname);
+        return sprintf("%s %s %s %s", $this->title, $this->firstname, $this->lastname, $this->postnominals);
+    }
+
+    /**
+     * @Groups({"agenda:read"})
+     */
+    public function getHasBio(): bool {
+        return !empty($this->biography);
+    }
+
+    public function getPostnominals(): ?string
+    {
+        return $this->postnominals;
+    }
+
+    public function setPostnominals(string $postnominals): self
+    {
+        $this->postnominals = $postnominals;
+
+        return $this;
+    }
+
+    public function getPosition(): ?string
+    {
+        return $this->position;
+    }
+
+    public function setPosition(string $position): self
+    {
+        $this->position = $position;
+
+        return $this;
     }
 }
