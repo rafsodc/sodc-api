@@ -50,7 +50,7 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
     private function getIpgObject($transaction) {
         $dateTime = $transaction->getCreatedAt();
         //$dateTime->setTimezone(new DateTimeZone('Europe/London'));
-        $amount = number_format($transaction->getBasket()->getAmount(), 2);
+        $amount = number_format($transaction->getBasket()->getAmount(), 2, '.', '');
         $currency = 826;
         $user = $this->security->getUser();
         return [
