@@ -5,11 +5,44 @@ framework:
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
-            async: '%env(MESSENGER_TRANSPORT_DSN)%'
-            # failed: 'doctrine://default?queue_name=failed'
-            # sync: 'sync://'
+            email_priority_low:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    # Messenger will create then send to this exchange
+                    exchange:
+                        name: email
+                        type: direct
+                        default_publish_routing_key: low
+                    # Messenger will create this queue & add binding keys
+                    # The worker will know to consume from this queue
+                    queues:
+                        emails_low:
+                            binding_keys: [low]
+            email_priority_normal:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    # Messenger will create then send to this exchange
+                    exchange:
+                        name: email
+                        type: direct
+                        default_publish_routing_key: normal
+                    # Messenger will create this queue & add binding keys
+                    # The worker will know to consume from this queue
+                    queues:
+                        emails_normal:
+                            binding_keys: [normal]
+            email_priority_high:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: email
+                        type: direct
+                        default_publish_routing_key: high
+                    queues:
+                        emails_high:
+                            binding_keys: [high]
 
         routing:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
-            App\Message\EmailPasswordResetLink: async
+            App\Message\EmailPasswordResetLink: email_priority_high

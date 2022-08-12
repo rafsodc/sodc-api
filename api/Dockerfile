@@ -8,7 +8,7 @@ ARG PHP_VERSION=8.0
 ARG CADDY_VERSION=2
 
 # "php" stage
-FROM php:${PHP_VERSION}-fpm-alpine AS api_platform_php
+FROM php:${PHP_VERSION}-fpm-alpine AS api_platform
 
 # persistent / runtime deps
 RUN apk add --no-cache \
@@ -18,6 +18,7 @@ RUN apk add --no-cache \
 		gettext \
 		git \
 		gnu-libiconv \
+		rabbitmq-c \
 	;
 
 # install gnu-libiconv and set LD_PRELOAD env to make iconv work fully on Alpine image.
@@ -32,6 +33,7 @@ RUN set -eux; \
 		libzip-dev \
 		postgresql-dev \
 		zlib-dev \
+		rabbitmq-c-dev\
 	; \
 	\
 	docker-php-ext-configure zip; \
@@ -42,11 +44,13 @@ RUN set -eux; \
 	; \
 	pecl install \
 		apcu-${APCU_VERSION} \
+		amqp \
 	; \
 	pecl clear-cache; \
 	docker-php-ext-enable \
 		apcu \
 		opcache \
+		amqp\
 	; \
 	\
 	runDeps="$( \
@@ -116,8 +120,17 @@ ENV SYMFONY_PHPUNIT_VERSION=9
 #COPY docker/php/docker-variables.sh /usr/local/bin/docker-variables
 #RUN chmod +x /usr/local/bin/docker-variables
 
+FROM api_platform as api_platform_php
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
+
+FROM api_platform as api_platform_transport
+
+COPY docker/transport/message_script.sh /usr/local/bin/message-script
+RUN chmod +x /usr/local/bin/message-script
+
+ENTRYPOINT ["ash", "/usr/local/bin/message-script"]
+
 
 # "caddy" stage
 # depends on the "php" stage above
@@ -137,3 +150,6 @@ COPY --from=dunglas/mercure:v0.11 /srv/public /srv/mercure-assets/
 COPY --from=api_platform_caddy_builder /usr/bin/caddy /usr/bin/caddy
 COPY --from=api_platform_php /srv/api/public public/
 COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
+
+# RabbitMQ stage
+FROM rabbitmq:3-management AS api_platform_rabbitmq
