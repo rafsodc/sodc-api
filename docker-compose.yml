@@ -19,7 +19,15 @@ services:
       context: ./api
       target: api_platform_transport
     restart: unless-stopped
-
+    healthcheck:
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    deploy:
+      mode: replicated
+      replicas: 2
+      
   pwa:
     build:
       context: ./../SODC-React-Members

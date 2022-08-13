@@ -107,29 +107,34 @@ RUN set -eux; \
 	chmod +x bin/console; sync
 VOLUME /srv/api/var
 
-COPY docker/php/docker-healthcheck.sh /usr/local/bin/docker-healthcheck
-RUN chmod +x /usr/local/bin/docker-healthcheck
-
-HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
-
-COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
-RUN chmod +x /usr/local/bin/docker-entrypoint
-
 ENV SYMFONY_PHPUNIT_VERSION=9
 
 #COPY docker/php/docker-variables.sh /usr/local/bin/docker-variables
 #RUN chmod +x /usr/local/bin/docker-variables
 
 FROM api_platform as api_platform_php
+
+COPY docker/php/docker-healthcheck.sh /usr/local/bin/docker-healthcheck
+RUN chmod +x /usr/local/bin/docker-healthcheck
+
+COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+RUN chmod +x /usr/local/bin/docker-entrypoint
+
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
 
 FROM api_platform as api_platform_transport
 
-COPY docker/transport/message_script.sh /usr/local/bin/message-script
-RUN chmod +x /usr/local/bin/message-script
+COPY docker/transport/docker-healthcheck.sh /usr/local/bin/docker-healthcheck
+RUN chmod +x /usr/local/bin/docker-healthcheck
 
-ENTRYPOINT ["ash", "/usr/local/bin/message-script"]
+COPY docker/transport/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+RUN chmod +x /usr/local/bin/docker-entrypoint
+
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
+ENTRYPOINT ["docker-entrypoint"] 
+CMD ["docker-entrypoint"]
 
 
 # "caddy" stage
