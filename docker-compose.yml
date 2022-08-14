@@ -79,6 +79,10 @@ services:
     volumes:
       - ./../rabbitmq:/var/lib/rabbitmq:cached
     hostname: sodc_rabbitmq
+    ports:
+      - target: 15672
+        published: 15672
+        protocol: tcp
 
   # database:
   #   image: postgres:13-alpine
