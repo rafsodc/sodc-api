@@ -16,7 +16,7 @@ services:
       - ./../config/secrets:/srv/api/config/secrets
       - ./../resources:/srv/api/resources
 
-  rabbitmq:
+  transport:
     image: ${API_PHP_IMAGE}:${API_PHP_TAG}
     environment:
       APP_ENV: prod
