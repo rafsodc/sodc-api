@@ -17,7 +17,7 @@ services:
       - ./../resources:/srv/api/resources
 
   transport:
-    image: ${API_PHP_IMAGE}:${API_PHP_TAG}
+    image: ${API_TRANSPORT_IMAGE}:${API_PHP_TAG}
     environment:
       APP_ENV: prod
       SERVER_NAME: ${SERVER_NAME:-!CHANGEME!}

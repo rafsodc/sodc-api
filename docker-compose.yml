@@ -75,9 +75,7 @@ services:
         protocol: udp
 
   rabbitmq:
-    build:
-      context: api/
-      target: api_platform_rabbitmq
+    image: rabbitmq:3-management-alpine
     volumes:
       - ./../rabbitmq:/var/lib/rabbitmq:cached
     hostname: sodc_rabbitmq
