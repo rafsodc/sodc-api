@@ -50,9 +50,6 @@ services:
         published: 443
         protocol: udp
 
-  rabbitmq:
-    ports:
-      - 15672:15672
   # database:
   #   ports:
   #     - target: 5432
