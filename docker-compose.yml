@@ -5,6 +5,8 @@ services:
     build:
       context: ./api
       target: api_platform_php
+    depends_on:
+      - rabbitmq
     restart: unless-stopped
     volumes:
       - php_socket:/var/run/php
@@ -14,6 +16,23 @@ services:
       retries: 3
       start_period: 30s
 
+  transport:
+    build:
+      context: ./api
+      target: api_platform_transport
+    depends_on:
+      - php
+      - rabbitmq
+    restart: unless-stopped
+    healthcheck:
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    deploy:
+      mode: replicated
+      replicas: 2
+      
   pwa:
     build:
       context: ./../SODC-React-Members
@@ -29,6 +48,7 @@ services:
     depends_on:
       - php
       - pwa
+      - rabbitmq
     environment:
       PWA_UPSTREAM: pwa:3000
       SERVER_NAME: ${SERVER_NAME:-www.example.com, localhost, caddy:80}
@@ -53,6 +73,14 @@ services:
       - target: 443
         published: 443
         protocol: udp
+
+  rabbitmq:
+    build:
+      context: api/
+      target: api_platform_rabbitmq
+    volumes:
+      - ./../rabbitmq:/var/lib/rabbitmq:cached
+    hostname: sodc_rabbitmq
 
   # database:
   #   image: postgres:13-alpine

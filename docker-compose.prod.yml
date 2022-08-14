@@ -16,6 +16,15 @@ services:
       - ./../config/secrets:/srv/api/config/secrets
       - ./../resources:/srv/api/resources
 
+  rabbitmq:
+    image: ${API_PHP_IMAGE}:${API_PHP_TAG}
+    environment:
+      APP_ENV: prod
+      SERVER_NAME: ${SERVER_NAME:-!CHANGEME!}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS-!CHANGEME!}
+    volumes:
+      - ./../config/secrets:/srv/api/config/secrets
+
   caddy:
     image: ${API_CADDY_IMAGE}
     environment:
