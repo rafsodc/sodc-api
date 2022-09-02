@@ -40,6 +40,8 @@ class ApproveUserCommand extends Command
             ->addArgument('uid', InputArgument::OPTIONAL, 'User ID.')
             ->addArgument('serving', InputArgument::OPTIONAL, 'Serving')
             ->addArgument('retired', InputArgument::OPTIONAL, 'Retired')
+            ->addArgument('guest', InputArgument::OPTIONAL, 'Guest')
+            ->addArgument('delete', InputArgument::OPTIONAL, 'Delete')
         ;
     }
 
@@ -58,31 +60,40 @@ class ApproveUserCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $roles = [];
-        
-        array_push($roles, 'ROLE_MEMBER');
-        array_push($roles, 'ROLE_USER');
 
         if($input->getArgument('serving') === 'Y') {
+            array_push($roles, 'ROLE_USER');
+            array_push($roles, 'ROLE_MEMBER');
             array_push($roles, 'ROLE_SERVING');
         }
         else if($input->getArgument('retired') === 'Y') {
+            array_push($roles, 'ROLE_USER');
+            array_push($roles, 'ROLE_MEMBER');
             array_push($roles, 'ROLE_RETIRED');
+        }
+        else if($input->getArgument('guest') === 'Y') {
+            array_push($roles, 'ROLE_USER');
+            array_push($roles, 'ROLE_GUEST');
+            array_push($roles, 'ROLE_RETIRED');
+        }
+        else if($input->getArgument('delete') === 'Y') {
+            array_push($roles, 'ROLE_DELETED');
         }
 
         $this->user->setRoles($roles);
         
 
-        $ticket = new Ticket;
-        $ticket->setTicketType( $this->entityManager->getRepository(TicketType::class)->find(15) );
-        $ticket->setUuid(Uuid::uuid4());
-        $ticket->setOwner($this->user);
-        $ticket->setEvent( $this->entityManager->getRepository(Event::class)->find(1) );
+        // $ticket = new Ticket;
+        // $ticket->setTicketType( $this->entityManager->getRepository(TicketType::class)->find(15) );
+        // $ticket->setUuid(Uuid::uuid4());
+        // $ticket->setOwner($this->user);
+        // $ticket->setEvent( $this->entityManager->getRepository(Event::class)->find(1) );
 
-        $ticket->setRank("N/A");
-        $ticket->setFirstname("N/A");
-        $ticket->setLastname("N/A");
-        $ticket->setDietary("N/A");
-        $this->entityManager->persist($ticket);
+        // $ticket->setRank("N/A");
+        // $ticket->setFirstname("N/A");
+        // $ticket->setLastname("N/A");
+        // $ticket->setDietary("N/A");
+        // $this->entityManager->persist($ticket);
         
         $this->entityManager->flush();
 

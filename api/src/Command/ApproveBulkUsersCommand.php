@@ -47,23 +47,32 @@ class ApproveBulkUsersCommand extends Command
     {
         // Get all users from db :(
         $users = $this->entityManager->getRepository(User::class)->findAll();
-        $this->users = [];
+        $this->serving = [];
+        $this->retired = [];
+        $this->guest = [];
+        $this->reject = [];
         
         $helper = $this->getHelper('question');
 
         foreach($users as $user) {
             if( $user->getRoles() === [] ){     
                 $output->writeln(sprintf("%s, %s - %s - %s", $user->getLastName(), $user->getFirstName(), $user->getServiceNumber(), $user->getEmail()));
-                $question = new ChoiceQuestion("Please select an option (defaults to skip)", ['skip', 'approve', 'reject'], 0);
+                $question = new ChoiceQuestion("Please select an option (defaults to skip)", ['skip', 'approve serving member', 'approve retired member', 'approve guest', 'reject'], 0);
                 $question->setErrorMessage('Option %s is invalid');
                 $response = $helper->ask($input, $output, $question);
                 
                 switch($response) {
-                    case 'approve':
-                        array_push($this->users, $user);
+                    case 'approve serving member':
+                        array_push($this->serving, $user);
                         break;
-                    case 'deny':
-                        array_push($this->delete, $user);
+                    case 'approve retired member':
+                        array_push($this->retired, $user);
+                        break;
+                    case 'approve guuest':
+                        array_push($this->guest, $user);
+                        break;
+                    case 'reject':
+                        array_push($this->reject, $user);
                         break;
                 }
             }
@@ -75,14 +84,50 @@ class ApproveBulkUsersCommand extends Command
     {
         $command = $this->getApplication()->find('app:user:approve');
         
-
-        foreach($this->users as $user) {
+        foreach($this->serving as $user) {
             $arguments = [
                 'uid' => $user->getId(),
                 'serving' => 'Y',
-                'retired' => 'N'
+                'retired' => 'N',
+                'guest' => 'N',
+                'delete' => 'N'
             ];
+            $argInput = new ArrayInput($arguments);
+            $returnCode = $command->run($argInput, $output);
+        }
 
+        foreach($this->retired as $user) {
+            $arguments = [
+                'uid' => $user->getId(),
+                'serving' => 'N',
+                'retired' => 'Y',
+                'guest' => 'N',
+                'delete' => 'N'
+            ];
+            $argInput = new ArrayInput($arguments);
+            $returnCode = $command->run($argInput, $output);
+        }
+
+        foreach($this->guest as $user) {
+            $arguments = [
+                'uid' => $user->getId(),
+                'serving' => 'N',
+                'retired' => 'N',
+                'guest' => 'Y',
+                'delete' => 'N'
+            ];
+            $argInput = new ArrayInput($arguments);
+            $returnCode = $command->run($argInput, $output);
+        }
+
+        foreach($this->reject as $user) {
+            $arguments = [
+                'uid' => $user->getId(),
+                'serving' => 'N',
+                'retired' => 'N',
+                'guest' => 'N',
+                'delete' => 'Y'
+            ];
             $argInput = new ArrayInput($arguments);
             $returnCode = $command->run($argInput, $output);
         }
