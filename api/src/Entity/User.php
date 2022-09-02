@@ -51,7 +51,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user:item:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:write", "create_user"})
      * @Assert\NotBlank()
      * @Assert\Email()
      */
@@ -79,7 +79,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:item:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:write", "create_user"})
      */
     private $phoneNumber;
 
@@ -102,7 +102,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:item:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:write", "create_user"})
      */
     private $mobileNumber;
 
@@ -122,19 +122,19 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:item:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:write", "create_user"})
      */
     private $postNominals;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"user:item:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:write", "create_user"})
      */
     private $serviceNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:item:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:write", "create_user"})
      */
     private $modnetEmail;
 

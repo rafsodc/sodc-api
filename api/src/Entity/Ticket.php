@@ -140,7 +140,7 @@ class Ticket
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class)
-     * @Groups({"ticket:write", "ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "event_ticket:read"})
      * @ApiProperty(readableLink=false, writableLink=false)
      */
     private $seatingPreferences;
@@ -318,17 +318,17 @@ class Ticket
         return $this->seatingPreferences;
     }
 
-    /**
-     * @return Collection|User[]
-     * @Groups({"event_ticket:read"})
-     * @SerializedName("seatingPreferences")
-     * We already have the serialized name seatingPreferences, but that's only referenced in a ticket:read/write call.  For an event_ticket:read call, we want
-     * to display the fullname, and not the IRI.
-     */
-    public function getSeatingPreferenceNames(): Collection
-    {
-        return $this->seatingPreferences;
-    }
+    // /**
+    //  * @return Collection|User[]
+    //  * @Groups({"event_ticket:read"})
+    //  * @SerializedName("seatingPreferences")
+    //  * We already have the serialized name seatingPreferences, but that's only referenced in a ticket:read/write call.  For an event_ticket:read call, we want
+    //  * to display the fullname, and not the IRI.
+    //  */
+    // public function getSeatingPreferenceNames(): Collection
+    // {
+    //     return $this->seatingPreferences;
+    // }
 
     public function addSeatingPreference(User $seatingPreference): self
     {

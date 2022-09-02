@@ -38,13 +38,14 @@ class UserVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'USER_VIEW':
-                if($user->getIsShared()) {
+                /*if($user->getIsShared()) {
                     return true;
                 }
                 if ($subject === $user) {
                     return true;
                 }
-                return false;
+                return false;*/
+                return true;
             case 'USER_EDIT':
                 if ($subject === $user) {
                     return true;
