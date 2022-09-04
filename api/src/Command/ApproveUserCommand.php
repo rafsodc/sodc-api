@@ -11,6 +11,8 @@ use App\Entity\User;
 use App\Entity\Ticket;
 use App\Entity\TicketType;
 use App\Entity\Event;
+use App\Message\UserApprove;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Console\Question\Question;
 use Ramsey\Uuid\Uuid;
 use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface;
@@ -23,11 +25,13 @@ class ApproveUserCommand extends Command
     private $refreshTokenManager;
     /** @var User $user */
     private $user;
+    private $messageBus;
 
-    public function __construct(EntityManagerInterface $entityManager, RefreshTokenManagerInterface $refreshTokenManager)
+    public function __construct(EntityManagerInterface $entityManager, MessageBusInterface $messageBus) //RefreshTokenManagerInterface $refreshTokenManager)
     {
         $this->entityManager = $entityManager;
-        $this->refreshTokenManager = $refreshTokenManager;
+        $this->messageBus = $messageBus;
+        //$this->refreshTokenManager = $refreshTokenManager;
 
         parent::__construct();
     }
@@ -82,21 +86,12 @@ class ApproveUserCommand extends Command
 
         $this->user->setRoles($roles);
         
-
-        // $ticket = new Ticket;
-        // $ticket->setTicketType( $this->entityManager->getRepository(TicketType::class)->find(15) );
-        // $ticket->setUuid(Uuid::uuid4());
-        // $ticket->setOwner($this->user);
-        // $ticket->setEvent( $this->entityManager->getRepository(Event::class)->find(1) );
-
-        // $ticket->setRank("N/A");
-        // $ticket->setFirstname("N/A");
-        // $ticket->setLastname("N/A");
-        // $ticket->setDietary("N/A");
-        // $this->entityManager->persist($ticket);
-        
         $this->entityManager->flush();
 
+        if($input->getArgument('delete') !== 'Y') {
+            $message = new UserApprove($this->user->getId());
+            $this->messageBus->dispatch($message);
+        }
         return Command::SUCCESS;
     }
 

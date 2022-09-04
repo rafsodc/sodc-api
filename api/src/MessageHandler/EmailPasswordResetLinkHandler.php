@@ -27,7 +27,7 @@ class EmailPasswordResetLinkHandler implements MessageHandlerInterface
       $passwordToken = $this->passwordTokenRepository->find($passwordTokenId);
       
       $email = $passwordToken->getUser()->getEmail();
-      $firstname = $passwordToken->getUser()->getUsername();
+      $firstname = $passwordToken->getUser()->getFirstName();
       $server = $this->params->get('server_name');
       $link = sprintf('https://%s/forgot-password/%s', $server, $passwordToken->getToken());
 
