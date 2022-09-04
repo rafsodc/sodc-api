@@ -41,15 +41,15 @@ final class UserQueryExtension implements QueryCollectionExtensionInterface, Que
         // Return results if they are a member and sharing details, or if it's this user
         $queryBuilder->andWhere(
             $queryBuilder->expr()->orX(
-                $queryBuilder->expr()->andX(
+                //$queryBuilder->expr()->andX(
                     sprintf('%s.isMember = :isMember', $rootAlias),
-                    sprintf('%s.isShared = :isShared', $rootAlias)
-                ),
+                //    sprintf('%s.isShared = :isShared', $rootAlias)
+                //),
                 sprintf('%s.id = :id', $rootAlias)
             )
         );
         $queryBuilder->setParameter('isMember', 'TRUE');
-        $queryBuilder->setParameter('isShared', 'TRUE');
+        //$queryBuilder->setParameter('isShared', 'TRUE');
         $queryBuilder->setParameter('id', $user->getId());
     }
 }
