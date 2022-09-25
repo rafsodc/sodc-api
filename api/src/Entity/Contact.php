@@ -56,6 +56,16 @@ class Contact
     private $message;
 
     /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdDate;
+
+    public function __construct()
+    {
+        $this->createdDate = new \DateTimeImmutable();
+    }
+
+    /**
      * @Captcha
      * @Groups({"contact:write"})
      */
@@ -123,5 +133,10 @@ class Contact
         $this->message = $message;
 
         return $this;
+    }
+
+    public function getCreatedDate(): ?\DateTimeInterface
+    {
+        return $this->createdDate;
     }
 }

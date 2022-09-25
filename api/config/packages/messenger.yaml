@@ -47,3 +47,4 @@ framework:
             # 'App\Message\YourMessage': async
             App\Message\EmailPasswordResetLink: email_priority_high
             App\Message\UserApprove: email_priority_high
+            App\Message\ContactSubmit: email_priority_normal

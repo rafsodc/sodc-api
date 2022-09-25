@@ -12,6 +12,9 @@ parameters:
     notification_client.templates:
         password_reset: '66a1b58b-a992-455a-89ef-f42a81767aac'
         user_approve: '4594ea9d-51a4-4bcc-986b-cfdb9318d223'
+        contact_submit: 'e602db20-e054-425d-96dd-8aad26e64934'
+    app.contact.email: '%env(APP_CONTACT_EMAIL)%'
+
     google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
     server_name: '%env(SERVER_NAME)%'
     rollbar.config:
