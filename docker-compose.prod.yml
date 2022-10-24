@@ -15,6 +15,7 @@ services:
       - ./../config/jwt:/srv/api/config/jwt
       - ./../config/secrets:/srv/api/config/secrets
       - ./../resources:/srv/api/resources
+      - ./../media:/srv/api/media
 
   transport:
     image: ${API_TRANSPORT_IMAGE}:${API_PHP_TAG}
