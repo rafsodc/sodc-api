@@ -3,11 +3,13 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Repository\SpeakerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Entity\MediaObject;
 
 /**
  * @ApiResource(
@@ -61,7 +63,8 @@ class Speaker
     private $biography;
 
     /**
-     * @ORM\OneToOne(targetEntity=Media::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=MediaObject::class, cascade={"persist", "remove"})
+     * @ApiProperty(iri="http://schema.org/image")
      */
     private $photograph;
 
@@ -140,16 +143,9 @@ class Speaker
         return $this;
     }
 
-    public function getPhotograph(): ?Media
+    public function getPhotograph(): ?MediaObject
     {
         return $this->photograph;
-    }
-
-    public function setPhotograph(?Media $photograph): self
-    {
-        $this->photograph = $photograph;
-
-        return $this;
     }
 
     /**
