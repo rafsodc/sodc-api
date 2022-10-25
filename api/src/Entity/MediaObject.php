@@ -78,7 +78,7 @@ class MediaObject
      * @var File|null
      *
      * @Assert\NotNull(groups={"mediaobject:create"})
-     * @Vich\UploadableField(mapping="media_object", fileNameProperty="filePath")
+     * @Vich\UploadableField(mapping="media_object", fileNameProperty="filePath", mimeType="mediaMimeType", size="mediaSize")
      */
     public $file;
 
@@ -88,6 +88,20 @@ class MediaObject
      * @ORM\Column(nullable=true)
      */
     public $filePath;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(nullable=true)
+     */
+    public $mediaMimeType;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(nullable=true)
+     */
+    public $mediaSize;
 
     public function getId(): ?int
     {
