@@ -253,7 +253,9 @@ class User implements UserInterface
 
     public function addRole($role): self
     {
-        $this->roles[] = $role;
+        $roles = $this->roles;
+        $roles[] = $role;
+        $this->setRoles($roles);
         return $this;
     }
 
