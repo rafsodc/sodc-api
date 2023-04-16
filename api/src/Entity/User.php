@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Entity;
-use App\Repository\UserRepository;
+
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+
+use App\Repository\UserRepository;
+use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -15,6 +17,7 @@ use App\Filters\UserFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Validator\Constraints\Captcha;
+use App\Controller\ApproveUserController;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -33,8 +36,21 @@ use App\Validator\Constraints\Captcha;
  *              "security"="is_granted('USER_EDIT', object)",
  *              "validation_groups"={"user:write"},
  *          },
+ *          "approve"={
+ *              "method"="POST",
+ *              "path"="/users/{id}/approve",
+ *              "controller"=ApproveUserController::class,
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "validation_groups"={"user:approve"}
+ *          },
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
+ *     subresourceOperations={
+ *          "api_users_approve_patch_subresource"= {
+ *              "method"="PATCH",
+ *              "security"="is_granted('ROLE_ADMIN')"
+ *          }
+ *     }
  * )
  * @UniqueEntity(fields={"email"})
  * @ApiFilter(SearchFilter::class, properties={"id": "exact"});
@@ -204,7 +220,7 @@ class User implements UserInterface
         return $this;
     }
 
-     /**
+    /**
      * @see UserInterface
      */
     public function getUsername(): string
@@ -228,10 +244,16 @@ class User implements UserInterface
     {
         $this->roles = array_unique($roles);
 
-        if(in_array('ROLE_MEMBER', $roles)) {
+        if (in_array('ROLE_MEMBER', $roles)) {
             $this->setIsMember(true);
         }
 
+        return $this;
+    }
+
+    public function addRole($role): self
+    {
+        $this->roles = array_push($this->roles, $role);
         return $this;
     }
 
@@ -240,7 +262,7 @@ class User implements UserInterface
      */
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return (string)$this->password;
     }
 
     public function setPassword(string $password): self
@@ -259,8 +281,8 @@ class User implements UserInterface
     }
 
     /**
-     * @return self
      * @param mixed $plainPassword
+     * @return self
      */
     public function setPlainPassword($plainPassword): self
     {
@@ -337,6 +359,7 @@ class User implements UserInterface
 
         return $this->isMe;
     }
+
     public function setIsMe(bool $isMe)
     {
         $this->isMe = $isMe;
@@ -380,30 +403,6 @@ class User implements UserInterface
     public function setMobileNumber(?string $mobileNumber): self
     {
         $this->mobileNumber = $mobileNumber;
-
-        return $this;
-    }
-
-    public function getFirstName(): ?string
-    {
-        return $this->firstName;
-    }
-
-    public function setFirstName(?string $firstName): self
-    {
-        $this->firstName = $firstName;
-
-        return $this;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->lastName;
-    }
-
-    public function setLastName(?string $lastName): self
-    {
-        $this->lastName = $lastName;
 
         return $this;
     }
@@ -504,20 +503,43 @@ class User implements UserInterface
         return $this;
     }
 
-     
+    public function getCaptcha(): ?string
+    {
+        return $this->captcha;
+    }
+
     public function setCaptcha(string $captcha): self
     {
         $this->captcha = $captcha;
         return $this;
     }
 
-    public function getCaptcha(): ?string
-    {
-        return $this->captcha;
-    }
-
     public function getFullName(): string
     {
         return "{$this->getLastName()}, {$this->getFirstName()}";
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(?string $lastName): self
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(?string $firstName): self
+    {
+        $this->firstName = $firstName;
+
+        return $this;
     }
 }
