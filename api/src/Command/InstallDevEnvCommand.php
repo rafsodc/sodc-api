@@ -121,7 +121,7 @@ class InstallDevEnvCommand extends Command
 
         $page = new Page();
         $page->setTitle("About");
-        $page->setContent("About Page - some content goes here");
+        $page->setContent("About Page - test");
         $page->setIsPublished(true);     
         array_push($pages, $page);
 

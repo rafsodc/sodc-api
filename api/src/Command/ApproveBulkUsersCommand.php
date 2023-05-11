@@ -68,7 +68,7 @@ class ApproveBulkUsersCommand extends Command
                     case 'approve retired member':
                         array_push($this->retired, $user);
                         break;
-                    case 'approve guuest':
+                    case 'approve guest':
                         array_push($this->guest, $user);
                         break;
                     case 'reject':

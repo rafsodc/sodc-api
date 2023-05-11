@@ -74,6 +74,14 @@ class TicketType
      * @ORM\Column(type="boolean")
      * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read"})
      */
+
+    // private $nacrequired;
+
+    // /**
+    //  * @ORM\Column(type="boolean")
+    // * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read"})
+    //  */
+
     private $guest;
 
     /**
