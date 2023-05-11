@@ -16,7 +16,6 @@ use App\Repository\RankRepository;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Finder\Finder;
 
-
 class GetUserEmails extends Command
 {
     // the name of the command (the part after "bin/console")
@@ -47,14 +46,14 @@ class GetUserEmails extends Command
             '================',
             '',
         ]);
-        $path = 'data/user_emails.csv';
-        $fp = fopen($path, 'w');
-        $users = $this->entityManager->getRepository(User::class)->findAll();
-        foreach($users as $user) {
-            fputcsv($fp, $user->getEmail());
-        }
-        fclose($fp);
-       // $this->entityManager->flush();
+       $path = '/var/www/sodc-api/api/src/Command/data/user_emails.csv';
+       $fp = fopen($path, 'w');
+       $users = $this->entityManager->getRepository(User::class)->findAll();
+       //foreach($users as $user) {
+       //    fputcsv($fp, $user->getEmail());
+       // }
+       // fclose($fp);
+       //$this->entityManager->flush();
 
         return Command::SUCCESS;
     }
