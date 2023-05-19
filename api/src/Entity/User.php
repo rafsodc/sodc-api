@@ -25,31 +25,31 @@ use App\Controller\ApproveUserController;
  * @ApiResource(
  *     collectionOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "getNew"={
+ *              "method"="GET",
+ *              "path"="/users_new",
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "validation_groups"={"user:collection:getNew"}
+ *          },
  *          "post"={
  *              "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
- *              "validation_groups"={"create_user"}
+ *              "validation_groups"={"user:collection:post"}
  *          },
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('USER_VIEW', object)"},
  *          "patch"={
  *              "security"="is_granted('USER_EDIT', object)",
- *              "validation_groups"={"user:write"},
+ *              "validation_groups"={"user:item:patch"},
  *          },
  *          "approve"={
- *              "method"="POST",
+ *              "method"="PATCH",
  *              "path"="/users/{id}/approve",
  *              "controller"=ApproveUserController::class,
  *              "security"="is_granted('ROLE_ADMIN')",
- *              "validation_groups"={"user:approve"}
+ *              "validation_groups"={"user:item:approve"}
  *          },
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
- *     },
- *     subresourceOperations={
- *          "api_users_approve_patch_subresource"= {
- *              "method"="PATCH",
- *              "security"="is_granted('ROLE_ADMIN')"
- *          }
  *     }
  * )
  * @UniqueEntity(fields={"email"})
@@ -67,7 +67,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:item:patch", "user:collection:post"})
      * @Assert\NotBlank()
      * @Assert\Email()
      */
@@ -75,27 +75,27 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="json")
-     * @Groups({"admin:write"})
+     * @Groups({"user:item:approve"})
      */
     private $roles = [];
 
     /**
-     * @Groups("user:write", "create_user")
+     * @Groups("user:item:patch", "user:collection:post")
      * @SerializedName("password")
-     * @Assert\NotBlank(groups={"create_user"})
+     * @Assert\NotBlank(groups={"user:collection:post"})
      */
     private $plainPassword;
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Groups({"user:write"})
+     * @Groups({"user:item:patch"})
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:item:patch", "user:collection:post"})
      */
     private $phoneNumber;
 
@@ -118,56 +118,56 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:item:patch", "user:collection:post"})
      */
     private $mobileNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write", "create_user"})
+     * @Groups({"user:read", "user:item:patch", "user:collection:post"})
      * @Assert\NotBlank()
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write", "create_user"})
+     * @Groups({"user:read", "user:item:patch", "user:collection:post"})
      * @Assert\NotBlank()
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:item:patch", "user:collection:post"})
      */
     private $postNominals;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:item:patch", "user:collection:post"})
      */
     private $serviceNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:item:patch", "user:collection:post"})
      */
     private $modnetEmail;
 
     /**
      * @ORM\ManyToOne(targetEntity=Rank::class, inversedBy="users")
-     * @Groups({"user:read", "user:write", "create_user"})
+     * @Groups({"user:read", "user:item:patch", "user:collection:post"})
      */
     private $rank;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:item:patch", "user:collection:post"})
      */
     private $workDetails;
 
     /**
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:item:patch", "user:collection:post"})
      * @ORM\Column(type="boolean")
      * @Assert\Type("bool")
      * @Assert\NotNull
@@ -186,7 +186,7 @@ class User implements UserInterface
 
     /**
      * @Captcha
-     * @Groups({"create_user"})
+     * @Groups({"user:collection:post"})
      */
     private $captcha = "";
 
