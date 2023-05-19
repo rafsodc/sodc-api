@@ -41,19 +41,21 @@ class GetUserEmails extends Command
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln([
-            'Writing emails to data/user_emails.csv',
-            '================',
-            '',
-        ]);
-       $path = '/var/www/sodc-api/api/src/Command/data/user_emails.csv';
-       $fp = fopen($path, 'w');
-       $users = $this->entityManager->getRepository(User::class)->findAll();
-       //foreach($users as $user) {
-       //    fputcsv($fp, $user->getEmail());
-       // }
-       // fclose($fp);
-       //$this->entityManager->flush();
+//        $output->writeln([
+//            'Writing emails to data/user_emails.csv',
+//            '================',
+//            '',
+//        ]);
+
+        $users = $this->entityManager->getRepository(User::class)->findAll();
+
+        $user_emails = [];
+        foreach($users as $user) {
+            if(in_array('ROLE_MEMBER', $user->getRoles()) or in_array('ROLE_SERVING', $user->getRoles()) or in_array('ROLE_RETIRED', $user->getRoles()))
+            $user_emails[] = $user->getEmail();
+        }
+
+        $output->writeln([implode(';', $user_emails)]);
 
         return Command::SUCCESS;
     }
