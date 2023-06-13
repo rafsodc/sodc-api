@@ -111,6 +111,9 @@ class AutoGroupResourceMetadataFactory implements ResourceMetadataFactoryInterfa
             // {shortName}:{read/write}
             // e.g. user:read
             sprintf('%s:%s', $shortName, $readOrWrite),
+            // {shortName}:{operationName}
+            // e.g. user:get
+            sprintf('%s:%s', $shortName, $operationName),
             // {shortName}:{item/collection}:{read/write}
             // e.g. user:collection:read
             sprintf('%s:%s:%s', $shortName, $itemOrCollection, $readOrWrite),
