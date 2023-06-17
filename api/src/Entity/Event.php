@@ -58,47 +58,47 @@ class Event
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"event:write", "event:get"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      * @Assert\NotBlank()
      */
     private $date;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"event:write", "event:get"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      * @Assert\NotBlank()
      */
     private $bookingOpen;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"event:write", "event:get"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      * @Assert\NotBlank()
      */
     private $bookingClose;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"event:write", "event:get"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      * @Assert\NotBlank()
      */
     private $venue;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"event:write", "event:get"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write", "event:get"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      */
     private $principalSpeaker;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write", "event:get"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      */
     private $sponsor;
 
