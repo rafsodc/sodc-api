@@ -104,7 +104,7 @@ class Event
 
     /**
      * @ORM\OneToMany(targetEntity=TicketType::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"event:write", "event:get"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      * @ORM\OrderBy({"description" = "ASC"})
      */
     private $ticketTypes;

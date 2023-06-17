@@ -8,6 +8,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiProperty;
+use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
@@ -34,8 +37,15 @@ class TicketType
     private $id;
 
     /**
+     * @ORM\Column(type="uuid", unique=true)
+     * @ApiProperty(identifier=true)
+     * @Assert\NotBlank()
+     */
+    private $uuid;
+
+    /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"tickettype:write", "tickettype:read", "basket:read", "event:item:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "basket:read", "event:item:read","event:item:getForm"})
      */
     private $description;
 
@@ -48,37 +58,37 @@ class TicketType
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read", "event:item:getForm"})
      */
     private $symposium;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read", "event:item:getForm"})
      */
     private $dinner;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read", "event:item:getForm"})
      */
     private $serving;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "event:item:getForm"})
      */
     private $student;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read", "event:item:getForm"})
      */
     private $guest;
 
     /**
      * @ORM\Column(type="float")
-     * @Groups({"tickettype:write", "tickettype:read", "event:item:read", "basket:read", "ticket:read", "event_ticket:read"})
+     * @Groups({"tickettype:write", "tickettype:read", "event:item:read", "basket:read", "ticket:read", "event_ticket:read", "event:item:getForm"})
      */
     private $price;
 
@@ -226,5 +236,17 @@ class TicketType
         }
 
         return $this;
+    }
+
+    public function setUuid(UuidInterface $uuid): self
+    {
+        $this->uuid = $uuid;
+
+        return $this;
+    }
+
+    public function getUuid(): UuidInterface
+    {
+        return $this->uuid;
     }
 }
