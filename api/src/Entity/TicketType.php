@@ -33,6 +33,7 @@ class TicketType
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @ApiProperty(identifier=false)
      */
     private $id;
 
@@ -40,6 +41,7 @@ class TicketType
      * @ORM\Column(type="uuid", unique=true)
      * @ApiProperty(identifier=true)
      * @Assert\NotBlank()
+     * @Groups({"event:item:getForm"})
      */
     private $uuid;
 
