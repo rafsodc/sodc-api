@@ -104,21 +104,21 @@ class Event
 
     /**
      * @ORM\OneToMany(targetEntity=TicketType::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"event:write", "event:get", "event:item:getForm"})
+     * @Groups({"event:get", "event:item:getForm"})
      * @ORM\OrderBy({"description" = "ASC"})
      */
     private $ticketTypes;
 
     /**
      * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"event:write", "event:get"})
+     * @Groups({"event:get"})
      * @ApiSubresource()
      */
     private $tickets;
 
     /**
      * @ORM\OneToMany(targetEntity=Basket::class, mappedBy="event")
-     * @Groups({"event:write", "event:get"})
+     * @Groups({"event:get"})
      */
     private $baskets;
 
