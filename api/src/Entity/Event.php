@@ -27,6 +27,12 @@ use App\Filters\EventDateFilter;
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "getForm"={
+ *              "method"="GET",
+ *              "path"="/events/{id}/form",
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "validation_groups"={"event:item:getForm"}
+ *          },
  *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
  *     },
@@ -45,79 +51,79 @@ class Event
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      * @Assert\NotBlank()
      */
     private $title;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      * @Assert\NotBlank()
      */
     private $date;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      * @Assert\NotBlank()
      */
     private $bookingOpen;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      * @Assert\NotBlank()
      */
     private $bookingClose;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      * @Assert\NotBlank()
      */
     private $venue;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      */
     private $principalSpeaker;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:write", "event:get", "event:item:getForm"})
      */
     private $sponsor;
 
     /**
      * @ORM\OneToMany(targetEntity=TicketType::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:get", "event:item:getForm"})
      * @ORM\OrderBy({"description" = "ASC"})
      */
     private $ticketTypes;
 
     /**
      * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:get"})
      * @ApiSubresource()
      */
     private $tickets;
 
     /**
      * @ORM\OneToMany(targetEntity=Basket::class, mappedBy="event")
-     * @Groups({"event:write", "event:read"})
+     * @Groups({"event:get"})
      */
     private $baskets;
 
     /**
-     * @Groups({"event:read"})
+     * @Groups({"event:get"})
      */
     private $isBookingOpen;
 
