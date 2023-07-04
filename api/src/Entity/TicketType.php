@@ -41,7 +41,7 @@ class TicketType
      * @ORM\Column(type="uuid", unique=true)
      * @ApiProperty(identifier=true)
      * @Assert\NotBlank()
-     * @Groups({"event:item:getForm"})
+     * @Groups({"event:item:getForm", "tickettype:collection:post"})
      */
     private $uuid;
 
