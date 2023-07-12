@@ -79,6 +79,7 @@ services:
     volumes:
       - ./../rabbitmq:/var/lib/rabbitmq:cached
     hostname: sodc_rabbitmq
+    restart: unless-stopped
     ports:
       - target: 15672
         published: 15672
