@@ -37,6 +37,11 @@ class UserNormalizer implements ContextAwareNormalizerInterface, CacheableSuppor
 
     public function supportsNormalization($data, $format = null, array $context = []): bool
     {
+        if(isset($context['operation_type'])) {
+            if($context['operation_type'] == 'collection') {
+               return false;
+            }
+        }
         // avoid recursion: only call once per object
         if (isset($context[self::ALREADY_CALLED])) {
             return false;
