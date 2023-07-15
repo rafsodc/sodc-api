@@ -16,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 use App\Filters\UserFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use App\Validator\Constraints\Captcha;
 use App\Controller\ApproveUserController;
 
@@ -54,6 +55,7 @@ use App\Controller\ApproveUserController;
  * )
  * @UniqueEntity(fields={"email"})
  * @ApiFilter(SearchFilter::class, properties={"id": "exact"});
+ * @ApiFilter(BooleanFilter::class, properties={"isMember"})
  * @ApiFilter(UserFilter::class)
  */
 class User implements UserInterface
@@ -138,19 +140,19 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"user:read", "user:write", "create_user"})
      */
     private $postNominals;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "admin:read", "user:write", "create_user"})
      */
     private $serviceNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "admin:read", "user:write", "create_user"})
      */
     private $modnetEmail;
 
@@ -162,7 +164,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "admin:read", "user:write", "create_user"})
      */
     private $workDetails;
 
