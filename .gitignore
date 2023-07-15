@@ -4,3 +4,4 @@
 /.idea/
 !/helm/api-platform/charts/.gitignore
 /helm/api-platform/charts/*
+.DS_Store
