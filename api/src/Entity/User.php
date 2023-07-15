@@ -19,6 +19,8 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use App\Validator\Constraints\Captcha;
 use App\Controller\ApproveUserController;
+use ApiPlatform\Core\Annotation\ApiProperty;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -66,6 +68,14 @@ class User implements UserInterface
      * @ORM\Column(type="integer")
      */
     private $id;
+
+    /**
+     * @ORM\Column(type="uuid", unique=true)
+     * @Groups({"user:collection:read"})
+     * @ApiProperty(identifier=true)
+     * @Assert\NotBlank()
+     */
+    private $uuid;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
@@ -208,6 +218,17 @@ class User implements UserInterface
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getUuid(): UuidInterface
+    {
+        return $this->uuid;
+    }
+
+    public function setUuid(UuidInterface $uuid): self
+    {
+        $this->uuid = $uuid;
+        return $this;
     }
 
     public function getEmail(): ?string
