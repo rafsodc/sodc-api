@@ -75,10 +75,11 @@ services:
         protocol: udp
 
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:3.9-management-alpine
     volumes:
       - ./../rabbitmq:/var/lib/rabbitmq:cached
     hostname: sodc_rabbitmq
+    restart: unless-stopped
     ports:
       - target: 15672
         published: 15672
