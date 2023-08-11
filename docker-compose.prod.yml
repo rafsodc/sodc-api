@@ -25,6 +25,15 @@ services:
       TRUSTED_HOSTS: ${TRUSTED_HOSTS-!CHANGEME!}
     volumes:
       - ./../config/secrets:/srv/api/config/secrets
+    
+  transport_backup:
+    image: ${API_TRANSPORT_IMAGE}:${API_PHP_TAG}
+    environment:
+      APP_ENV: prod
+      SERVER_NAME: ${SERVER_NAME:-!CHANGEME!}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS-!CHANGEME!}
+    volumes:
+      - ./../config/secrets:/srv/api/config/secrets
 
   caddy:
     image: ${API_CADDY_IMAGE}

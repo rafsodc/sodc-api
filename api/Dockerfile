@@ -136,6 +136,18 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
 ENTRYPOINT ["docker-entrypoint"] 
 CMD ["docker-entrypoint"]
 
+FROM api_platform as api_platform_transport_backup
+
+COPY docker/transport/docker-healthcheck.sh /usr/local/bin/docker-healthcheck
+RUN chmod +x /usr/local/bin/docker-healthcheck
+
+COPY docker/transport/docker-entrypoint-backup.sh /usr/local/bin/docker-entrypoint
+RUN chmod +x /usr/local/bin/docker-entrypoint
+
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
+ENTRYPOINT ["docker-entrypoint"] 
+CMD ["docker-entrypoint"]
+
 
 # "caddy" stage
 # depends on the "php" stage above

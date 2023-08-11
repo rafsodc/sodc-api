@@ -32,6 +32,21 @@ services:
     deploy:
       mode: replicated
       replicas: 2
+
+  transport_backup:
+    build:
+      context: ./api
+      target: api_platform_transport_backup
+    depends_on:
+      - php
+    restart: unless-stopped
+    healthcheck:
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+
+ 
       
   pwa:
     build:

@@ -16,7 +16,7 @@ restart_at_random() {
 }
 
 check_memory() {
-	echo "Time less than 45 mins.  Checking memory useage."
+	echo "Time less than 45 mins.  Checking memory usage."
     case 1:${1:--} in  
         # If it does not end in an m, and is not a number, restart the container.
         (1:*[!m]|1:*[!0-9]*[m]) restart_container ;;
