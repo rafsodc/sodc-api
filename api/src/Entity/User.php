@@ -177,6 +177,14 @@ class User implements UserInterface
     private $isShared;
 
     /**
+     * @Groups({"user:write"})
+     * @ORM\Column(type="boolean")
+     * @Assert\Type("bool")
+     * @Assert\NotNull
+     */
+    private $isSubscribed;
+
+    /**
      * @ORM\Column(type="boolean", options={"default":false})
      */
     private $isMember = false;
@@ -479,6 +487,18 @@ class User implements UserInterface
     public function setIsShared(bool $isShared): self
     {
         $this->isShared = $isShared;
+
+        return $this;
+    }
+
+    public function getIsSubscribed(): ?bool
+    {
+        return $this->isSubscribed;
+    }
+
+    public function setIsSubscribed(bool $isSubscribed): self
+    {
+        $this->isSubscribed = $isSubscribed;
 
         return $this;
     }
