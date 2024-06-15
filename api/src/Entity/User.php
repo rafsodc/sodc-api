@@ -28,14 +28,14 @@ use App\Controller\ApproveUserController;
  *          "get"={"security"="is_granted('ROLE_USER')"},
  *          "post"={
  *              "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
- *              "validation_groups"={"create_user"}
+ *              "validation_groups"={"user:post"}
  *          },
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('USER_VIEW', object)"},
  *          "patch"={
  *              "security"="is_granted('USER_EDIT', object)",
- *              "validation_groups"={"user:write"},
+ *              "validation_groups"={"user:item:write"},
  *          },
  *          "approve"={
  *              "method"="POST",
@@ -69,7 +69,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:write"})
      * @Assert\NotBlank()
      * @Assert\Email()
      */
@@ -82,22 +82,21 @@ class User implements UserInterface
     private $roles = [];
 
     /**
-     * @Groups("user:write", "create_user")
+     * @Groups("user:write")
      * @SerializedName("password")
-     * @Assert\NotBlank(groups={"create_user"})
+     * @Assert\NotBlank(groups={"user:post"})
      */
     private $plainPassword;
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Groups({"user:write"})
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:write"})
      */
     private $phoneNumber;
 
@@ -120,61 +119,69 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"owner:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "user:write"})
      */
     private $mobileNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write", "create_user"})
+     * @Groups({"user:read", "user:write"})
      * @Assert\NotBlank()
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write", "create_user"})
+     * @Groups({"user:read", "user:write"})
      * @Assert\NotBlank()
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write", "create_user"})
+     * @Groups({"user:read", "user:write"})
      */
     private $postNominals;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"owner:read", "admin:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "admin:read", "user:write"})
      */
     private $serviceNumber;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"owner:read", "admin:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "admin:read", "user:write"})
      */
     private $modnetEmail;
 
     /**
      * @ORM\ManyToOne(targetEntity=Rank::class, inversedBy="users")
-     * @Groups({"user:read", "user:write", "create_user"})
+     * @Groups({"user:read", "user:write"})
      */
     private $rank;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"owner:read", "admin:read", "user:write", "create_user"})
+     * @Groups({"owner:read", "admin:read", "user:write"})
      */
     private $workDetails;
 
     /**
-     * @Groups({"owner:read", "user:write", "create_user"})
-     * @ORM\Column(type="boolean")
+     * @Groups({"owner:read", "user:write"})
+     * @ORM\Column(type="boolean", options={"default":true})
      * @Assert\Type("bool")
      * @Assert\NotNull
      */
-    private $isShared;
+    private $isShared = true;
+
+    /**
+     * @Groups({"admin:read", "user:item:write"})
+     * @ORM\Column(type="boolean", options={"default":true})
+     * @Assert\Type("bool")
+     * @Assert\NotNull
+     */
+    private $isSubscribed = true;
 
     /**
      * @ORM\Column(type="boolean", options={"default":false})
@@ -188,7 +195,7 @@ class User implements UserInterface
 
     /**
      * @Captcha
-     * @Groups({"create_user"})
+     * @Groups({"user:post"})
      */
     private $captcha = "";
 
@@ -479,6 +486,18 @@ class User implements UserInterface
     public function setIsShared(bool $isShared): self
     {
         $this->isShared = $isShared;
+
+        return $this;
+    }
+
+    public function getIsSubscribed(): ?bool
+    {
+        return $this->isSubscribed;
+    }
+
+    public function setIsSubscribed(bool $isSubscribed): self
+    {
+        $this->isSubscribed = $isSubscribed;
 
         return $this;
     }
