@@ -18,6 +18,10 @@ framework:
                     queues:
                         emails_low:
                             binding_keys: [low]
+                retry_strategy:
+                    max_retries: 6
+                    delay: 60000 # 1 minute in milliseconds
+                    multiplier: 2 # Double the time between each attempt
             email_priority_normal:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
@@ -31,6 +35,10 @@ framework:
                     queues:
                         emails_normal:
                             binding_keys: [normal]
+                retry_strategy:
+                    max_retries: 6
+                    delay: 60000 # 1 minute in milliseconds
+                    multiplier: 2 # Double the time between each attempt
             email_priority_high:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
@@ -41,7 +49,10 @@ framework:
                     queues:
                         emails_high:
                             binding_keys: [high]
-
+                retry_strategy:
+                    max_retries: 6
+                    delay: 60000 # 1 minute in milliseconds
+                    multiplier: 2 # Double the time between each attempt
         routing:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
