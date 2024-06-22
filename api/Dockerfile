@@ -151,7 +151,7 @@ CMD ["docker-entrypoint"]
 
 # "caddy" stage
 # depends on the "php" stage above
-FROM caddy:2.7-builder-alpine AS api_platform_caddy_builder
+FROM caddy:2.8-builder-alpine AS api_platform_caddy_builder
 
 RUN xcaddy build \
     --with github.com/dunglas/mercure \
@@ -159,7 +159,7 @@ RUN xcaddy build \
     --with github.com/dunglas/vulcain \
     --with github.com/dunglas/vulcain/caddy
 
-FROM caddy:2.6.4 AS api_platform_caddy
+FROM caddy:2.8 AS api_platform_caddy
 
 WORKDIR /srv/api
 
