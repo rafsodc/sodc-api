@@ -48,7 +48,7 @@ final class NotifyMessageSubscriber implements EventSubscriberInterface
 
         foreach ($users as $user) {
             $userRoles = $user->getRoles();
-            if ($this->userHasValidRole($userRoles, $roles)) {
+            if ($user->hasAnyRoleWithExclusions($roles)) {
                 $userData = $this->replacePlaceholdersInData($dataTemplate, $user);
                 $notifyMessageUser = new NotifyMessageUser();
                 $notifyMessageUser->setOwner($user);
@@ -61,16 +61,6 @@ final class NotifyMessageSubscriber implements EventSubscriberInterface
         }
 
         $this->entityManager->flush();
-    }
-
-    private function userHasValidRole(array $userRoles, array $roles): bool
-    {
-        foreach ($roles as $role) {
-            if (in_array($role, $userRoles) && !in_array('!' . $role, $userRoles)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private function replacePlaceholdersInData(array $data, User $user): array
