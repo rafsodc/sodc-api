@@ -266,6 +266,14 @@ class User implements UserInterface
         return $this;
     }
 
+    public function addRole($role): self
+    {
+        $roles = $this->roles;
+        $roles[] = $role;
+        $this->setRoles($roles);
+        return $this;
+    }
+
     public function hasAnyRole(array $roles): bool
     {
         foreach ($roles as $role) {
