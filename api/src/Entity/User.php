@@ -204,12 +204,18 @@ class User implements UserInterface
      */
     private $fullName;
 
+    /**
+     * @ORM\OneToMany(targetEntity=NotifyMessageUser::class, mappedBy="owner", orphanRemoval=true)
+     */
+    private $notifyMessageUsers;
+
 
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->notifyMessageUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -562,6 +568,36 @@ class User implements UserInterface
     public function setFirstName(?string $firstName): self
     {
         $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, NotifyMessageUser>
+     */
+    public function getNotifyMessageUsers(): Collection
+    {
+        return $this->notifyMessageUsers;
+    }
+
+    public function addNotifyMessageUser(NotifyMessageUser $notifyMessageUser): self
+    {
+        if (!$this->notifyMessageUsers->contains($notifyMessageUser)) {
+            $this->notifyMessageUsers[] = $notifyMessageUser;
+            $notifyMessageUser->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotifyMessageUser(NotifyMessageUser $notifyMessageUser): self
+    {
+        if ($this->notifyMessageUsers->removeElement($notifyMessageUser)) {
+            // set the owning side to null (unless already changed)
+            if ($notifyMessageUser->getOwner() === $this) {
+                $notifyMessageUser->setOwner(null);
+            }
+        }
 
         return $this;
     }
