@@ -39,6 +39,11 @@ class NotifyMessageUser
      */
     private $status;
 
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $data = [];
+
     public function getId(): ?int
     {
         return $this->id;
@@ -88,6 +93,18 @@ class NotifyMessageUser
     public function setStatus(?string $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getData(): ?array
+    {
+        return $this->data;
+    }
+
+    public function setData(array $data): self
+    {
+        $this->data = $data;
 
         return $this;
     }
