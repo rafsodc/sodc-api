@@ -130,6 +130,10 @@ services:
             $key: '%notification_client.key%'
             $templates: '%notification_client.templates%'
 
+    App\Service\PlaceholderReplacer:
+        arguments:
+            - '@property_accessor'
+
     App\EventListener\PasswordRequestEventListener:
         tags:
             -
