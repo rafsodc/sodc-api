@@ -39,6 +39,12 @@ class NotifyMessageUserRepository extends ServiceEntityRepository
         }
     }
 
+    public function save(NotifyMessageUser $notifyMessageUser): void
+    {
+        $this->getEntityManager()->persist($notifyMessageUser);
+        $this->getEntityManager()->flush();
+    }
+
 //    /**
 //     * @return NotifyMessageUser[] Returns an array of NotifyMessageUser objects
 //     */

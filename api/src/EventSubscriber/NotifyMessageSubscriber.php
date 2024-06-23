@@ -14,16 +14,20 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use ApiPlatform\Core\EventListener\EventPriorities;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use App\Event\NotifyMessageUserEvent;
 
 final class NotifyMessageSubscriber implements EventSubscriberInterface
 {
     private $entityManager;
     private $placeholderReplacer;
+    private $eventDispatcher;
 
-    public function __construct(EntityManagerInterface $entityManager, PlaceholderReplacer $placeholderReplacer)
+    public function __construct(EntityManagerInterface $entityManager, PlaceholderReplacer $placeholderReplacer, EventDispatcherInterface $eventDispatcher)
     {
         $this->entityManager = $entityManager;
         $this->placeholderReplacer = $placeholderReplacer;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public static function getSubscribedEvents()
@@ -55,8 +59,8 @@ final class NotifyMessageSubscriber implements EventSubscriberInterface
                 $notifyMessageUser->setNotifyMessage($notifyMessage);
                 $notifyMessageUser->setData($userData);
                 $notifyMessageUser->setSent(false);
-
                 $this->entityManager->persist($notifyMessageUser);
+                $this->eventDispatcher->dispatch(new NotifyMessageUserEvent($notifyMessageUser));
             }
         }
 

@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\NotifyMessageUserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass=NotifyMessageUserRepository::class)
@@ -12,8 +14,9 @@ class NotifyMessageUser
 {
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
+     * @ORM\Column(type="uuid", unique=true)
      */
     private $id;
 
@@ -44,7 +47,7 @@ class NotifyMessageUser
      */
     private $data = [];
 
-    public function getId(): ?int
+    public function getId(): UuidInterface
     {
         return $this->id;
     }
