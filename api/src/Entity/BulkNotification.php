@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\NotifyMessageRepository;
+use App\Repository\BulkNotificationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,9 +19,9 @@ use Ramsey\Uuid\UuidInterface;
  *          "get"={"security"="is_granted('ROLE_ADMIN')"},
  *     }
  * )
- * @ORM\Entity(repositoryClass=NotifyMessageRepository::class)
+ * @ORM\Entity(repositoryClass=BulkNotificationRepository::class)
  */
-class NotifyMessage
+class BulkNotification
 {
     /**
      * @ORM\Id
@@ -33,30 +33,30 @@ class NotifyMessage
 
     /**
      * @ORM\Column(type="array")
-     * @Groups({"notifymessage:write"})
+     * @Groups({"bulknotification:write"})
      */
     private $roles = [];
 
     /**
      * @ORM\Column(type="json")
-     * @Groups({"notifymessage:write"})
+     * @Groups({"bulknotification:write"})
      */
     private $data = [];
 
     /**
      * @ORM\Column(type="uuid")
-     * @Groups({"notifymessage:write"})
+     * @Groups({"bulknotification:write"})
      */
     private $templateId;
 
     /**
-     * @ORM\OneToMany(targetEntity=NotifyMessageUser::class, mappedBy="notifyMessage", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="BulkNotification", orphanRemoval=true)
      */
-    private $notifyMessageUsers;
+    private $userNotifications;
 
     public function __construct()
     {
-        $this->notifyMessageUsers = new ArrayCollection();
+        $this->userNotifications = new ArrayCollection();
     }
 
     public function getId(): UuidInterface
@@ -101,29 +101,29 @@ class NotifyMessage
     }
 
     /**
-     * @return Collection<int, NotifyMessageUser>
+     * @return Collection<int, UserNotification>
      */
-    public function getNotifyMessageUsers(): Collection
+    public function getUserNotifications(): Collection
     {
-        return $this->notifyMessageUsers;
+        return $this->userNotifications;
     }
 
-    public function addNotifyMessageUser(NotifyMessageUser $notifyMessageUser): self
+    public function addUserNotifications(UserNotification $userNotification): self
     {
-        if (!$this->notifyMessageUsers->contains($notifyMessageUser)) {
-            $this->notifyMessageUsers[] = $notifyMessageUser;
-            $notifyMessageUser->setNotifyMessage($this);
+        if (!$this->userNotifications->contains($userNotification)) {
+            $this->userNotifications[] = $userNotification;
+            $userNotification->setBulkNotification($this);
         }
 
         return $this;
     }
 
-    public function removeNotifyMessageUser(NotifyMessageUser $notifyMessageUser): self
+    public function removeUserNotifications(UserNotification $userNotification): self
     {
-        if ($this->notifyMessageUsers->removeElement($notifyMessageUser)) {
+        if ($this->userNotifications->removeElement($userNotification)) {
             // set the owning side to null (unless already changed)
-            if ($notifyMessageUser->getNotifyMessage() === $this) {
-                $notifyMessageUser->setNotifyMessage(null);
+            if ($userNotification->getBulkNotification() === $this) {
+                $userNotification->setBulkNotification(null);
             }
         }
 

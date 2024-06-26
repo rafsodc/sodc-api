@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\NotifyMessageUserRepository;
+use App\Repository\NotifyUserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ORM\Entity(repositoryClass=NotifyMessageUserRepository::class)
+ * @ORM\Entity(repositoryClass=NotifyUserRepository::class)
  */
-class NotifyMessageUser
+class UserNotification
 {
     /**
      * @ORM\Id
@@ -21,16 +21,16 @@ class NotifyMessageUser
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="notifyMessageUsers")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userNotifications")
      * @ORM\JoinColumn(nullable=false)
      */
     private $owner;
 
     /**
-     * @ORM\ManyToOne(targetEntity=NotifyMessage::class, inversedBy="notifyMessageUsers")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity=BulkNotification::class, inversedBy="userNotifications")
+     * @ORM\JoinColumn(nullable=true)
      */
-    private $notifyMessage;
+    private $bulkNotification;
 
     /**
      * @ORM\Column(type="boolean")
@@ -46,6 +46,11 @@ class NotifyMessageUser
      * @ORM\Column(type="json")
      */
     private $data = [];
+
+    /**
+     * @ORM\Column(type="uuid")
+     */
+    private $templateId;
 
     public function getId(): UuidInterface
     {
@@ -64,14 +69,14 @@ class NotifyMessageUser
         return $this;
     }
 
-    public function getNotifyMessage(): ?NotifyMessage
+    public function getBulkNotification(): ?BulkNotification
     {
-        return $this->notifyMessage;
+        return $this->BulkNotification;
     }
 
-    public function setNotifyMessage(?NotifyMessage $notifyMessage): self
+    public function setBulkNotification(?BulkNotification $bulkNotification): self
     {
-        $this->notifyMessage = $notifyMessage;
+        $this->bulkNotification = $bulkNotification;
 
         return $this;
     }
@@ -108,6 +113,18 @@ class NotifyMessageUser
     public function setData(array $data): self
     {
         $this->data = $data;
+
+        return $this;
+    }
+
+    public function getTemplateId()
+    {
+        return $this->templateId;
+    }
+
+    public function setTemplateId($templateId): self
+    {
+        $this->templateId = $templateId;
 
         return $this;
     }

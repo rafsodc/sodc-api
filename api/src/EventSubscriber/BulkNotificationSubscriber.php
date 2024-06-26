@@ -2,8 +2,8 @@
 
 namespace App\EventSubscriber;
 
-use App\Entity\NotifyMessage;
-use App\Entity\NotifyMessageUser;
+use App\Entity\BulkNotification;
+use App\Entity\UserNotification;
 use App\Entity\User;
 use App\Service\PlaceholderReplacer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,9 +15,9 @@ use ApiPlatform\Core\EventListener\EventPriorities;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use App\Event\NotifyMessageUserEvent;
+use App\Event\UserNotificationEvent;
 
-final class NotifyMessageSubscriber implements EventSubscriberInterface
+final class BulkNotificationSubscriber implements EventSubscriberInterface
 {
     private $entityManager;
     private $placeholderReplacer;
@@ -33,34 +33,36 @@ final class NotifyMessageSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::VIEW => ['onNotifyMessagePost', EventPriorities::POST_WRITE],
+            KernelEvents::VIEW => ['onBulkNotificationPost', EventPriorities::POST_WRITE],
         ];
     }
 
-    public function onNotifyMessagePost(ViewEvent $event): void
+    public function onBulkNotificationPost(ViewEvent $event): void
     {
         $entity = $event->getControllerResult();
 
-        if (!$entity instanceof NotifyMessage) {
+        if (!$entity instanceof BulkNotification) {
             return;
         }
 
-        $notifyMessage = $entity;
-        $roles = $notifyMessage->getRoles();
-        $dataTemplate = $notifyMessage->getData();
+        $bulkNotification = $entity;
+        $roles = $bulkNotification->getRoles();
+        $dataTemplate = $bulkNotification->getData();
+        $templateId = $bulkNotification->getTemplateId();
         $users = $this->entityManager->getRepository(User::class)->findAll();
 
         foreach ($users as $user) {
             $userRoles = $user->getRoles();
             if ($user->hasAnyRoleWithExclusions($roles)) {
                 $userData = $this->replacePlaceholdersInData($dataTemplate, $user);
-                $notifyMessageUser = new NotifyMessageUser();
-                $notifyMessageUser->setOwner($user);
-                $notifyMessageUser->setNotifyMessage($notifyMessage);
-                $notifyMessageUser->setData($userData);
-                $notifyMessageUser->setSent(false);
-                $this->entityManager->persist($notifyMessageUser);
-                $this->eventDispatcher->dispatch(new NotifyMessageUserEvent($notifyMessageUser));
+                $userNotification = new UserNotification();
+                $userNotification->setOwner($user);
+                $userNotification->setBulkNotification($bulkNotification);
+                $userNotification->setData($userData);
+                $userNotification->setTemplateId($templateId);
+                $userNotification->setSent(false);
+                $this->entityManager->persist($userNotification);
+                $this->eventDispatcher->dispatch(new UserNotificationEvent($userNotification));
             }
         }
 

@@ -2,26 +2,26 @@
 
 namespace App\Repository;
 
-use App\Entity\NotifyMessage;
+use App\Entity\UserNotification;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<NotifyMessage>
+ * @extends ServiceEntityRepository<UserNotification>
  *
- * @method NotifyMessage|null find($id, $lockMode = null, $lockVersion = null)
- * @method NotifyMessage|null findOneBy(array $criteria, array $orderBy = null)
- * @method NotifyMessage[]    findAll()
- * @method NotifyMessage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method UserNotification|null find($id, $lockMode = null, $lockVersion = null)
+ * @method UserNotification|null findOneBy(array $criteria, array $orderBy = null)
+ * @method UserNotification[]    findAll()
+ * @method UserNotification[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class NotifyMessageRepository extends ServiceEntityRepository
+class UserNotificationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, NotifyMessage::class);
+        parent::__construct($registry, UserNotification::class);
     }
 
-    public function add(NotifyMessage $entity, bool $flush = false): void
+    public function add(UserNotification $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -30,7 +30,7 @@ class NotifyMessageRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(NotifyMessage $entity, bool $flush = false): void
+    public function remove(UserNotification $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -39,8 +39,14 @@ class NotifyMessageRepository extends ServiceEntityRepository
         }
     }
 
+    public function save(UserNotification $UserNotification): void
+    {
+        $this->getEntityManager()->persist($UserNotification);
+        $this->getEntityManager()->flush();
+    }
+
 //    /**
-//     * @return NotifyMessage[] Returns an array of NotifyMessage objects
+//     * @return UserNotification[] Returns an array of UserNotification objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -54,7 +60,7 @@ class NotifyMessageRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?NotifyMessage
+//    public function findOneBySomeField($value): ?UserNotification
 //    {
 //        return $this->createQueryBuilder('n')
 //            ->andWhere('n.exampleField = :val')
