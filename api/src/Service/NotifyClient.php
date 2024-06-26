@@ -10,10 +10,12 @@ class NotifyClient
 {
   public $client;
   public $templates;
+  public $replyTos;
 
-  public function __construct(ClientInterface $clientInterface, $key, $templates)
+  public function __construct(ClientInterface $clientInterface, $key, $templates, $replyTos)
   {
     $this->templates = $templates;
+    $this->replyTos = $replyTos;
     $this->client = new Client([
       'httpClient'    => $clientInterface,
       'apiKey'        => $key

@@ -274,6 +274,34 @@ class User implements UserInterface
         return $this;
     }
 
+    public function hasAnyRole(array $roles): bool
+    {
+        foreach ($roles as $role) {
+            if (in_array($role, $this->roles)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function hasExclusionRole(array $roles): bool
+    {
+        foreach ($roles as $role) {
+            if (strpos($role, '!') === 0) {
+                $exclusionRole = substr($role, 1);
+                if (in_array($exclusionRole, $this->roles)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public function hasAnyRoleWithExclusions(array $roles): bool
+    {
+        return $this->hasAnyRole($roles) && !$this->hasExclusionRole($roles);
+    }
+
     /**
      * @see UserInterface
      */
