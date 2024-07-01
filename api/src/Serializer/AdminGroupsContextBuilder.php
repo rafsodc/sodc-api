@@ -40,6 +40,11 @@ final class AdminGroupsContextBuilder implements SerializerContextBuilderInterfa
     {
         $context = $this->decorated->createFromRequest($request, $normalization, $extractedAttributes);
 
+        // Skip custom groups if the context includes the bulknotification:read group
+        if (isset($context['groups']) && in_array('bulknotification:read', $context['groups'])) {
+            return $context;
+        }
+
         $context['groups'] = $context['groups'] ?? [];
 
         $isAdmin = $this->authorizationChecker->isGranted('ROLE_ADMIN');

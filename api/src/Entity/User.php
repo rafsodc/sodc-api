@@ -107,7 +107,6 @@ class User implements UserInterface
 
     /**
      * Returns true if this is the currently authenticated user
-     *
      * @Groups({"user:read"})
      */
     private $isMe = false;
@@ -200,9 +199,14 @@ class User implements UserInterface
     private $captcha = "";
 
     /**
-     * @Groups("ticket:read", "event_ticket:read")
+     * @Groups({"ticket:read", "event_ticket:read", "bulknotification:read"})
      */
     private $fullName;
+
+    /**
+     * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $userNotifications;
 
 
     public function __construct()
@@ -210,6 +214,7 @@ class User implements UserInterface
         $this->tickets = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->userNotification = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -266,6 +271,34 @@ class User implements UserInterface
         $roles[] = $role;
         $this->setRoles($roles);
         return $this;
+    }
+
+    public function hasAnyRole(array $roles): bool
+    {
+        foreach ($roles as $role) {
+            if (in_array($role, $this->roles)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function hasExclusionRole(array $roles): bool
+    {
+        foreach ($roles as $role) {
+            if (strpos($role, '!') === 0) {
+                $exclusionRole = substr($role, 1);
+                if (in_array($exclusionRole, $this->roles)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public function hasAnyRoleWithExclusions(array $roles): bool
+    {
+        return $this->hasAnyRole($roles) && !$this->hasExclusionRole($roles);
     }
 
     /**
@@ -562,6 +595,36 @@ class User implements UserInterface
     public function setFirstName(?string $firstName): self
     {
         $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserNotification>
+     */
+    public function getuserNotifications(): Collection
+    {
+        return $this->userNotifications;
+    }
+
+    public function addUserNotification(UserNotification $userNotification): self
+    {
+        if (!$this->userNotifications->contains($userNotification)) {
+            $this->userNotifications[] = $userNotification;
+            $userNotification->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserNotification(UserNotification $userNotification): self
+    {
+        if ($this->userNotifications->removeElement($userNotification)) {
+            // set the owning side to null (unless already changed)
+            if ($userNotification->getOwner() === $this) {
+                $userNotification->setOwner(null);
+            }
+        }
 
         return $this;
     }

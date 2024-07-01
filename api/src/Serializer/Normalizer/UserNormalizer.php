@@ -22,7 +22,7 @@ class UserNormalizer implements ContextAwareNormalizerInterface, CacheableSuppor
     }
 
     public function normalize($object, $format = null, array $context = array())
-    {
+    {   
         if ($this->userIsOwner($object)) {
             $context['groups'][] = 'owner:read';
         }
@@ -37,6 +37,11 @@ class UserNormalizer implements ContextAwareNormalizerInterface, CacheableSuppor
 
     public function supportsNormalization($data, $format = null, array $context = []): bool
     {
+        // Skip normalization if the context includes the bulk_notification:read group
+        if (isset($context['groups']) && in_array('bulknotification:read', $context['groups'])) {
+            return false;
+        }
+
         if(isset($context['operation_type'])) {
             if($context['operation_type'] == 'collection') {
                return false;
