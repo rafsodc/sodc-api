@@ -91,7 +91,7 @@ class BulkNotificationHandler implements MessageHandlerInterface
 
                 //$this->logger->info($userNotification->getId());
                 // Dispatch the UserNotification for further processing asynchronously
-                $this->messageBus->dispatch(new UserNotificationMessage($userNotification->getId()));
+                //$this->messageBus->dispatch(new UserNotificationMessage($userNotification->getId()));
             }
         }
 

@@ -2,7 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\NotifyUserRepository;
+use App\Repository\UserNotificationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
@@ -18,7 +20,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "get"={"security"="is_granted('ROLE_ADMIN')"},
  *     }
  * )
- * @ORM\Entity(repositoryClass=NotifyUserRepository::class)
+ * @ORM\Entity(repositoryClass=UserNotificationRepository::class)
  */
 class UserNotification
 {
@@ -33,7 +35,7 @@ class UserNotification
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userNotifications")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"usernotification:write"})
+     * @Groups({"usernotification:write", "bulknotification:read"})
      */
     private $user;
 
@@ -55,7 +57,7 @@ class UserNotification
 
     /**
      * @ORM\Column(type="json")
-     * @Groups({"usernotification:write"})
+     * @Groups({"usernotification:write", "usernotification:read"})
      */
     private $data = [];
 
@@ -64,6 +66,16 @@ class UserNotification
      * @Groups({"usernotification:write"})
      */
     private $templateId;
+
+    /**
+     * @ORM\OneToMany(targetEntity=NotificationReturn::class, mappedBy="userNotification", orphanRemoval=true)
+     */
+    private $notificationReturns;
+
+    public function __construct()
+    {
+        $this->notificationReturns = new ArrayCollection();
+    }
 
     public function getId(): UuidInterface
     {
@@ -138,6 +150,36 @@ class UserNotification
     public function setTemplateId($templateId): self
     {
         $this->templateId = $templateId;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, NotificationReturn>
+     */
+    public function getNotificationReturns(): Collection
+    {
+        return $this->notificationReturns;
+    }
+
+    public function addNotificationReturn(NotificationReturn $notificationReturn): self
+    {
+        if (!$this->notificationReturns->contains($notificationReturn)) {
+            $this->notificationReturns[] = $notificationReturn;
+            $notificationReturn->setUserNotification($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotificationReturn(NotificationReturn $notificationReturn): self
+    {
+        if ($this->notificationReturns->removeElement($notificationReturn)) {
+            // set the owning side to null (unless already changed)
+            if ($notificationReturn->getUserNotification() === $this) {
+                $notificationReturn->setUserNotification(null);
+            }
+        }
 
         return $this;
     }

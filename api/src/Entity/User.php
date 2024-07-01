@@ -107,7 +107,6 @@ class User implements UserInterface
 
     /**
      * Returns true if this is the currently authenticated user
-     *
      * @Groups({"user:read"})
      */
     private $isMe = false;
@@ -200,7 +199,7 @@ class User implements UserInterface
     private $captcha = "";
 
     /**
-     * @Groups("ticket:read", "event_ticket:read")
+     * @Groups({"ticket:read", "event_ticket:read", "bulknotification:read"})
      */
     private $fullName;
 

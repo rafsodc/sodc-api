@@ -17,6 +17,28 @@ use Ramsey\Uuid\UuidInterface;
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('ROLE_ADMIN')"},
+  *         "send"={
+ *             "method"="POST",
+ *             "path"="/bulknotification/{id}/send",
+ *             "controller"=App\Controller\NotificationController::class,
+ *             "openapi_context"={
+ *                 "summary"="Send notifications for a BulkNotification",
+ *                 "description"="This endpoint triggers the sending of notifications for the specified BulkNotification.",
+ *                 "responses"={
+ *                     "200"={
+ *                         "description"="Notifications are being sent",
+ *                         "content"={
+ *                             "application/json"={
+ *                                 "schema"={}
+ *                             }
+ *                         }
+ *                     },
+ *                     "404"={
+ *                         "description"="BulkNotification or UserNotifications not found"
+ *                     }
+ *                 }
+ *             }
+ *         }
  *     }
  * )
  * @ORM\Entity(repositoryClass=BulkNotificationRepository::class)
@@ -33,23 +55,24 @@ class BulkNotification
 
     /**
      * @ORM\Column(type="array")
-     * @Groups({"bulknotification:write"})
+     * @Groups({"bulknotification:collection:write", "bulknotification:read"})
      */
     private $roles = [];
 
     /**
      * @ORM\Column(type="json")
-     * @Groups({"bulknotification:write"})
+     * @Groups({"bulknotification:collection:write"})
      */
     private $data = [];
 
     /**
      * @ORM\Column(type="uuid")
-     * @Groups({"bulknotification:write"})
+     * @Groups({"bulknotification:collection:write"})
      */
     private $templateId;
 
     /**
+     * @Groups({"bulknotification:read"})
      * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="bulkNotification", orphanRemoval=true)
      */
     private $userNotifications;
