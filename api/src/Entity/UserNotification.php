@@ -96,7 +96,7 @@ class UserNotification
 
     public function getBulkNotification(): ?BulkNotification
     {
-        return $this->BulkNotification;
+        return $this->bulkNotification;
     }
 
     public function setBulkNotification(?BulkNotification $bulkNotification): self
