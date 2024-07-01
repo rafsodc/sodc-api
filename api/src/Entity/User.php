@@ -107,7 +107,6 @@ class User implements UserInterface
 
     /**
      * Returns true if this is the currently authenticated user
-     *
      * @Groups({"user:read"})
      */
     private $isMe = false;
@@ -200,14 +199,14 @@ class User implements UserInterface
     private $captcha = "";
 
     /**
-     * @Groups("ticket:read", "event_ticket:read")
+     * @Groups({"ticket:read", "event_ticket:read", "bulknotification:read"})
      */
     private $fullName;
 
     /**
-     * @ORM\OneToMany(targetEntity=NotifyMessageUser::class, mappedBy="owner", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="user", orphanRemoval=true)
      */
-    private $notifyMessageUsers;
+    private $userNotifications;
 
 
     public function __construct()
@@ -215,7 +214,7 @@ class User implements UserInterface
         $this->tickets = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->transactions = new ArrayCollection();
-        $this->notifyMessageUsers = new ArrayCollection();
+        $this->userNotification = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -601,29 +600,29 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection<int, NotifyMessageUser>
+     * @return Collection<int, UserNotification>
      */
-    public function getNotifyMessageUsers(): Collection
+    public function getuserNotifications(): Collection
     {
-        return $this->notifyMessageUsers;
+        return $this->userNotifications;
     }
 
-    public function addNotifyMessageUser(NotifyMessageUser $notifyMessageUser): self
+    public function addUserNotification(UserNotification $userNotification): self
     {
-        if (!$this->notifyMessageUsers->contains($notifyMessageUser)) {
-            $this->notifyMessageUsers[] = $notifyMessageUser;
-            $notifyMessageUser->setOwner($this);
+        if (!$this->userNotifications->contains($userNotification)) {
+            $this->userNotifications[] = $userNotification;
+            $userNotification->setOwner($this);
         }
 
         return $this;
     }
 
-    public function removeNotifyMessageUser(NotifyMessageUser $notifyMessageUser): self
+    public function removeUserNotification(UserNotification $userNotification): self
     {
-        if ($this->notifyMessageUsers->removeElement($notifyMessageUser)) {
+        if ($this->userNotifications->removeElement($userNotification)) {
             // set the owning side to null (unless already changed)
-            if ($notifyMessageUser->getOwner() === $this) {
-                $notifyMessageUser->setOwner(null);
+            if ($userNotification->getOwner() === $this) {
+                $userNotification->setOwner(null);
             }
         }
 

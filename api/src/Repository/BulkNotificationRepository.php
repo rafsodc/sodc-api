@@ -2,26 +2,26 @@
 
 namespace App\Repository;
 
-use App\Entity\NotifyMessage;
+use App\Entity\BulkNotification;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<NotifyMessage>
+ * @extends ServiceEntityRepository<BulkNotification>
  *
- * @method NotifyMessage|null find($id, $lockMode = null, $lockVersion = null)
- * @method NotifyMessage|null findOneBy(array $criteria, array $orderBy = null)
- * @method NotifyMessage[]    findAll()
- * @method NotifyMessage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method BulkNotification|null find($id, $lockMode = null, $lockVersion = null)
+ * @method BulkNotification|null findOneBy(array $criteria, array $orderBy = null)
+ * @method BulkNotification[]    findAll()
+ * @method BulkNotification[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class NotifyMessageRepository extends ServiceEntityRepository
+class BulkNotificationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, NotifyMessage::class);
+        parent::__construct($registry, BulkNotification::class);
     }
 
-    public function add(NotifyMessage $entity, bool $flush = false): void
+    public function add(BulkNotification $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -30,7 +30,7 @@ class NotifyMessageRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(NotifyMessage $entity, bool $flush = false): void
+    public function remove(BulkNotification $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -40,7 +40,7 @@ class NotifyMessageRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return NotifyMessage[] Returns an array of NotifyMessage objects
+//     * @return BulkNotification[] Returns an array of BulkNotification objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -54,7 +54,7 @@ class NotifyMessageRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?NotifyMessage
+//    public function findOneBySomeField($value): ?BulkNotification
 //    {
 //        return $this->createQueryBuilder('n')
 //            ->andWhere('n.exampleField = :val')
