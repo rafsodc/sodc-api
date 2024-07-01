@@ -6,8 +6,18 @@ use App\Repository\NotifyUserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *     collectionOperations={
+ *          "post"={"security"="is_granted('ROLE_ADMIN')"},
+ *     },
+ *     itemOperations={
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *     }
+ * )
  * @ORM\Entity(repositoryClass=NotifyUserRepository::class)
  */
 class UserNotification
@@ -23,8 +33,9 @@ class UserNotification
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userNotifications")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"usernotification:write"})
      */
-    private $owner;
+    private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity=BulkNotification::class, inversedBy="userNotifications")
@@ -33,9 +44,9 @@ class UserNotification
     private $bulkNotification;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", options={"default":false})
      */
-    private $sent;
+    private $sent = false;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -44,11 +55,13 @@ class UserNotification
 
     /**
      * @ORM\Column(type="json")
+     * @Groups({"usernotification:write"})
      */
     private $data = [];
 
     /**
      * @ORM\Column(type="uuid")
+     * @Groups({"usernotification:write"})
      */
     private $templateId;
 
@@ -57,14 +70,14 @@ class UserNotification
         return $this->id;
     }
 
-    public function getOwner(): ?User
+    public function getUser(): ?User
     {
-        return $this->owner;
+        return $this->user;
     }
 
-    public function setOwner(?User $owner): self
+    public function setUser(?User $user): self
     {
-        $this->owner = $owner;
+        $this->user = $user;
 
         return $this;
     }

@@ -8,6 +8,8 @@ use App\Repository\UserNotificationRepository;
 use App\Service\NotifyClient;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Psr\Log\LoggerInterface;
+use App\Entity\User;
+use App\Service\PlaceholderReplacer;
 
 class UserNotificationHandler implements MessageHandlerInterface
 {
@@ -15,13 +17,15 @@ class UserNotificationHandler implements MessageHandlerInterface
     private $notifyClient;
     private $replyTo;
     private $logger;
+    private $placeholderReplacer;
 
-    public function __construct(UserNotificationRepository $userNotificationRepository, NotifyClient $notifyClient, LoggerInterface $logger) 
+    public function __construct(UserNotificationRepository $userNotificationRepository, PlaceholderReplacer $placeholderReplacer, NotifyClient $notifyClient, LoggerInterface $logger) 
     {
         $this->userNotificationRepository = $userNotificationRepository;
         $this->notifyClient = $notifyClient->client;
         $this->replyTo = $notifyClient->replyTos['secretary'];
         $this->logger = $logger;
+        $this->placeholderReplacer = $placeholderReplacer;
     }
 
     public function __invoke(UserNotificationMessage $message)
@@ -29,18 +33,18 @@ class UserNotificationHandler implements MessageHandlerInterface
         $userNotification = $this->userNotificationRepository->find($message->getUserNotificationId());
 
         if (!$userNotification) {
-            $this->logger->error('UserNotificationHandler: UserNotification not found.');
+            $this->logger->error('UserNotificationHandler: UserNotification not found. '.$message->getUserNotificationId());
             return;
         }
         
-        $user = $userNotification->getOwner();
+        $user = $userNotification->getUser();
 
         try {
-
+            $data = $this->replacePlaceholdersInData($userNotification->getData(), $user);
             $this->notifyClient->sendEmail(
                 $user->getEmail(),
                 $userNotification->getTemplateId(),
-                $userNotification->getData(),
+                $data,
                 $userNotification->getId(),
                 $this->replyTo
             );
@@ -52,5 +56,15 @@ class UserNotificationHandler implements MessageHandlerInterface
         } catch (\Exception $e) {
             $this->logger->error('UserNotificationHandler: Failed to send email for UserNotification ID: ' . $userNotification->getId() . '. Error: ' . $e->getMessage());
         }
+    }
+    
+
+    private function replacePlaceholdersInData(array $data, User $user): array
+    {
+        $replacedData = [];
+        foreach ($data as $key => $value) {
+            $replacedData[$key] = $this->placeholderReplacer->replacePlaceholders(['user' => $user], $value);
+        }
+        return $replacedData;
     }
 }

@@ -50,7 +50,7 @@ class BulkNotification
     private $templateId;
 
     /**
-     * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="BulkNotification", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="bulkNotification", orphanRemoval=true)
      */
     private $userNotifications;
 

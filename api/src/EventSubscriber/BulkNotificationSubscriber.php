@@ -2,32 +2,29 @@
 
 namespace App\EventSubscriber;
 
+use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Entity\BulkNotification;
-use App\Entity\UserNotification;
-use App\Entity\User;
-use App\Service\PlaceholderReplacer;
+use App\Event\BulkNotificationEvent;
+use App\Message\BulkNotificationMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use ApiPlatform\Core\EventListener\EventPriorities;
-use Doctrine\ORM\Events;
-use Doctrine\Persistence\Event\LifecycleEventArgs;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use App\Event\UserNotificationEvent;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
-final class BulkNotificationSubscriber implements EventSubscriberInterface
+class BulkNotificationSubscriber implements EventSubscriberInterface
 {
+    private $messageBus;
     private $entityManager;
-    private $placeholderReplacer;
-    private $eventDispatcher;
+    private $logger;
 
-    public function __construct(EntityManagerInterface $entityManager, PlaceholderReplacer $placeholderReplacer, EventDispatcherInterface $eventDispatcher)
+    public function __construct(MessageBusInterface $messageBus, EntityManagerInterface $entityManager, LoggerInterface $logger)
     {
+        $this->messageBus = $messageBus;
         $this->entityManager = $entityManager;
-        $this->placeholderReplacer = $placeholderReplacer;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
     }
 
     public static function getSubscribedEvents()
@@ -37,44 +34,19 @@ final class BulkNotificationSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onBulkNotificationPost(ViewEvent $event): void
+    public function onBulkNotificationPost(ViewEvent $event)
     {
-        $entity = $event->getControllerResult();
+        $bulkNotification = $event->getControllerResult();
+        $method = $event->getRequest()->getMethod();
 
-        if (!$entity instanceof BulkNotification) {
+        if (!$bulkNotification instanceof BulkNotification || Request::METHOD_POST !== $method) {
             return;
         }
 
-        $bulkNotification = $entity;
-        $roles = $bulkNotification->getRoles();
-        $dataTemplate = $bulkNotification->getData();
-        $templateId = $bulkNotification->getTemplateId();
-        $users = $this->entityManager->getRepository(User::class)->findAll();
+        // Log the creation of the bulk notification
+        $this->logger->info('BulkNotificationSubscriber: BulkNotification created with ID: ' . $bulkNotification->getId());
 
-        foreach ($users as $user) {
-            $userRoles = $user->getRoles();
-            if ($user->hasAnyRoleWithExclusions($roles)) {
-                $userData = $this->replacePlaceholdersInData($dataTemplate, $user);
-                $userNotification = new UserNotification();
-                $userNotification->setOwner($user);
-                $userNotification->setBulkNotification($bulkNotification);
-                $userNotification->setData($userData);
-                $userNotification->setTemplateId($templateId);
-                $userNotification->setSent(false);
-                $this->entityManager->persist($userNotification);
-                $this->eventDispatcher->dispatch(new UserNotificationEvent($userNotification));
-            }
-        }
-
-        $this->entityManager->flush();
-    }
-
-    private function replacePlaceholdersInData(array $data, User $user): array
-    {
-        $replacedData = [];
-        foreach ($data as $key => $value) {
-            $replacedData[$key] = $this->placeholderReplacer->replacePlaceholders(['user' => $user], $value);
-        }
-        return $replacedData;
+        // Dispatch the BulkNotificationMessage to start the asynchronous processing
+        $this->messageBus->dispatch(new BulkNotificationMessage($bulkNotification->getId()));
     }
 }

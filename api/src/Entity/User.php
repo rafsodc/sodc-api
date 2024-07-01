@@ -205,7 +205,7 @@ class User implements UserInterface
     private $fullName;
 
     /**
-     * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="owner", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="user", orphanRemoval=true)
      */
     private $userNotifications;
 
