@@ -18,6 +18,10 @@ security:
             pattern: ^/token/refresh
             stateless: true
             anonymous: true
+        services:
+            pattern: ^/(ipg|notify)
+            stateless: true
+            anonymous: true
         main:
             anonymous: true
             lazy: true
@@ -44,6 +48,14 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/forgot_password, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/forgot_password, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/notify, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/unsubscribe/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/pages, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/ipg, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/contacts, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         #- { path: ^/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }
