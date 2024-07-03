@@ -19,6 +19,8 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use App\Validator\Constraints\Captcha;
 use App\Controller\ApproveUserController;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -30,6 +32,38 @@ use App\Controller\ApproveUserController;
  *              "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
  *              "validation_groups"={"user:post"}
  *          },
+*          "unsubscribe"={
+ *              "method"="POST",
+ *              "path"="/unsubscribe/{unsubscribeUuid}",
+ *              "controller"=NotificationController::class,
+ *              "read"=false,
+ *              "openapi_context"={
+ *                  "summary"="Unsubscribe user",
+ *                  "description"="Unsubscribe a user based on the unsubscribe UUID.",
+ *                  "parameters"={
+ *                      {
+ *                          "name"="unsubscribeUuid",
+ *                          "in"="path",
+ *                          "required"=true,
+ *                          "schema"={"type"="string"},
+ *                          "description"="The unsubscribe UUID of the user"
+ *                      }
+ *                  },
+ *                  "responses"={
+ *                      "200"={
+ *                          "description"="User successfully unsubscribed",
+ *                          "content"={
+ *                              "application/json"={
+ *                                  "schema"={"type"="object"}
+ *                              }
+ *                          }
+ *                      },
+ *                      "404"={
+ *                          "description"="User not found"
+ *                      }
+ *                  }
+ *              }
+ *          }
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('USER_VIEW', object)"},
@@ -207,6 +241,13 @@ class User implements UserInterface
      * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="user", orphanRemoval=true)
      */
     private $userNotifications;
+
+    /**
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
+     * @ORM\Column(type="uuid", unique=true)
+     */
+    private $unsubscribeUuid;
 
 
     public function __construct()
@@ -625,6 +666,18 @@ class User implements UserInterface
                 $userNotification->setOwner(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUnsubscribeUuid()
+    {
+        return $this->unsubscribeUuid;
+    }
+
+    public function setUnsubscribeUuid($unsubscribeUuid): self
+    {
+        $this->unsubscribeUuid = $unsubscribeUuid;
 
         return $this;
     }

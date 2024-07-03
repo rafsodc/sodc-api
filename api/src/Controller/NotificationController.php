@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\BulkNotification;
+use App\Entity\NotificationReturn;
 use App\Message\UserNotificationMessage;
 use App\Repository\BulkNotificationRepository;
 use App\Repository\UserNotificationRepository;
 use App\Repository\NotificationReturnRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,11 +26,13 @@ class NotificationController extends AbstractController
     private $messageBus;
     private $logger;
     private $notificationCallbackToken;
+    private $userRepository;
 
     public function __construct(
         BulkNotificationRepository $bulkNotificationRepository,
         UserNotificationRepository $userNotificationRepository,
         NotificationReturnRepository $notificationReturnRepository,
+        UserRepository $userRepository,
         EntityManagerInterface $entityManager,
         MessageBusInterface $messageBus,
         LoggerInterface $logger,
@@ -37,6 +41,7 @@ class NotificationController extends AbstractController
         $this->bulkNotificationRepository = $bulkNotificationRepository;
         $this->userNotificationRepository = $userNotificationRepository;
         $this->notificationReturnRepository = $notificationReturnRepository;
+        $this->userRepository = $userRepository;
         $this->entityManager = $entityManager;
         $this->messageBus = $messageBus;
         $this->logger = $logger;
@@ -73,7 +78,7 @@ class NotificationController extends AbstractController
     }
 
     /**
-     * @Route("/notification/callback", methods={"POST"})
+     * @Route("/notify", methods={"POST"})
      */
     public function handleCallback(Request $request): JsonResponse
     {
@@ -87,13 +92,13 @@ class NotificationController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         $notificationReturn = new NotificationReturn();
-        $notificationReturn->setNotifyId($data['id']);
+        $notificationReturn->setId($data['id']);
         $notificationReturn->setReference($data['reference'] ?? null);
-        $notificationReturn->setTo($data['to']);
-        $notificationReturn->setReturn($data['Return']);
-        $notificationReturn->setCreatedAt(new \DateTime($data['created_at']));
-        $notificationReturn->setCompletedAt(isset($data['completed_at']) ? new \DateTime($data['completed_at']) : null);
-        $notificationReturn->setSentAt(isset($data['sent_at']) ? new \DateTime($data['sent_at']) : null);
+        $notificationReturn->setSentTo($data['to']);
+        $notificationReturn->setStatus($data['status']);
+        $notificationReturn->setCreatedAt(new \DateTimeImmutable($data['created_at']));
+        $notificationReturn->setCompletedAt(isset($data['completed_at']) ? new \DateTimeImmutable($data['completed_at']) : null);
+        $notificationReturn->setSentAt(isset($data['sent_at']) ? new \DateTimeImmutable($data['sent_at']) : null);
         $notificationReturn->setNotificationType($data['notification_type']);
         $notificationReturn->setTemplateId($data['template_id']);
         $notificationReturn->setTemplateVersion($data['template_version']);
@@ -107,5 +112,23 @@ class NotificationController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse(['Return' => 'success'], JsonResponse::HTTP_CREATED);
+    }
+
+    /**
+     * @Route("/unsubscribe/{unsubscribeUuid}", methods={"POST"}, name="unsubscribe")
+     */
+    public function unsubscribe($unsubscribeUuid): JsonResponse
+    {
+        $user = $this->userRepository->findOneBy(['unsubscribeUuid' => $unsubscribeUuid]);
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], 404);
+        }
+
+        $user->setIsSubscribed(false);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['status' => 'successfully unsubscribed'], JsonResponse::HTTP_OK);
     }
 }

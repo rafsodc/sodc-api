@@ -77,6 +77,12 @@ class BulkNotification
      */
     private $userNotifications;
 
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"bulknotification:read"})
+     */
+    private $isMailing = true;
+
     public function __construct()
     {
         $this->userNotifications = new ArrayCollection();
@@ -149,6 +155,18 @@ class BulkNotification
                 $userNotification->setBulkNotification(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsMailing(): ?bool
+    {
+        return $this->isMailing;
+    }
+
+    public function setIsMailing(bool $isMailing): self
+    {
+        $this->isMailing = $isMailing;
 
         return $this;
     }
