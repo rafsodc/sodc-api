@@ -19,6 +19,8 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use App\Validator\Constraints\Captcha;
 use App\Controller\ApproveUserController;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -30,6 +32,38 @@ use App\Controller\ApproveUserController;
  *              "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
  *              "validation_groups"={"user:post"}
  *          },
+*          "unsubscribe"={
+ *              "method"="POST",
+ *              "path"="/unsubscribe/{unsubscribeUuid}",
+ *              "controller"=NotificationController::class,
+ *              "read"=false,
+ *              "openapi_context"={
+ *                  "summary"="Unsubscribe user",
+ *                  "description"="Unsubscribe a user based on the unsubscribe UUID.",
+ *                  "parameters"={
+ *                      {
+ *                          "name"="unsubscribeUuid",
+ *                          "in"="path",
+ *                          "required"=true,
+ *                          "schema"={"type"="string"},
+ *                          "description"="The unsubscribe UUID of the user"
+ *                      }
+ *                  },
+ *                  "responses"={
+ *                      "200"={
+ *                          "description"="User successfully unsubscribed",
+ *                          "content"={
+ *                              "application/json"={
+ *                                  "schema"={"type"="object"}
+ *                              }
+ *                          }
+ *                      },
+ *                      "404"={
+ *                          "description"="User not found"
+ *                      }
+ *                  }
+ *              }
+ *          }
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('USER_VIEW', object)"},
@@ -107,7 +141,6 @@ class User implements UserInterface
 
     /**
      * Returns true if this is the currently authenticated user
-     *
      * @Groups({"user:read"})
      */
     private $isMe = false;
@@ -200,9 +233,21 @@ class User implements UserInterface
     private $captcha = "";
 
     /**
-     * @Groups("ticket:read", "event_ticket:read")
+     * @Groups({"ticket:read", "event_ticket:read", "bulknotification:read"})
      */
     private $fullName;
+
+    /**
+     * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $userNotifications;
+
+    /**
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
+     * @ORM\Column(type="uuid", unique=true)
+     */
+    private $unsubscribeUuid;
 
 
     public function __construct()
@@ -210,6 +255,7 @@ class User implements UserInterface
         $this->tickets = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->userNotification = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -266,6 +312,34 @@ class User implements UserInterface
         $roles[] = $role;
         $this->setRoles($roles);
         return $this;
+    }
+
+    public function hasAnyRole(array $roles): bool
+    {
+        foreach ($roles as $role) {
+            if (in_array($role, $this->roles)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function hasExclusionRole(array $roles): bool
+    {
+        foreach ($roles as $role) {
+            if (strpos($role, '!') === 0) {
+                $exclusionRole = substr($role, 1);
+                if (in_array($exclusionRole, $this->roles)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public function hasAnyRoleWithExclusions(array $roles): bool
+    {
+        return $this->hasAnyRole($roles) && !$this->hasExclusionRole($roles);
     }
 
     /**
@@ -562,6 +636,48 @@ class User implements UserInterface
     public function setFirstName(?string $firstName): self
     {
         $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserNotification>
+     */
+    public function getuserNotifications(): Collection
+    {
+        return $this->userNotifications;
+    }
+
+    public function addUserNotification(UserNotification $userNotification): self
+    {
+        if (!$this->userNotifications->contains($userNotification)) {
+            $this->userNotifications[] = $userNotification;
+            $userNotification->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserNotification(UserNotification $userNotification): self
+    {
+        if ($this->userNotifications->removeElement($userNotification)) {
+            // set the owning side to null (unless already changed)
+            if ($userNotification->getOwner() === $this) {
+                $userNotification->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUnsubscribeUuid()
+    {
+        return $this->unsubscribeUuid;
+    }
+
+    public function setUnsubscribeUuid($unsubscribeUuid): self
+    {
+        $this->unsubscribeUuid = $unsubscribeUuid;
 
         return $this;
     }

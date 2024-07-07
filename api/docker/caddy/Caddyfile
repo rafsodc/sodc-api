@@ -20,7 +20,7 @@
     @pwa expression `(
         !{header.Accept}.matches("\\bapplication/ld\\+json\\b")
         && !{header.Accept}.matches("\\bapplication/json\\b")
-        && !{path}.matches("(?i)(?:^/ipg|^/docs|^/graphql|^/bundles/|^/files/|^/_profiler|^/_wdt|\\.(?:json|html$|csv$|ya?ml$|xml$))")
+        && !{path}.matches("(?i)(?:^/ipg|^/notify|^/docs|^/graphql|^/bundles/|^/files/|^/_profiler|^/_wdt|\\.(?:json|html$|csv$|ya?ml$|xml$))")
         )
         || {path} == "/favicon.ico"
         || {path} == "/manifest.json"

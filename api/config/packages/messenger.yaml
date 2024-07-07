@@ -59,3 +59,5 @@ framework:
             App\Message\EmailPasswordResetLink: email_priority_high
             App\Message\UserApprove: email_priority_high
             App\Message\ContactSubmit: email_priority_normal
+            App\Message\UserNotificationMessage: email_priority_normal
+            App\Message\BulkNotificationMessage: email_priority_normal
