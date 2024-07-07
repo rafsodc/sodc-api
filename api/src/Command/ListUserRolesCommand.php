@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\Table;
@@ -24,7 +25,8 @@ class ListUserRolesCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Lists all users with their roles in separate columns');
+            ->setDescription('Lists all users with their roles in separate columns')
+            ->addArgument('roles', InputArgument::IS_ARRAY, 'Roles to display (separate multiple roles with a space)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -33,16 +35,21 @@ class ListUserRolesCommand extends Command
         $userRepository = $this->entityManager->getRepository(User::class);
         $users = $userRepository->findAll();
 
-        // Collect all unique roles
-        $allRoles = [];
-        foreach ($users as $user) {
-            foreach ($user->getRoles() as $role) {
-                if (!in_array($role, $allRoles)) {
-                    $allRoles[] = $role;
+        // Get the roles argument
+        $rolesArgument = $input->getArgument('roles');
+
+        // Collect all unique roles or use the provided roles argument
+        $allRoles = !empty($rolesArgument) ? $rolesArgument : [];
+        if (empty($rolesArgument)) {
+            foreach ($users as $user) {
+                foreach ($user->getRoles() as $role) {
+                    if (!in_array($role, $allRoles)) {
+                        $allRoles[] = $role;
+                    }
                 }
             }
+            sort($allRoles);
         }
-        sort($allRoles);
 
         // Prepare the data for the table
         $headers = array_merge(['Name (Email)'], $allRoles);
@@ -50,6 +57,11 @@ class ListUserRolesCommand extends Command
         $table->setHeaders($headers);
 
         foreach ($users as $user) {
+            // Check if the user has any of the specified roles with exclusions
+            if (!$user->hasAnyRoleWithExclusions($allRoles)) {
+                continue;
+            }
+
             $name = sprintf('%s, %s (%s)', $user->getLastName(), $user->getFirstName(), $user->getEmail());
             $row = [$name];
             foreach ($allRoles as $role) {
