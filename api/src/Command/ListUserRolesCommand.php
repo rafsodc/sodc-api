@@ -35,8 +35,12 @@ class ListUserRolesCommand extends Command
         $userRepository = $this->entityManager->getRepository(User::class);
         $users = $userRepository->findAll();
 
+        $total_users = count($users);
+
         // Get the roles argument
         $rolesArgument = $input->getArgument('roles');
+
+        $count = ['Total'];
 
         // Collect all unique roles or use the provided roles argument
         $allRoles = !empty($rolesArgument) ? $rolesArgument : [];
@@ -45,6 +49,7 @@ class ListUserRolesCommand extends Command
                 foreach ($user->getRoles() as $role) {
                     if (!in_array($role, $allRoles)) {
                         $allRoles[] = $role;
+                        $count[$role] = 0;
                     }
                 }
             }
@@ -54,7 +59,7 @@ class ListUserRolesCommand extends Command
         // Prepare the data for the table
         $headers = array_merge(['Name (Email)'], $allRoles);
         $table = new Table($output);
-        $table->setHeaders($headers);
+        $table->setHeaders($headers);        
 
         foreach ($users as $user) {
             // Check if the user has any of the specified roles with exclusions
@@ -66,12 +71,16 @@ class ListUserRolesCommand extends Command
             $row = [$name];
             foreach ($allRoles as $role) {
                 $row[] = in_array($role, $user->getRoles()) ? 'X' : '';
+                $count[$role] = in_array($role, $user->getRoles()) ? $count[$role] + 1 : $count[$role];
             }
             $table->addRow($row);
         }
 
+        $table->addRow($count);
+
         // Render the table
         $table->render();
+        print("Total users: $total_users\n");
 
         return Command::SUCCESS;
     }
