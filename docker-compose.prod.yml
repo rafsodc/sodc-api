@@ -30,7 +30,3 @@ services:
     image: ${API_CADDY_IMAGE}
     environment:
       PWA_UPSTREAM: pwa:80
-      
-  rabbitmq:
-    ports:
-      - 15672:15672
