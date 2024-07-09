@@ -47,8 +47,6 @@ class BulkNotificationHandler implements MessageHandlerInterface
 
         $roles = $bulkNotification->getRoles();
         $dataTemplate = $bulkNotification->getData();
-        $batchSize = $message->getBatchSize();
-        $batchOffset = $message->getBatchOffset();
 
         $users = $this->entityManager->getRepository(User::class)
             ->createQueryBuilder('u')
@@ -62,9 +60,6 @@ class BulkNotificationHandler implements MessageHandlerInterface
             //     )
             // )
             // ->setParameter('bulkNotification', $bulkNotification)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults($batchSize)
-            ->setFirstResult($batchOffset)
             ->getQuery()
             ->getResult();
 
@@ -95,12 +90,8 @@ class BulkNotificationHandler implements MessageHandlerInterface
             }
         }
 
-        $this->logger->info('BulkNotificationHandler: Created userNotification entities for bulkNotification ID: ' . $bulkNotification->getId() . ' with batch offset: ' . $batchOffset);
+        $this->logger->info('BulkNotificationHandler: Created userNotification entities for bulkNotification ID: ' . $bulkNotification->getId());
 
-        // Check if there are more users to process
-        if (count($users) === $batchSize) {
-            $this->messageBus->dispatch(new BulkNotification($message->getbulkNotificationId(), $batchSize, $batchOffset + $batchSize));
-        }
     }
 
 }
