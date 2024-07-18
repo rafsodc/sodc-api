@@ -54,8 +54,11 @@ security:
         - { path: ^/pages, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/ipg, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/docs, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/contacts, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/ranks, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         #- { path: ^/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }
