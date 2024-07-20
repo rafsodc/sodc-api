@@ -21,6 +21,7 @@ use App\Validator\Constraints\Captcha;
 use App\Controller\ApproveUserController;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
+use ApiPlatform\Core\Annotation\ApiProperty;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -73,7 +74,7 @@ use Ramsey\Uuid\UuidInterface;
  *          },
  *          "approve"={
  *              "method"="POST",
- *              "path"="/users/{id}/approve",
+ *              "path"="/users/{uuid}/approve",
  *              "controller"=ApproveUserController::class,
  *              "security"="is_granted('ROLE_ADMIN')",
  *              "validation_groups"={"user:approve"}
@@ -88,18 +89,25 @@ use Ramsey\Uuid\UuidInterface;
  *     }
  * )
  * @UniqueEntity(fields={"email"})
- * @ApiFilter(SearchFilter::class, properties={"id": "exact"});
+ * @ApiFilter(SearchFilter::class, properties={"uuid": "exact"});
  * @ApiFilter(BooleanFilter::class, properties={"isMember"})
  * @ApiFilter(UserFilter::class)
  */
 class User implements UserInterface
 {
+    ///**
+    // * @ORM\Column(type="integer")
+    // * @ApiProperty(identifier=false)
+    // */
+    //private $id;
+
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\Column(type="uuid", unique=true)
+     * @ApiProperty(identifier=true)
+     * @Groups("user:write")
      */
-    private $id;
+    private $uuid;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
@@ -242,13 +250,12 @@ class User implements UserInterface
      */
     private $userNotifications;
 
-    /**
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
-     * @ORM\Column(type="uuid", unique=true)
-     */
-    private $unsubscribeUuid;
-
+    // /**
+    //  * @ORM\GeneratedValue(strategy="CUSTOM")
+    //  * @ORM\CustomIdGenerator(class=UuidGenerator::class)
+    //  * @ORM\Column(type="uuid", unique=true)
+    //  */
+    // private $unsubscribeUuid;
 
     public function __construct()
     {
@@ -258,9 +265,21 @@ class User implements UserInterface
         $this->userNotification = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): UuidInterface
     {
-        return $this->id;
+        return $this->uuid;
+    }
+
+    public function setUuid(UuidInterface $uuid): self
+    {
+        $this->uuid = $uuid;
+
+        return $this;
+    }
+
+    public function getUuid(): UuidInterface
+    {
+        return $this->uuid;
     }
 
     public function getEmail(): ?string
@@ -670,15 +689,8 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getUnsubscribeUuid()
-    {
-        return $this->unsubscribeUuid;
-    }
-
-    public function setUnsubscribeUuid($unsubscribeUuid): self
-    {
-        $this->unsubscribeUuid = $unsubscribeUuid;
-
-        return $this;
-    }
+    // public function getUnsubscribeUuid(): UuidInterface
+    // {
+    //     return $this->unsubscribeUuid;
+    // }
 }

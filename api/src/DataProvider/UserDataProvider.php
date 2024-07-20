@@ -9,18 +9,21 @@ use ApiPlatform\Core\DataProvider\ItemDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Security;
+use Doctrine\ORM\EntityManagerInterface;
 
 class UserDataProvider implements ContextAwareCollectionDataProviderInterface, DenormalizedIdentifiersAwareItemDataProviderInterface, RestrictedDataProviderInterface
 {
     private $collectionDataProvider;
     private $security;
     private $itemDataProvider;
+    private $entityManager;
 
-    public function __construct(CollectionDataProviderInterface $collectionDataProvider, Security $security, ItemDataProviderInterface $itemDataProvider)
+    public function __construct(CollectionDataProviderInterface $collectionDataProvider, Security $security, ItemDataProviderInterface $itemDataProvider, EntityManagerInterface $entityManager)
     {
         $this->collectionDataProvider = $collectionDataProvider;
         $this->security = $security;
         $this->itemDataProvider = $itemDataProvider;
+        $this->entityManager = $entityManager;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
@@ -44,7 +47,7 @@ class UserDataProvider implements ContextAwareCollectionDataProviderInterface, D
     public function getItem(string $resourceClass, $id, string $operationName = null, array $context = [])
     {
         /** @var User|null $item */
-        $item = $this->itemDataProvider->getItem($resourceClass, $id, $operationName, $context);
+        $item = $this->entityManager->getRepository($resourceClass)->find($id);
         if (!$item) {
             return null;
         }

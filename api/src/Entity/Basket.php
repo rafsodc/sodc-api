@@ -42,11 +42,16 @@ class Basket
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="baskets")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
      * @IsValidOwner()
      * @Groups({"basket:write", "basket:read"})
      */
     private $owner;
+
+    // /**
+    //  * @ORM\Column(type="uuid", nullable=true)
+    //  */
+    // private $tempOwnerId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="baskets")

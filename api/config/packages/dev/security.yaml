@@ -1,0 +1,29 @@
+security:
+    firewalls:
+        refresh:
+            pattern: ^/token/refresh
+            stateless: true
+            anonymous: true
+        services:
+            pattern: ^/(ipg|notify)
+            stateless: true
+            anonymous: true
+        debug:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        dev:
+            anonymous: true
+            lazy: true
+            provider: app_user_provider
+            json_login:
+                check_path: app_login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            logout:
+                path: app_logout
+                handlers: [App\Authentication\LogoutHandler]
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator

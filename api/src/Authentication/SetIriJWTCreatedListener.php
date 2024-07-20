@@ -33,7 +33,7 @@ class SetIriJWTCreatedListener
         }
 
         $data['iri'] = $this->iriConverter->getIriFromItem($user);
-        $data['id'] = $user->getId();
+        $data['uuid'] = $user->getUuid();
         $event->setData($data);
     }
 }
