@@ -34,10 +34,15 @@ class UserNotification
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userNotifications")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
      * @Groups({"usernotification:write", "bulknotification:read"})
      */
     private $user;
+
+    // /**
+    //  * @ORM\Column(type="uuid", nullable=true)
+    //  */
+    // private $tempUserId;
 
     /**
      * @ORM\ManyToOne(targetEntity=BulkNotification::class, inversedBy="userNotifications")

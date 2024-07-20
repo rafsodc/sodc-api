@@ -67,12 +67,17 @@ class Ticket
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tickets")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
      * @IsValidOwner()
      * @Groups({"ticket:write", "ticket:read", "event_ticket:read"})
      * @Assert\NotBlank()
      */
     private $owner;
+
+    // /**
+    //  * @ORM\Column(type="uuid", nullable=true)
+    //  */
+    // private $tempOwnerId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="tickets")
@@ -140,10 +145,15 @@ class Ticket
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class)
+     * @ORM\JoinTable(name="ticket_user",
+     *      joinColumns={@ORM\JoinColumn(name="ticket_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="uuid")}
+     * )
      * @Groups({"ticket:write", "ticket:read", "event_ticket:read"})
      * @ApiProperty(readableLink=false, writableLink=false)
      */
     private $seatingPreferences;
+
 
     public function __construct()
     {
@@ -151,6 +161,7 @@ class Ticket
         $this->paid = false;
         $this->baskets = new ArrayCollection();
         $this->seatingPreferences = new ArrayCollection();
+        $this->testfield = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -345,4 +356,6 @@ class Ticket
 
         return $this;
     }
+
+
 }

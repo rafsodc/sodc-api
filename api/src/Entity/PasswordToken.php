@@ -24,9 +24,14 @@ class PasswordToken extends AbstractPasswordToken
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
      */
     private $user;
+
+    // /**
+    //  * @ORM\Column(type="uuid", nullable=true)
+    //  */
+    // private $tempUserId;
 
     /**
     * @Captcha
