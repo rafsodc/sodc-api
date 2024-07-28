@@ -30,12 +30,6 @@
         || {path}.startsWith("/sitemap")
         || {path}.endsWith(".hot-update.json")`
 
-    @post {
-        method POST
-        path /events/*/confirmation
-    }
-    redir @post https://{$SERVER_NAME}{uri}
-
     route {
         root * /srv/api/public
         mercure {
