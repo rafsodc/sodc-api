@@ -105,7 +105,7 @@ class User implements UserInterface
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
      * @ApiProperty(identifier=true)
-     * @Groups("user:write")
+     * @Groups("user:collection:write")
      */
     private $uuid;
 
