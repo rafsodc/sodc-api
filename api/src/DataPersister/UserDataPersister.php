@@ -23,7 +23,6 @@ class UserDataPersister implements DataPersisterInterface
 
     public function supports($data): bool
     {
-        dump($data);
         return $data instanceof User;
     }
 
@@ -40,7 +39,6 @@ class UserDataPersister implements DataPersisterInterface
         }
 
         $data->setIsMe($this->security->getUser() === $data);
-        dump($data);
         $this->decoratedDataPersister->persist($data);
     }
 
