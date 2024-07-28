@@ -60,8 +60,7 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
         $currency = 826;
         $user = $this->security->getUser();
         $host = getHostname();
-        $eventIri = $iri = $this->iriConverter->getIriFromItem($transaction->getBasket()->getEvent());
-        $returnPath = sprintf('https://%s%s/confirmation', $_SERVER['HTTP_HOST'], $iri);
+        $returnPath = sprintf('https://%s/ipg/client', $_SERVER['HTTP_HOST']);
         return [
             'action' => $this->params->get('ipg_store_url'),
             'checkoutoption' => "combinedpage",
@@ -78,8 +77,8 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
             'oid' => $transaction->getId(),
             'email' => $user->getEmail(),
             'bname' => $user->getFirstName() . " " .$user->getLastName(),
-            'responseSuccessURL' => sprintf('https://%s%s/%s', $_SERVER['HTTP_HOST'], $iri, 'success'),
-            'responseFailURL' => sprintf('https://%s%s/%s', $_SERVER['HTTP_HOST'], $iri, 'fail'),
+            'responseSuccessURL' => $returnPath,
+            'responseFailURL' => $returnPath,
             //More fields - email, basketitems(?), chargetotal, currrency
         ];
     }
