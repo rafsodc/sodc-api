@@ -21,14 +21,12 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
     private $params;
     private $security;
     private $requestStack;
-    private $iriConverter;
 
-    public function __construct(ParameterBagInterface $params, Security $security, RequestStack $requestStack, IriConverterInterface $iriConverter)
+    public function __construct(ParameterBagInterface $params, Security $security, RequestStack $requestStack)
     {
         $this->params = $params;
         $this->security = $security;
         $this->requestStack = $requestStack;
-        $this->iriConverter = $iriConverter;
     }
 
     /**
