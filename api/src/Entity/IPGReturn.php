@@ -135,7 +135,7 @@ class IPGReturn
         return $this->status;
     }
 
-    public function isApproved(): ?boolean
+    public function isApproved(): ?bool
     {
         return $this->status === "APPROVED";
     }
