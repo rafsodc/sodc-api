@@ -10,6 +10,8 @@ use App\Entity\Event;
 use App\Entity\Transaction;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\HttpFoundation\RequestStack;
+use ApiPlatform\Core\Api\IriConverterInterface;
 use DateTime;
 use DateTimeZone;
 
@@ -18,11 +20,15 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
 
     private $params;
     private $security;
+    private $requestStack;
+    private $iriConverter;
 
-    public function __construct(ParameterBagInterface $params, Security $security)
+    public function __construct(ParameterBagInterface $params, Security $security, RequestStack $requestStack, IriConverterInterface $iriConverter)
     {
         $this->params = $params;
         $this->security = $security;
+        $this->requestStack = $requestStack;
+        $this->iriConverter = $iriConverter;
     }
 
     /**
@@ -53,10 +59,13 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
         $amount = number_format($transaction->getBasket()->getAmount(), 2, '.', '');
         $currency = 826;
         $user = $this->security->getUser();
+        $host = getHostname();
+        $eventIri = $iri = $this->iriConverter->getIriFromItem($transaction->getBasket()->getEvent());
+        $returnPath = sprintf('https://%s%s/confirmation', $_SERVER['HTTP_HOST'], $iri);
         return [
             'action' => $this->params->get('ipg_store_url'),
-            'checkoutoption' => "simpleform",
-            'hostURI' => 'https://www.sodc.net',
+            'checkoutoption' => "combinedpage",
+            //'hostURI' => 'https://www.sodc.net',
             'txntype' => 'sale',
             'timezone' => $dateTime->getTimezone(),
             'txndatetime' => $dateTime->format("Y:m:d-H:i:s"),
@@ -68,7 +77,9 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
             'mode' => 'payonly',
             'oid' => $transaction->getId(),
             'email' => $user->getEmail(),
-            'bname' => $user->getFirstName() . " " .$user->getLastName()
+            'bname' => $user->getFirstName() . " " .$user->getLastName(),
+            'responseSuccessURL' => sprintf('https://%s%s/%s', $_SERVER['HTTP_HOST'], $iri, 'success'),
+            'responseFailURL' => sprintf('https://%s%s/%s', $_SERVER['HTTP_HOST'], $iri, 'fail'),
             //More fields - email, basketitems(?), chargetotal, currrency
         ];
     }
@@ -77,5 +88,16 @@ class TransactionOutputDataTransformer implements DataTransformerInterface
         $stringToHash = $this->params->get('ipg_store_id') . $dateTime->format("Y:m:d-H:i:s") . $amount. $currency . $this->params->get('ipg_secret_key');
         $ascii = bin2hex($stringToHash);
         return hash('sha256',$ascii);
+    }
+
+    private function getHostname(): ?string{
+
+        $request = $this->requestStack->getCurrentRequest();
+
+        if ($request) {
+            return $request->getHost();
+        }
+
+        return null;
     }
 }
