@@ -17,14 +17,9 @@
 
     log
 
-    @post {
-        method POST
-        path /events/*/confirmation
-    }
-    redir @post {uri} 302
-
     @pwa expression `(
-        !{header.Accept}.matches("\\bapplication/ld\\+json\\b")
+        {method} != "POST"
+        && !{header.Accept}.matches("\\bapplication/ld\\+json\\b")
         && !{header.Accept}.matches("\\bapplication/json\\b")
         && !{path}.matches("(?i)(?:^/ipg|^/notify|^/docs|^/graphql|^/bundles/|^/files/|^/_profiler|^/_wdt|\\.(?:json|html$|csv$|ya?ml$|xml$))")
         )

@@ -74,6 +74,11 @@ class IPGReturn
      */
     private $failReason;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $clientReturn;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -128,6 +133,11 @@ class IPGReturn
     public function getStatus(): ?string
     {
         return $this->status;
+    }
+
+    public function isApproved(): ?boolean
+    {
+        return $this->status === "APPROVED";
     }
 
     public function setStatus(string $status): self
@@ -223,6 +233,18 @@ class IPGReturn
     public function setFailReason(?string $failReason): self
     {
         $this->failReason = $failReason;
+
+        return $this;
+    }
+
+    public function isClientReturn(): ?bool
+    {
+        return $this->clientReturn;
+    }
+
+    public function setClientReturn(bool $clientReturn): self
+    {
+        $this->clientReturn = $clientReturn;
 
         return $this;
     }
