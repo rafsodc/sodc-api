@@ -17,6 +17,12 @@
 
     log
 
+    @post {
+        method POST
+        path /events/*/confirmation
+    }
+    redir @post {uri} 302
+
     @pwa expression `(
         !{header.Accept}.matches("\\bapplication/ld\\+json\\b")
         && !{header.Accept}.matches("\\bapplication/json\\b")
