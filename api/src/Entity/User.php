@@ -250,12 +250,12 @@ class User implements UserInterface
      */
     private $userNotifications;
 
-    // /**
-    //  * @ORM\GeneratedValue(strategy="CUSTOM")
-    //  * @ORM\CustomIdGenerator(class=UuidGenerator::class)
-    //  * @ORM\Column(type="uuid", unique=true)
-    //  */
-    // private $unsubscribeUuid;
+    /**
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
+     * @ORM\Column(type="uuid", unique=true)
+     */
+    private $unsubscribeUuid;
 
     public function __construct()
     {
@@ -689,8 +689,8 @@ class User implements UserInterface
         return $this;
     }
 
-    // public function getUnsubscribeUuid(): UuidInterface
-    // {
-    //     return $this->unsubscribeUuid;
-    // }
+    public function getUnsubscribeUuid(): UuidInterface
+    {
+        return $this->unsubscribeUuid;
+    }
 }
