@@ -257,12 +257,18 @@ class User implements UserInterface
      */
     private $unsubscribeUuid;
 
+    /**
+     * @ORM\OneToMany(targetEntity=UserSubscription::class, mappedBy="owner", orphanRemoval=true)
+     */
+    private $userSubscriptions;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->transactions = new ArrayCollection();
         $this->userNotification = new ArrayCollection();
+        $this->userSubscriptions = new ArrayCollection();
     }
 
     public function getId(): UuidInterface
@@ -692,5 +698,35 @@ class User implements UserInterface
     public function getUnsubscribeUuid(): UuidInterface
     {
         return $this->unsubscribeUuid;
+    }
+
+    /**
+     * @return Collection<int, UserSubscription>
+     */
+    public function getUserSubscriptions(): Collection
+    {
+        return $this->userSubscriptions;
+    }
+
+    public function addUserSubscription(UserSubscription $userSubscription): self
+    {
+        if (!$this->userSubscriptions->contains($userSubscription)) {
+            $this->userSubscriptions[] = $userSubscription;
+            $userSubscription->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserSubscription(UserSubscription $userSubscription): self
+    {
+        if ($this->userSubscriptions->removeElement($userSubscription)) {
+            // set the owning side to null (unless already changed)
+            if ($userSubscription->getOwner() === $this) {
+                $userSubscription->setOwner(null);
+            }
+        }
+
+        return $this;
     }
 }
