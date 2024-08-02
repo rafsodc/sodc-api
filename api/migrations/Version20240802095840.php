@@ -6,7 +6,7 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
-use Doctrine\DBAL\Types\Types;
+use Ramsey\Uuid\Uuid;
 use Doctrine\DBAL\ParameterType;
 
 /**
@@ -16,7 +16,7 @@ final class Version20240802095840 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Create subscription and associate with users who are subscribed';
+        return 'Create subscription and associate with users who are subscribed and meet role criteria';
     }
 
     public function up(Schema $schema): void
@@ -34,29 +34,53 @@ final class Version20240802095840 extends AbstractMigration
         $this->addSql('ALTER TABLE user_subscription ADD CONSTRAINT FK_EAF927519A1887DC FOREIGN KEY (subscription_id) REFERENCES subscription (uuid) NOT DEFERRABLE INITIALLY IMMEDIATE');
 
         // Create the subscription
-        $subscriptionUuid = $this->generateUuid();
+        $subscriptionUuid = Uuid::uuid4()->toString();
         $this->addSql('INSERT INTO subscription (uuid, name) VALUES (:uuid, :name)', [
             'uuid' => $subscriptionUuid,
-            'name' => 'Default Subscription',
-        ], [
-            'uuid' => ParameterType::STRING,
-            'name' => ParameterType::STRING,
+            'name' => 'Annual Symposium Information',
         ]);
 
-        // Associate the subscription with users who have 'isSubscribed' set to true
-        $users = $this->connection->fetchAllAssociative('SELECT uuid FROM "user" WHERE is_subscribed = TRUE');
+        // Define role arrays
+        $requiredRoles = [
+            "ROLE_MEMBER",
+            "ROLE_SERVING",
+            "ROLE_RETIRED"
+        ];
+
+        $excludedRoles = [
+            "ROLE_DECEASED",
+            "ROLE_DELETED",
+            "ROLE_RESIGNED",
+            "ROLE_LOST",
+            "ROLE_GUEST"
+        ];
+
+        // Fetch users with isSubscribed set to true
+        $users = $this->connection->fetchAllAssociative('SELECT uuid, roles FROM "user" WHERE is_subscribed = TRUE');
 
         foreach ($users as $user) {
-            $userSubscriptionUuid = $this->generateUuid();
-            $this->addSql('INSERT INTO user_subscription (uuid, owner_id, subscription_id) VALUES (:uuid, :ownerId, :subscriptionId)', [
-                'uuid' => $userSubscriptionUuid,
-                'ownerId' => $user['uuid'],
-                'subscriptionId' => $subscriptionUuid,
-            ], [
-                'uuid' => ParameterType::STRING,
-                'ownerId' => ParameterType::STRING,
-                'subscriptionId' => ParameterType::STRING,
-            ]);
+            $roles = json_decode($user['roles'], true); // Assuming roles are stored as a JSON array
+
+            $hasRequiredRole = false;
+            $hasExcludedRole = false;
+
+            foreach ($roles as $role) {
+                if (in_array($role, $requiredRoles)) {
+                    $hasRequiredRole = true;
+                }
+                if (in_array($role, $excludedRoles)) {
+                    $hasExcludedRole = true;
+                }
+            }
+
+            if ($hasRequiredRole && !$hasExcludedRole) {
+                $userSubscriptionUuid = Uuid::uuid4()->toString();
+                $this->addSql('INSERT INTO user_subscription (uuid, owner_id, subscription_id) VALUES (:uuid, :ownerId, :subscriptionId)', [
+                    'uuid' => $userSubscriptionUuid,
+                    'ownerId' => $user['uuid'],
+                    'subscriptionId' => $subscriptionUuid,
+                ]);
+            }
         }
     }
 
@@ -67,10 +91,5 @@ final class Version20240802095840 extends AbstractMigration
         $this->addSql('ALTER TABLE user_subscription DROP CONSTRAINT FK_EAF927519A1887DC');
         $this->addSql('DROP TABLE subscription');
         $this->addSql('DROP TABLE user_subscription');
-    }
-
-    private function generateUuid(): string
-    {
-        return \Ramsey\Uuid\Uuid::uuid4()->toString();
     }
 }
