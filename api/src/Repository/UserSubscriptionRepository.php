@@ -39,6 +39,18 @@ class UserSubscriptionRepository extends ServiceEntityRepository
         }
     }
 
+    public function isUserSubscribed($userUuid, $subscriptionUuid): bool
+    {
+        $qb = $this->createQueryBuilder('us')
+            ->select('count(us.uuid)')
+            ->where('us.owner = :userUuid')
+            ->andWhere('us.subscription = :subscriptionUuid')
+            ->setParameter('userUuid', $userUuid)
+            ->setParameter('subscriptionUuid', $subscriptionUuid);
+
+        return (bool) $qb->getQuery()->getSingleScalarResult();
+    }
+
 //    /**
 //     * @return UserSubscription[] Returns an array of UserSubscription objects
 //     */

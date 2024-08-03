@@ -9,11 +9,25 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *     collectionOperations={
+ *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "post"={"security"="is_granted('ROLE_ADMIN')"},
+ *     },
+ *     itemOperations={
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
+ *     },
+ *     attributes={
+ *          "pagination_enabled"=false,
+ *     }
+ * )
  * @ORM\Entity(repositoryClass=SubscriptionRepository::class)
  */
-#[ApiResource]
 class Subscription
 {
     /**
@@ -25,6 +39,7 @@ class Subscription
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"owner:read", "subscription:read"})
      */
     private $name;
 
@@ -36,11 +51,6 @@ class Subscription
     public function __construct()
     {
         $this->userSubscriptions = new ArrayCollection();
-    }
-
-    public function getId(): UuidInterface
-    {
-        return $this->uuid;
     }
 
     public function getUuid()

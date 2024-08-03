@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=UserSubscriptionRepository::class)
@@ -25,20 +26,21 @@ class UserSubscription
     private $uuid;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userSubscriptions")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userSubscription")
      * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
      */
     private $owner;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Subscription::class, inversedBy="userSubscriptions")
+     * @ORM\ManyToOne(targetEntity=Subscription::class, inversedBy="userSubscription")
      * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
+     * @Groups("owner:read")
      */
     private $subscription;
 
-    public function getId(): ?UuidInterface
+    public function getUuid(): ?UuidInterface
     {
-        return $this->id;
+        return $this->uuid;
     }
 
     public function getOwner(): ?User
@@ -53,12 +55,12 @@ class UserSubscription
         return $this;
     }
 
-    public function getSubscription(): ?Subscriptions
+    public function getSubscription(): ?Subscription
     {
         return $this->subscription;
     }
 
-    public function setSubscription(?Subscriptions $subscription): self
+    public function setSubscription(?Subscription $subscription): self
     {
         $this->subscription = $subscription;
 
