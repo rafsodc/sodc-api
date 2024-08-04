@@ -255,6 +255,11 @@ class User implements UserInterface
      */
     private $userSubscriptions;
 
+    /**
+     * @Groups({"user:read", "user:write"})
+     */
+    private $subscriptions = [];
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -716,5 +721,16 @@ class User implements UserInterface
         }
 
         return $this;
+    }
+
+    public function setSubscriptions(array $subscriptions): self
+    {
+        $this->subscriptions = $subscriptions;
+        return $this;
+    }
+
+    public function getSubscriptions(): array
+    {
+        return $this->subscriptions;
     }
 }
