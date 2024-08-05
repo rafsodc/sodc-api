@@ -76,11 +76,13 @@ class UserDataProvider implements ContextAwareCollectionDataProviderInterface, D
         // Build the subscriptions array with subscription status
         $subscriptions = [];
         foreach ($allSubscriptions as $subscription) {
-            $subscriptions[] = [
-                'uuid' => $this->iriConverter->getIriFromItem($subscription),
-                'name' => $subscription->getName(),
-                'isSubscribed' => in_array($subscription->getUuid()->toString(), $subscribedSubscriptionIds)
-            ];
+            if ($subscription->isOptout()) {
+                $subscriptions[] = [
+                    'uuid' => $this->iriConverter->getIriFromItem($subscription),
+                    'name' => $subscription->getName(),
+                    'isSubscribed' => in_array($subscription->getUuid()->toString(), $subscribedSubscriptionIds)
+                ];
+            }
         }
 
         $user->setSubscriptions($subscriptions);

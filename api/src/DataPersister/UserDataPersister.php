@@ -59,7 +59,9 @@ class UserDataPersister implements DataPersisterInterface
         if (!empty($data->getSubscriptions())) {
             // Clear current subscriptions
             foreach ($data->getUserSubscriptions() as $userSubscription) {
-                $this->entityManager->remove($userSubscription);
+                if ($userSubscription->getSubscription()->isOptout()) {
+                    $this->entityManager->remove($userSubscription);
+                }
             }
             $data->getUserSubscriptions()->clear();
 

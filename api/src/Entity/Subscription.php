@@ -48,6 +48,11 @@ class Subscription
      */
     private $userSubscriptions;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $optout;
+
     public function __construct()
     {
         $this->userSubscriptions = new ArrayCollection();
@@ -103,6 +108,18 @@ class Subscription
                 $userSubscription->setSubscription(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isOptout(): ?bool
+    {
+        return $this->optout;
+    }
+
+    public function setOptout(bool $optout): self
+    {
+        $this->optout = $optout;
 
         return $this;
     }
