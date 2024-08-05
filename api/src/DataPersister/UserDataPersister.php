@@ -63,15 +63,17 @@ class UserDataPersister implements DataPersisterInterface
             }
             $data->getUserSubscriptions()->clear();
 
-            // Add new subscriptions
-            foreach ($data->getSubscriptions() as $subscriptionIri) {
-                $subscription = $this->iriConverter->getItemFromIri($subscriptionIri);
+            // Add or remove subscriptions based on the isSubscribed flag
+            foreach ($data->getSubscriptions() as $subscriptionData) {
+                $subscription = $this->iriConverter->getItemFromIri($subscriptionData['uuid']);
                 if ($subscription) {
-                    $userSubscription = new UserSubscription();
-                    $userSubscription->setSubscription($subscription);
-                    $userSubscription->setOwner($data);
-                    $this->entityManager->persist($userSubscription);
-                    $data->addUserSubscription($userSubscription);
+                    if ($subscriptionData['isSubscribed']) {
+                        $userSubscription = new UserSubscription();
+                        $userSubscription->setSubscription($subscription);
+                        $userSubscription->setOwner($data);
+                        $this->entityManager->persist($userSubscription);
+                        $data->addUserSubscription($userSubscription);
+                    }
                 }
             }
         }
@@ -81,37 +83,11 @@ class UserDataPersister implements DataPersisterInterface
         $this->entityManager->flush();
 
         // Ensure the response includes the transformed subscriptions
-        $this->transformUserSubscriptions($data);
         return $data;
     }
 
     public function remove($data)
     {
         $this->decoratedDataPersister->remove($data);
-    }
-
-    private function transformUserSubscriptions(User $user): void
-    {
-        // Fetch all subscriptions
-        $subscriptionRepo = $this->entityManager->getRepository(Subscription::class);
-        $allSubscriptions = $subscriptionRepo->findAll();
-
-        // Create a map of subscriptions the user is subscribed to
-        $subscribedSubscriptionIds = [];
-        foreach ($user->getUserSubscriptions() as $userSubscription) {
-            $subscribedSubscriptionIds[] = $userSubscription->getSubscription()->getUuid()->toString();
-        }
-
-        // Build the subscriptions array with subscription status
-        $subscriptions = [];
-        foreach ($allSubscriptions as $subscription) {
-            $subscriptions[] = [
-                'uuid' => $subscription->getUuid(),
-                'name' => $subscription->getName(),
-                'isSubscribed' => in_array($subscription->getUuid()->toString(), $subscribedSubscriptionIds)
-            ];
-        }
-
-        $user->setSubscriptions($subscriptions);
     }
 }

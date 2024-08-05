@@ -11,18 +11,21 @@ use App\Entity\User;
 use App\Entity\Subscription;
 use Symfony\Component\Security\Core\Security;
 use Doctrine\ORM\EntityManagerInterface;
+use ApiPlatform\Core\Api\IriConverterInterface;
 
 class UserDataProvider implements ContextAwareCollectionDataProviderInterface, DenormalizedIdentifiersAwareItemDataProviderInterface, RestrictedDataProviderInterface
 {
     private $collectionDataProvider;
     private $security;
     private $entityManager;
+    private $iriConverter;
 
-    public function __construct(CollectionDataProviderInterface $collectionDataProvider, Security $security, EntityManagerInterface $entityManager)
+    public function __construct(CollectionDataProviderInterface $collectionDataProvider, Security $security, EntityManagerInterface $entityManager, IriConverterInterface $iriConverter)
     {
         $this->collectionDataProvider = $collectionDataProvider;
         $this->security = $security;
         $this->entityManager = $entityManager;
+        $this->iriConverter = $iriConverter;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
@@ -74,7 +77,7 @@ class UserDataProvider implements ContextAwareCollectionDataProviderInterface, D
         $subscriptions = [];
         foreach ($allSubscriptions as $subscription) {
             $subscriptions[] = [
-                'uuid' => $subscription->getUuid(),
+                'uuid' => $this->iriConverter->getIriFromItem($subscription),
                 'name' => $subscription->getName(),
                 'isSubscribed' => in_array($subscription->getUuid()->toString(), $subscribedSubscriptionIds)
             ];
