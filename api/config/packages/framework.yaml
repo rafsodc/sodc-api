@@ -7,7 +7,8 @@ framework:
     trusted_headers: ['x-forwarded-for', 'x-forwarded-proto']
     #csrf_protection: true
     #http_method_override: true
-
+    router:
+        default_uri: 'https://%env(SERVER_NAME)%'
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
     # Remove or comment this section to explicitly disable session support.
     session:

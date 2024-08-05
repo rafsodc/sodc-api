@@ -251,11 +251,14 @@ class User implements UserInterface
     private $userNotifications;
 
     /**
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
-     * @ORM\Column(type="uuid", unique=true)
+     * @ORM\OneToMany(targetEntity=UserSubscription::class, mappedBy="owner", orphanRemoval=true)
      */
-    private $unsubscribeUuid;
+    private $userSubscriptions;
+
+    /**
+     * @Groups({"user:read", "user:write"})
+     */
+    private $subscriptions = [];
 
     public function __construct()
     {
@@ -263,6 +266,7 @@ class User implements UserInterface
         $this->orders = new ArrayCollection();
         $this->transactions = new ArrayCollection();
         $this->userNotification = new ArrayCollection();
+        $this->userSubscriptions = new ArrayCollection();
     }
 
     public function getId(): UuidInterface
@@ -689,8 +693,44 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getUnsubscribeUuid(): UuidInterface
+    /**
+     * @return Collection<int, UserSubscription>
+     */
+    public function getUserSubscriptions(): Collection
     {
-        return $this->unsubscribeUuid;
+        return $this->userSubscriptions;
+    }
+
+    public function addUserSubscription(UserSubscription $userSubscription): self
+    {
+        if (!$this->userSubscriptions->contains($userSubscription)) {
+            $this->userSubscriptions[] = $userSubscription;
+            $userSubscription->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserSubscription(UserSubscription $userSubscription): self
+    {
+        if ($this->userSubscriptions->removeElement($userSubscription)) {
+            // set the owning side to null (unless already changed)
+            if ($userSubscription->getOwner() === $this) {
+                $userSubscription->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function setSubscriptions(array $subscriptions): self
+    {
+        $this->subscriptions = $subscriptions;
+        return $this;
+    }
+
+    public function getSubscriptions(): array
+    {
+        return $this->subscriptions;
     }
 }

@@ -9,7 +9,6 @@ use App\Message\BulkNotificationMessage;
 use App\Message\UserNotificationMessage;
 use App\Repository\BulkNotificationRepository;
 use App\Repository\UserNotificationRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Psr\Log\LoggerInterface;
@@ -18,20 +17,17 @@ class BulkNotificationHandler implements MessageHandlerInterface
 {
     private $bulkNotificationRepository;
     private $userNotificationRepository;
-    private $entityManager;
     private $messageBus;
     private $logger;
 
     public function __construct(
         BulkNotificationRepository $bulkNotificationRepository,
         UserNotificationRepository $userNotificationRepository,
-        EntityManagerInterface $entityManager,
         MessageBusInterface $messageBus,
         LoggerInterface $logger
     ) {
         $this->bulkNotificationRepository = $bulkNotificationRepository;
         $this->userNotificationRepository = $userNotificationRepository;
-        $this->entityManager = $entityManager;
         $this->messageBus = $messageBus;
         $this->logger = $logger;
     }
@@ -45,49 +41,30 @@ class BulkNotificationHandler implements MessageHandlerInterface
             return;
         }
 
-        $roles = $bulkNotification->getRoles();
+        $userSubscriptions = $bulkNotification->getSubscription()->getUserSubscriptions();
         $dataTemplate = $bulkNotification->getData();
 
-        $users = $this->entityManager->getRepository(User::class)
-            ->createQueryBuilder('u')
-            // ->where(
-            //     $qb->expr()->notIn(
-            //         'u.id',
-            //         $this->entityManager->getRepository(UserNotification::class)->createQueryBuilder('un')
-            //             ->select('IDENTITY(un.user)')
-            //             ->where('un.bulkNotification = :bulkNotification')
-            //             ->getDQL()
-            //     )
-            // )
-            // ->setParameter('bulkNotification', $bulkNotification)
-            ->getQuery()
-            ->getResult();
+        foreach ($userSubscriptions as $userSubscription) {
+            $user = $userSubscription->getOwner();
+            $existingEntry = $this->userNotificationRepository->findOneBy([
+                'user' => $user,
+                'bulkNotification' => $bulkNotification
+            ]);
 
-        foreach ($users as $user) {
-            if ($user->hasAnyRoleWithExclusions($roles)) {
-                $existingEntry = $this->userNotificationRepository->findOneBy([
-                    'user' => $user,
-                    'bulkNotification' => $bulkNotification
-                ]);
-
-                if ($existingEntry) {
-                    $this->logger->info('UserNotification entry already exists for user ID: ' . $user->getId() . ' and BulkNotification ID: ' . $bulkNotification->getId());
-                    continue;
-                }
-
-                $userNotification = new userNotification();
-                $userNotification->setUser($user);
-                $userNotification->setbulkNotification($bulkNotification);
-                $userNotification->setData($dataTemplate);
-                $userNotification->setTemplateId($bulkNotification->getTemplateId());
-                $userNotification->setSent(false);
-
-                $this->userNotificationRepository->save($userNotification);
-
-                //$this->logger->info($userNotification->getId());
-                // Dispatch the UserNotification for further processing asynchronously
-                //$this->messageBus->dispatch(new UserNotificationMessage($userNotification->getId()));
+            if ($existingEntry) {
+                $this->logger->info('UserNotification entry already exists for user ID: ' . $user->getId() . ' and BulkNotification ID: ' . $bulkNotification->getId());
+                continue;
             }
+
+            $userNotification = new userNotification();
+            $userNotification->setUser($user);
+            $userNotification->setbulkNotification($bulkNotification);
+            $userNotification->setData($dataTemplate);
+            $userNotification->setTemplateId($bulkNotification->getTemplateId());
+            $userNotification->setSent(false);
+
+            $this->userNotificationRepository->save($userNotification);
+
         }
 
         $this->logger->info('BulkNotificationHandler: Created userNotification entities for bulkNotification ID: ' . $bulkNotification->getId());
