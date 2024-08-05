@@ -54,12 +54,6 @@ class BulkNotification
     private $id;
 
     /**
-     * @ORM\Column(type="array")
-     * @Groups({"bulknotification:collection:write", "bulknotification:read"})
-     */
-    private $roles = [];
-
-    /**
      * @ORM\Column(type="json")
      * @Groups({"bulknotification:collection:write"})
      */
@@ -78,10 +72,10 @@ class BulkNotification
     private $userNotifications;
 
     /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"bulknotification:read"})
+     * @ORM\ManyToOne(targetEntity=Subscription::class, inversedBy="bulkNotifications")
+     * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
      */
-    private $isMailing = true;
+    private $subscription;
 
     public function __construct()
     {
@@ -91,18 +85,6 @@ class BulkNotification
     public function getId(): UuidInterface
     {
         return $this->id;
-    }
-
-    public function getRoles(): ?array
-    {
-        return $this->roles;
-    }
-
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
-
-        return $this;
     }
 
     public function getData(): ?array
@@ -159,15 +141,16 @@ class BulkNotification
         return $this;
     }
 
-    public function getIsMailing(): ?bool
+    public function getSubscription(): ?Subscription
     {
-        return $this->isMailing;
+        return $this->subscription;
     }
 
-    public function setIsMailing(bool $isMailing): self
+    public function setSubscription(?Subscription $subscription): self
     {
-        $this->isMailing = $isMailing;
+        $this->subscription = $subscription;
 
         return $this;
     }
+
 }

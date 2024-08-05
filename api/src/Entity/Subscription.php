@@ -53,9 +53,15 @@ class Subscription
      */
     private $optout;
 
+    /**
+     * @ORM\OneToMany(targetEntity=BulkNotification::class, mappedBy="subscription", orphanRemoval=true)
+     */
+    private $bulkNotifications;
+
     public function __construct()
     {
         $this->userSubscriptions = new ArrayCollection();
+        $this->bulkNotifications = new ArrayCollection();
     }
 
     public function getUuid()
@@ -120,6 +126,36 @@ class Subscription
     public function setOptout(bool $optout): self
     {
         $this->optout = $optout;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BulkNotification>
+     */
+    public function getBulkNotifications(): Collection
+    {
+        return $this->bulkNotifications;
+    }
+
+    public function addBulkNotification(BulkNotification $bulkNotification): self
+    {
+        if (!$this->bulkNotifications->contains($bulkNotification)) {
+            $this->bulkNotifications[] = $bulkNotification;
+            $bulkNotification->setSubscription($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBulkNotification(BulkNotification $bulkNotification): self
+    {
+        if ($this->bulkNotifications->removeElement($bulkNotification)) {
+            // set the owning side to null (unless already changed)
+            if ($bulkNotification->getSubscription() === $this) {
+                $bulkNotification->setSubscription(null);
+            }
+        }
 
         return $this;
     }
