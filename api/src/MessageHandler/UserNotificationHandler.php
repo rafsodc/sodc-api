@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use App\Entity\User;
 use App\Service\PlaceholderReplacer;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class UserNotificationHandler implements MessageHandlerInterface
 {
@@ -40,20 +41,17 @@ class UserNotificationHandler implements MessageHandlerInterface
             $this->logger->error('UserNotificationHandler: UserNotification not found. '.$message->getUserNotificationId());
             return;
         }
-
         
         if($userNotification->getBulkNotification() instanceof BulkNotification) {
-            $mailing = $userNotification->getBulkNotification()->getIsMailing();
+            $optout = $userNotification->getBulkNotification()->getSubscription()->isOptout();
         }
         else {
-            $mailing = false;
+            $optout = false;
         }
-        
-        $user = $userNotification->getUser();
-        $unsubscribeLink = $mailing ? $this->router->generate('unsubscribe', ['unsubscribeUuid' => $user->getUnsubscribeUuid()], RouterInterface::ABSOLUTE_URL) : null;
-        
-        $this->logger->warning($unsubscribeLink);
+        $unsubscribeLink = $optout ? $this->router->generate('unsubscribe', ['unsubscribeUuid' => $userNotification->getBulkNotification()->getSubscription()->getUuid()], UrlGeneratorInterface::ABSOLUTE_URL) : null;
 
+        $user = $userNotification->getUser();
+        
         try {
             $data = $this->replacePlaceholdersInData($userNotification->getData(), $user);
             $this->notifyClient->sendEmail(

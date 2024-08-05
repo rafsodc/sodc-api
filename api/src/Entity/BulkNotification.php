@@ -56,24 +56,26 @@ class BulkNotification
     /**
      * @ORM\Column(type="json")
      * @Groups({"bulknotification:collection:write"})
+     * @Groups({"bulknotification:read"})
      */
     private $data = [];
 
     /**
      * @ORM\Column(type="uuid")
-     * @Groups({"bulknotification:collection:write"})
+     * @Groups({"bulknotification:collection:write", "bulknotification:read"})
      */
     private $templateId;
 
     /**
-     * @Groups({"bulknotification:read"})
      * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="bulkNotification", orphanRemoval=true)
+     * @Groups({"bulknotification:read"})
      */
     private $userNotifications;
 
     /**
      * @ORM\ManyToOne(targetEntity=Subscription::class, inversedBy="bulkNotifications")
      * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
+     * @Groups({"bulknotification:collection:write", "bulknotification:read"})
      */
     private $subscription;
 
