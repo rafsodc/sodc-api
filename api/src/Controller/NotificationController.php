@@ -8,7 +8,7 @@ use App\Message\UserNotificationMessage;
 use App\Repository\BulkNotificationRepository;
 use App\Repository\UserNotificationRepository;
 use App\Repository\NotificationReturnRepository;
-use App\Repository\UserRepository;
+use App\Repository\UserSubscriptionRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -26,13 +26,13 @@ class NotificationController extends AbstractController
     private $messageBus;
     private $logger;
     private $notificationCallbackToken;
-    private $userRepository;
+    private $userSubscriptionRepository;
 
     public function __construct(
         BulkNotificationRepository $bulkNotificationRepository,
         UserNotificationRepository $userNotificationRepository,
         NotificationReturnRepository $notificationReturnRepository,
-        UserRepository $userRepository,
+        UserSubscriptionRepository $userSubscriptionRepository,
         EntityManagerInterface $entityManager,
         MessageBusInterface $messageBus,
         LoggerInterface $logger,
@@ -41,7 +41,7 @@ class NotificationController extends AbstractController
         $this->bulkNotificationRepository = $bulkNotificationRepository;
         $this->userNotificationRepository = $userNotificationRepository;
         $this->notificationReturnRepository = $notificationReturnRepository;
-        $this->userRepository = $userRepository;
+        $this->userSubscriptionRepository = $userSubscriptionRepository;
         $this->entityManager = $entityManager;
         $this->messageBus = $messageBus;
         $this->logger = $logger;
@@ -115,18 +115,17 @@ class NotificationController extends AbstractController
     }
 
     /**
-     * @Route("/unsubscribe/{unsubscribeUuid}", methods={"POST"}, name="unsubscribe")
+     * @Route("/unsubscribe/{subscriptionUUID}", methods={"POST"}, name="unsubscribe")
      */
-    public function unsubscribe($unsubscribeUuid): JsonResponse
+    public function unsubscribe($subscriptionUUID): JsonResponse
     {
-        $user = $this->userRepository->findOneBy(['unsubscribeUuid' => $unsubscribeUuid]);
+        $userSubscription = $this->userSubscriptionRepository->findOneBy(['uuid' => $subscriptionUUID]);
 
-        if (!$user) {
-            return new JsonResponse(['error' => 'User not found'], 404);
+        if (!$userSubscription) {
+            return new JsonResponse(['error' => 'Subscription not found'], 404);
         }
 
-        $user->setIsSubscribed(false);
-        $this->entityManager->persist($user);
+        $this->entityManager->remove($userSubscription);
         $this->entityManager->flush();
 
         return new JsonResponse(['status' => 'successfully unsubscribed'], JsonResponse::HTTP_OK);

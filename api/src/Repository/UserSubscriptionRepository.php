@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\UserSubscription;
+use App\Entity\User;
+use App\Entity\Subscription;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -49,6 +51,17 @@ class UserSubscriptionRepository extends ServiceEntityRepository
             ->setParameter('subscriptionUuid', $subscriptionUuid);
 
         return (bool) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function findOneByUserAndSubscription(User $user, Subscription $subscription): ?UserSubscription
+    {
+        return $this->createQueryBuilder('us')
+            ->andWhere('us.owner = :user')
+            ->andWhere('us.subscription = :subscription')
+            ->setParameter('user', $user)
+            ->setParameter('subscription', $subscription)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
 //    /**
