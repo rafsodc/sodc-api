@@ -6,6 +6,7 @@ use App\Entity\UserNotification;
 use App\Entity\BulkNotification;
 use App\Message\UserNotificationMessage as UserNotificationMessage;
 use App\Repository\UserNotificationRepository;
+use App\Repository\UserSubscriptionRepository;
 use App\Service\NotifyClient;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Psr\Log\LoggerInterface;
@@ -22,10 +23,12 @@ class UserNotificationHandler implements MessageHandlerInterface
     private $router;
     private $logger;
     private $placeholderReplacer;
+    private $userSubscriptionRepository;
 
-    public function __construct(UserNotificationRepository $userNotificationRepository, PlaceholderReplacer $placeholderReplacer, NotifyClient $notifyClient, RouterInterface $router, LoggerInterface $logger) 
+    public function __construct(UserNotificationRepository $userNotificationRepository, UserSubscriptionRepository $userSubscriptionRepository, PlaceholderReplacer $placeholderReplacer, NotifyClient $notifyClient, RouterInterface $router, LoggerInterface $logger) 
     {
         $this->userNotificationRepository = $userNotificationRepository;
+        $this->userSubscriptionRepository = $userSubscriptionRepository;
         $this->notifyClient = $notifyClient->client;
         $this->replyTo = $notifyClient->replyTos['secretary'];
         $this->router = $router;
@@ -36,21 +39,26 @@ class UserNotificationHandler implements MessageHandlerInterface
     public function __invoke(UserNotificationMessage $message)
     {
         $userNotification = $this->userNotificationRepository->find($message->getUserNotificationId());
-
+        
         if (!$userNotification) {
             $this->logger->error('UserNotificationHandler: UserNotification not found. '.$message->getUserNotificationId());
             return;
         }
-        
-        if($userNotification->getBulkNotification() instanceof BulkNotification) {
-            $optout = $userNotification->getBulkNotification()->getSubscription()->isOptout();
-        }
-        else {
-            $optout = false;
-        }
-        $unsubscribeLink = $optout ? $this->router->generate('unsubscribe', ['unsubscribeUuid' => $userNotification->getBulkNotification()->getSubscription()->getUuid()], UrlGeneratorInterface::ABSOLUTE_URL) : null;
 
         $user = $userNotification->getUser();
+        
+        $unsubscribeLink = null;
+
+        $bulkNotification = $userNotification->getBulkNotification();
+        if ($bulkNotification instanceof BulkNotification) {
+            $subscription = $bulkNotification->getSubscription();
+            if ($subscription->isOptout()) {
+                $userSubscription = $this->userSubscriptionRepository->findOneByUserAndSubscription($user, $subscription);
+                if ($userSubscription) {
+                    $unsubscribeLink = $this->router->generate('unsubscribe', ['subscriptionUUID' => $userSubscription->getUuid()], UrlGeneratorInterface::ABSOLUTE_URL);
+                }
+            }
+        }  
         
         try {
             $data = $this->replacePlaceholdersInData($userNotification->getData(), $user);
