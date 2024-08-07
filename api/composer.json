@@ -5,7 +5,7 @@
         "php": ">=8.0",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "alphagov/notifications-php-client": "^3.2",
+        "alphagov/notifications-php-client": "^6.2",
         "api-platform/core": "^2.6",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/annotations": "^1.0",
