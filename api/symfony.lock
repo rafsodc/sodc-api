@@ -302,6 +302,9 @@
     "rollbar/rollbar": {
         "version": "v2.1.0"
     },
+    "rollbar/rollbar-php-symfony-bundle": {
+        "version": "v5.1.0"
+    },
     "symfony/amqp-messenger": {
         "version": "v5.2.11"
     },

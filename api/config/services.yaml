@@ -162,7 +162,7 @@ services:
     App\Logger\Handler\RollbarHandlerFactory:
         $config: '%rollbar.config%'
 
-    Rollbar\Monolog\Handler\RollbarHandler:
+    Monolog\Handler\RollbarHandler:
         factory: ['@App\Logger\Handler\RollbarHandlerFactory', createRollbarHandler]
         tags:
             - { name: monolog.logger, channel: rollbar }
