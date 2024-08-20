@@ -11,9 +11,29 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *     collectionOperations={
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "post"={
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "validation_groups"={"usersubscription:write"}
+ *           },
+ *     },
+ *     itemOperations={
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "patch"={
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "validation_groups"={"usersubscription:write"}
+ *           },
+ *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
+ *     },
+ *     attributes={
+ *          "pagination_enabled"=false,
+ *     }
+ * )
  * @ORM\Entity(repositoryClass=UserSubscriptionRepository::class)
+ * 
  */
-#[ApiResource]
 class UserSubscription
 {
     /**
@@ -28,13 +48,14 @@ class UserSubscription
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userSubscription")
      * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
+     * @Groups({"usersubscription:write"})
      */
     private $owner;
 
     /**
      * @ORM\ManyToOne(targetEntity=Subscription::class, inversedBy="userSubscription")
      * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
-     * @Groups("owner:read")
+     * @Groups({"owner:read", "usersubscription:write"})
      */
     private $subscription;
 
