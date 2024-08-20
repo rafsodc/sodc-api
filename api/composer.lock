@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "04d41fe87b840edd400e60885c08a92a",
+    "content-hash": "6eae84a08349c6e21112dbb00e02fe00",
     "packages": [
         {
             "name": "alphagov/notifications-php-client",
@@ -4094,34 +4094,33 @@
         },
         {
             "name": "rollbar/rollbar",
-            "version": "v2.1.0",
+            "version": "v4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rollbar/rollbar-php.git",
-                "reference": "ff3db5739dd635740caed02ddad43e671b5a37e5"
+                "reference": "6966a4c97c170298108f5e5b543c2710658f8fe0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rollbar/rollbar-php/zipball/ff3db5739dd635740caed02ddad43e671b5a37e5",
-                "reference": "ff3db5739dd635740caed02ddad43e671b5a37e5",
+                "url": "https://api.github.com/repos/rollbar/rollbar-php/zipball/6966a4c97c170298108f5e5b543c2710658f8fe0",
+                "reference": "6966a4c97c170298108f5e5b543c2710658f8fe0",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
-                "monolog/monolog": "^1 || ^2",
-                "psr/log": "^1"
+                "monolog/monolog": "^2 || ^3",
+                "php": ">=8.0.0 <9.0",
+                "psr/log": "^1 || ^2 || ^3"
             },
             "require-dev": {
-                "codeclimate/php-test-reporter": "dev-master",
-                "mockery/mockery": "1.*",
-                "packfire/php5.3-compat": "*",
-                "phpmd/phpmd": "@stable",
-                "phpunit/phpunit": "4.8.* || 5.7.* || ^8",
-                "squizlabs/php_codesniffer": "2.*"
+                "mockery/mockery": "^1.5.1",
+                "phpmd/phpmd": "^2.13",
+                "phpunit/phpunit": "^9.6 || ^10.1",
+                "squizlabs/php_codesniffer": "^3.7",
+                "vimeo/psalm": "^5.9"
             },
             "suggest": {
-                "fluent/logger": "Needed to use the 'fluent' handler for fluentd support",
-                "packfire/php5.3-compat": "for backward compatibility with PHP 5.3"
+                "fluent/logger": "Needed to use the 'fluent' handler for fluentd support"
             },
             "type": "library",
             "autoload": {
@@ -4141,7 +4140,7 @@
                 }
             ],
             "description": "Monitors errors and exceptions and reports them to Rollbar",
-            "homepage": "http://github.com/rollbar/rollbar-php",
+            "homepage": "https://github.com/rollbar/rollbar-php",
             "keywords": [
                 "debugging",
                 "errors",
@@ -4152,9 +4151,69 @@
             "support": {
                 "email": "support@rollbar.com",
                 "issues": "https://github.com/rollbar/rollbar-php/issues",
-                "source": "https://github.com/rollbar/rollbar-php/tree/v2.1.0"
+                "source": "https://github.com/rollbar/rollbar-php/tree/v4.0.2"
             },
-            "time": "2020-07-01T23:21:01+00:00"
+            "time": "2023-12-22T21:40:31+00:00"
+        },
+        {
+            "name": "rollbar/rollbar-php-symfony-bundle",
+            "version": "v5.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rollbar/rollbar-php-symfony-bundle.git",
+                "reference": "d9cb06f04c53d89b11765b39f9af9e77eb507e0a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rollbar/rollbar-php-symfony-bundle/zipball/d9cb06f04c53d89b11765b39f9af9e77eb507e0a",
+                "reference": "d9cb06f04c53d89b11765b39f9af9e77eb507e0a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=8.0.2",
+                "rollbar/rollbar": "^3.1|^4.0",
+                "symfony/config": "^5.4|^6.2",
+                "symfony/dependency-injection": "^5.4|^6.2",
+                "symfony/http-kernel": "^5.4|^6.2",
+                "symfony/monolog-bundle": "^3.8",
+                "symfony/serializer": "^5.4|^6.2"
+            },
+            "require-dev": {
+                "matthiasnoback/symfony-dependency-injection-test": "^4.3",
+                "phpunit/phpunit": "^9.6|^10.1",
+                "squizlabs/php_codesniffer": "^3.7",
+                "symfony/framework-bundle": "^5.4|^6.2"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Rollbar\\Symfony\\RollbarBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "OxCom",
+                    "email": "lancer.oxcom@gmail.com"
+                },
+                {
+                    "name": "Artur Moczulski",
+                    "email": "artur.moczulski@gmail.com"
+                }
+            ],
+            "description": "Bundle for Symfony that integrates Rollbar tracker",
+            "support": {
+                "issues": "https://github.com/rollbar/rollbar-php-symfony-bundle/issues",
+                "source": "https://github.com/rollbar/rollbar-php-symfony-bundle/tree/v5.1.0"
+            },
+            "time": "2023-05-05T18:10:25+00:00"
         },
         {
             "name": "stella-maris/clock",
