@@ -11,6 +11,7 @@ use App\Entity\Page;
 use App\Entity\User;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Ramsey\Uuid\Uuid;
 
 class InstallDevEnvCommand extends Command
 {
@@ -105,6 +106,7 @@ class InstallDevEnvCommand extends Command
     {
         /** @var User $user */
         $user = new User();
+        $user->setUuid(Uuid::uuid4());
         $user->setFirstName("Admin");
         $user->setLastName("Account");
         $user->setRoles(["ROLE_ADMIN", "ROLE_USER"]);
