@@ -46,14 +46,14 @@ class UserSubscription
     private $uuid;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userSubscription")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userSubscriptions")
      * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
      * @Groups({"usersubscription:write"})
      */
     private $owner;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Subscription::class, inversedBy="userSubscription")
+     * @ORM\ManyToOne(targetEntity=Subscription::class, inversedBy="userSubscriptions")
      * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
      * @Groups({"owner:read", "usersubscription:write"})
      */
