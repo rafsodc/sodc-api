@@ -9,17 +9,24 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
  *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "post"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "post"={
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "validation_groups"={"subscription:write"}
+ *           },
  *     },
  *     itemOperations={
  *          "get"={"security"="is_granted('ROLE_ADMIN')"},
- *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
+ *          "patch"={
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "validation_groups"={"subscription:write"}
+ *           },
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
  *     },
  *     attributes={
@@ -33,13 +40,15 @@ class Subscription
     /**
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
      * @ApiProperty(identifier=true)
      */
     private $uuid;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"owner:read", "subscription:read"})
+     * @Groups({"owner:read", "subscription:read", "subscription:write"})
      */
     private $name;
 
@@ -50,6 +59,7 @@ class Subscription
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"subscription:write"})
      */
     private $optout;
 
