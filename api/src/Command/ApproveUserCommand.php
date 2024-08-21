@@ -16,6 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Console\Question\Question;
 use Ramsey\Uuid\Uuid;
 use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface;
+use App\Service\SubscriptionService;
 
 class ApproveUserCommand extends Command
 {
@@ -26,11 +27,13 @@ class ApproveUserCommand extends Command
     /** @var User $user */
     private $user;
     private $messageBus;
+    private $subscriptionService;
 
-    public function __construct(EntityManagerInterface $entityManager, MessageBusInterface $messageBus) //RefreshTokenManagerInterface $refreshTokenManager)
+    public function __construct(EntityManagerInterface $entityManager, MessageBusInterface $messageBus, SubscriptionService $subscriptionService) //RefreshTokenManagerInterface $refreshTokenManager)
     {
         $this->entityManager = $entityManager;
         $this->messageBus = $messageBus;
+        $this->subscriptionService = $subscriptionService;
         //$this->refreshTokenManager = $refreshTokenManager;
 
         parent::__construct();
@@ -85,6 +88,9 @@ class ApproveUserCommand extends Command
         }
 
         $this->user->setRoles($roles);
+
+        // Assign default subscriptions based on the user's roles
+        $this->subscriptionService->setDefaultSubscriptions($this->user);
         
         $this->entityManager->flush();
 

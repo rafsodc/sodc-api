@@ -64,6 +64,12 @@ class Subscription
     private $optout;
 
     /**
+     * @ORM\Column(type="json")
+     * @Groups({"subscription:write"})
+     */
+    private $roles = [];
+
+    /**
      * @ORM\OneToMany(targetEntity=BulkNotification::class, mappedBy="subscription", orphanRemoval=true)
      */
     private $bulkNotifications;
@@ -94,6 +100,18 @@ class Subscription
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
 
         return $this;
     }
