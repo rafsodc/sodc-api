@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 /**
  * @ApiResource(
  *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
+ *          "get"={"security"="is_granted('ROLE_ADMIN')"},
  *          "post"={"security"="is_granted('ROLE_USER')"},
  *     },
  *     itemOperations={
@@ -35,11 +35,18 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
  *          "order"={"owner.lastName", "owner.firstName", "lastname", "firstname"}
  *     },
  *     subresourceOperations={
- *          "api_events_tickets_get_subresource"= {
- *              "method"="GET",
- *              "security"="is_granted('ROLE_USER')",
- *              "normalization_context"={"groups"={"event_ticket:read"}}
- *          }
+ *         "api_events_tickets_get_subresource"={
+ *             "method"="GET",
+ *             "path"="/events/{id}/tickets",
+ *             "security"="is_granted('ROLE_USER')",
+ *             "normalization_context"={"groups"={"ticket:read"}},
+ *         },
+ *         "api_users_tickets_get_subresource"={
+ *             "method"="GET",
+ *             "path"="/users/{uuid}/tickets",
+ *             "security"="is_granted('ROLE_ADMIN') or user.getUuid() == request.attributes.get('uuid')",
+ *             "normalization_context"={"groups"={"ticket:owner"}},
+ *         }
  *     }
  * )
  * @ORM\Entity(repositoryClass=TicketRepository::class)
@@ -59,7 +66,7 @@ class Ticket
 
     /**
      * @ORM\Column(type="uuid", unique=true)
-     * @Groups({"ticket:write", "basket:read", "event:item:read", "event_ticket:read"})
+     * @Groups({"ticket:write", "basket:read", "event:item:owner", "ticket:read", "ticket:owner"})
      * @ApiProperty(identifier=true)
      * @Assert\NotBlank()
      */
@@ -69,7 +76,7 @@ class Ticket
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
      * @IsValidOwner()
-     * @Groups({"ticket:write", "ticket:read", "event_ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "ticket:owner"})
      * @Assert\NotBlank()
      */
     private $owner;
@@ -83,26 +90,26 @@ class Ticket
      * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false)
      * @IsEventOpen()
-     * @Groups({"ticket:write", "ticket:read"})
+     * @Groups({"ticket:write"})
      * @Assert\NotBlank()
      */
     private $event;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read", "basket:read", "event_ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read", "ticket:owner"})
      */
     private $rank;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read", "basket:read", "event_ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read", "ticket:owner"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read", "basket:read", "event_ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read", "ticket:owner"})
      * @Assert\NotBlank()
      */
     private $lastname;
@@ -110,7 +117,7 @@ class Ticket
     /**
      * @ORM\ManyToOne(targetEntity=TicketType::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"ticket:write", "ticket:read", "basket:read", "event_ticket:read"})
+     * @Groups({"ticket:write", "ticket:read", "basket:read", "ticket:owner"})
      * @Assert\NotBlank()
      */
     private $ticketType;
@@ -122,13 +129,13 @@ class Ticket
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read", "event_ticket:read"})
+     * @Groups({"ticket:write", "ticket:owner"})
      */
     private $dietary;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"ticket:read", "event_ticket:read"})
+     * @Groups({"ticket:owner"})
      */
     private $paid;
 
@@ -139,7 +146,7 @@ class Ticket
 
     /**
      * @ORM\ManyToMany(targetEntity=Basket::class, mappedBy="tickets")
-     * @Groups({"ticket:read"})
+     * @Groups({"ticket:owner"})
      */
     private $baskets;
 
@@ -149,7 +156,7 @@ class Ticket
      *      joinColumns={@ORM\JoinColumn(name="ticket_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="uuid")}
      * )
-     * @Groups({"ticket:write", "ticket:read", "event_ticket:read"})
+     * @Groups({"ticket:write", "ticket:owner"})
      * @ApiProperty(readableLink=false, writableLink=false)
      */
     private $seatingPreferences;

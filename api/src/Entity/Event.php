@@ -111,14 +111,12 @@ class Event
 
     /**
      * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"event:get"})
      * @ApiSubresource()
      */
     private $tickets;
 
     /**
      * @ORM\OneToMany(targetEntity=Basket::class, mappedBy="event")
-     * @Groups({"event:get"})
      */
     private $baskets;
 

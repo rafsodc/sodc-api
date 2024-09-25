@@ -22,6 +22,7 @@ use App\Controller\ApproveUserController;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -144,6 +145,7 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="owner", orphanRemoval=true)
+     * @ApiSubresource()
      */
     private $tickets;
 
