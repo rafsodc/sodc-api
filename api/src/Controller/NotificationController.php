@@ -61,7 +61,7 @@ class NotificationController extends AbstractController
 
         $this->logger->info('NotificationController: Dispatching UserNotifications for BulkNotification ID: ' . $bulkNotification->getId());
 
-        $userNotifications = $this->userNotificationRepository->findBy(['bulkNotification' => $bulkNotification]);
+        $userNotifications = $this->userNotificationRepository->findBy(['bulkNotification' => $bulkNotification, 'sent' => false]);
 
         if (empty($userNotifications)) {
             return new JsonResponse(['error' => 'No UserNotifications found for this BulkNotification'], 404);
