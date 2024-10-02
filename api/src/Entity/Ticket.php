@@ -129,13 +129,13 @@ class Ticket
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:owner"})
+     * @Groups({"ticket:write", "ticket:owner", "admin:read"})
      */
     private $dietary;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"ticket:owner"})
+     * @Groups({"ticket:owner", "admin:read"})
      */
     private $paid;
 
@@ -160,6 +160,16 @@ class Ticket
      * @ApiProperty(readableLink=false, writableLink=false)
      */
     private $seatingPreferences;
+
+    /**
+     * @Groups({"admin:read"})
+     * @ApiProperty(readableLink=true, writableLink=false)
+     */
+    public function getSeatingPreferencesDetails(): array
+    {
+        // This will return the detailed user data
+        return $this->seatingPreferences->toArray();
+    }
 
 
     public function __construct()
