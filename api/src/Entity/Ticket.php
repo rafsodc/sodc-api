@@ -162,6 +162,12 @@ class Ticket
     private $seatingPreferences;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"admin:write", "ticket:read"})
+     */
+    private $cancelled;
+
+    /**
      * @Groups({"admin:read"})
      * @ApiProperty(readableLink=true, writableLink=false)
      */
@@ -370,6 +376,18 @@ class Ticket
     public function removeSeatingPreference(User $seatingPreference): self
     {
         $this->seatingPreferences->removeElement($seatingPreference);
+
+        return $this;
+    }
+
+    public function isCancelled(): ?bool
+    {
+        return $this->cancelled;
+    }
+
+    public function setCancelled(bool $cancelled): self
+    {
+        $this->cancelled = $cancelled;
 
         return $this;
     }
