@@ -165,7 +165,7 @@ class Ticket
      * @ORM\Column(type="boolean")
      * @Groups({"admin:write", "ticket:read"})
      */
-    private $cancelled;
+    private $cancelled = false;
 
     /**
      * @Groups({"admin:read"})
