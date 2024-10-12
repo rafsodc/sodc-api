@@ -74,6 +74,12 @@ class Subscription
      */
     private $bulkNotifications;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Event::class, inversedBy="subscription", cascade={"persist", "remove"})
+     * @Groups({"subscription:write"})
+     */
+    private $event;
+
     public function __construct()
     {
         $this->userSubscriptions = new ArrayCollection();
@@ -184,6 +190,18 @@ class Subscription
                 $bulkNotification->setSubscription(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getEvent(): ?Event
+    {
+        return $this->event;
+    }
+
+    public function setEvent(?Event $event): self
+    {
+        $this->event = $event;
 
         return $this;
     }
