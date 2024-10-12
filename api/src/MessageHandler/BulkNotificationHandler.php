@@ -12,6 +12,7 @@ use App\Repository\UserNotificationRepository;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Psr\Log\LoggerInterface;
+use App\Repository\TicketRepository;
 
 class BulkNotificationHandler implements MessageHandlerInterface
 {
@@ -19,15 +20,18 @@ class BulkNotificationHandler implements MessageHandlerInterface
     private $userNotificationRepository;
     private $messageBus;
     private $logger;
+    private $ticketRepository;
 
     public function __construct(
         BulkNotificationRepository $bulkNotificationRepository,
         UserNotificationRepository $userNotificationRepository,
+        TicketRepository $ticketRepository,
         MessageBusInterface $messageBus,
         LoggerInterface $logger
     ) {
         $this->bulkNotificationRepository = $bulkNotificationRepository;
         $this->userNotificationRepository = $userNotificationRepository;
+        $this->ticketRepository = $ticketRepository;
         $this->messageBus = $messageBus;
         $this->logger = $logger;
     }
@@ -41,34 +45,46 @@ class BulkNotificationHandler implements MessageHandlerInterface
             return;
         }
 
-        $userSubscriptions = $bulkNotification->getSubscription()->getUserSubscriptions();
-        $dataTemplate = $bulkNotification->getData();
+        $event = $bulkNotification->getSubscription()->getEvent();
 
-        foreach ($userSubscriptions as $userSubscription) {
-            $user = $userSubscription->getOwner();
-            $existingEntry = $this->userNotificationRepository->findOneBy([
-                'user' => $user,
-                'bulkNotification' => $bulkNotification
-            ]);
-
-            if ($existingEntry) {
-                $this->logger->info('UserNotification entry already exists for user ID: ' . $user->getId() . ' and BulkNotification ID: ' . $bulkNotification->getId());
-                continue;
+        if($event) {
+            $tickets = $this->ticketRepository->findNonCancelledByEvent($event);
+            foreach ($tickets as $ticket) {
+                $this->createUserNotification($ticket->getOwner(), $bulkNotification);
             }
+            $this->logger->info('BulkNotificationHandler: Created userNotification entities for active event attendees, BulkNotification ID: ' . $bulkNotification->getId());
+        }
+        else {
+            $userSubscriptions = $bulkNotification->getSubscription()->getUserSubscriptions();
+            foreach ($userSubscriptions as $userSubscription) {
+                $this->createUserNotification($userSubscription->getOwner(), $bulkNotification);
+            }
+            $this->logger->info('BulkNotificationHandler: Created userNotification entities for bulkNotification ID: ' . $bulkNotification->getId());
+        }
+    }
 
-            $userNotification = new userNotification();
-            $userNotification->setUser($user);
-            $userNotification->setbulkNotification($bulkNotification);
-            $userNotification->setData($dataTemplate);
-            $userNotification->setTemplateId($bulkNotification->getTemplateId());
-            $userNotification->setSent(false);
+    private function createUserNotification($user, $bulkNotification): void
+    {
+        // Check if the UserNotification already exists
+        $existingEntry = $this->userNotificationRepository->findOneBy([
+            'user' => $user,
+            'bulkNotification' => $bulkNotification
+        ]);
 
-            $this->userNotificationRepository->save($userNotification);
-
+        if ($existingEntry) {
+            $this->logger->info('UserNotification entry already exists for user ID: ' . $user->getId() . ' and BulkNotification ID: ' . $bulkNotification->getId());
+            return;
         }
 
-        $this->logger->info('BulkNotificationHandler: Created userNotification entities for bulkNotification ID: ' . $bulkNotification->getId());
+        // Create and save the UserNotification
+        $userNotification = new UserNotification();
+        $userNotification->setUser($user);
+        $userNotification->setBulkNotification($bulkNotification);
+        $userNotification->setData($bulkNotification->getData());
+        $userNotification->setTemplateId($bulkNotification->getTemplateId());
+        $userNotification->setSent(false);
 
+        $this->userNotificationRepository->save($userNotification);
     }
 
 }

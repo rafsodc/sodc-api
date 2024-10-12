@@ -131,6 +131,11 @@ class Event
      */
     private $agendas;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Subscription::class, mappedBy="event", cascade={"persist", "remove"})
+     */
+    private $subscription;
+
     public function __construct()
     {
         $this->ticketTypes = new ArrayCollection();
@@ -373,6 +378,28 @@ class Event
                 $agenda->setEvent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSubscription(): ?Subscription
+    {
+        return $this->subscription;
+    }
+
+    public function setSubscription(?Subscription $subscription): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($subscription === null && $this->subscription !== null) {
+            $this->subscription->setEvent(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($subscription !== null && $subscription->getEvent() !== $this) {
+            $subscription->setEvent($this);
+        }
+
+        $this->subscription = $subscription;
 
         return $this;
     }

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Ticket;
+use App\Entity\Event;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,6 +18,23 @@ class TicketRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Ticket::class);
+    }
+
+    /**
+     * Find non-cancelled tickets for a specific event
+     *
+     * @param Event $event
+     * @return Ticket[]
+     */
+    public function findNonCancelledByEvent(Event $event): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.event = :event')
+            ->andWhere('t.cancelled = :cancelled')
+            ->setParameter('event', $event)
+            ->setParameter('cancelled', false)
+            ->getQuery()
+            ->getResult();
     }
 
     // /**
