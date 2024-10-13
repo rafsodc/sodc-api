@@ -64,7 +64,7 @@ class Agenda
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"agenda:write"})
+     * @Groups({"agenda:write", "agenda:read"})
      */
     private $description;
 
