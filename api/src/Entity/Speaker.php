@@ -58,13 +58,14 @@ class Speaker
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"speaker:read", "speaker:write"})
+     * @Groups({"speaker:read", "speaker:write", "agenda:read"})
      */
     private $biography;
 
     /**
      * @ORM\OneToOne(targetEntity=MediaObject::class, cascade={"persist", "remove"})
-     * @ApiProperty(iri="http://schema.org/image")
+     * @ApiProperty(iri="http://schema.org/image", readableLink=true, writableLink=false)
+     * @Groups({"speaker:read", "speaker:write", "agenda:read"})
      */
     private $photograph;
 
@@ -146,6 +147,13 @@ class Speaker
     public function getPhotograph(): ?MediaObject
     {
         return $this->photograph;
+    }
+
+    public function setPhotograph(?MediaObject $photograph): self
+    {
+        $this->photograph = $photograph;
+
+        return $this;
     }
 
     /**
