@@ -108,8 +108,8 @@ class MediaObject
         return $this->id;
     }
 
-    public function getContentUrl(): ?string
+    public function getFilePath(): ?string
     {
-        return "test";
+        return $this->filePath;
     }
 }
