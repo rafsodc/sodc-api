@@ -64,7 +64,7 @@ class Speaker
 
     /**
      * @ORM\OneToOne(targetEntity=MediaObject::class, cascade={"persist", "remove"})
-     * @ApiProperty(iri="http://schema.org/image")
+     * @ApiProperty(iri="http://schema.org/image", readableLink=true, writableLink=false)
      * @Groups({"speaker:read", "speaker:write", "agenda:read"})
      */
     private $photograph;

@@ -70,7 +70,7 @@ class MediaObject
      * @var string|null
      *
      * @ApiProperty(iri="http://schema.org/contentUrl")
-     * @Groups({"mediaobject:read"})
+     * @Groups({"mediaobject:read", "agenda:read"})
      */
     public $contentUrl;
 
