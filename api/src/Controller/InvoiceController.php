@@ -19,7 +19,7 @@ class InvoiceController extends AbstractController
     ) {}
 
     /**
-     * @Route("/invoice/{id}", name="generate_transaction_invoice", methods={"GET"})
+     * @Route("/invoices/{id}", name="generate_transaction_invoice", methods={"GET"})
      */
     public function generateInvoicePdf(int $id, TransactionRepository $transactionRepository): Response
     {
