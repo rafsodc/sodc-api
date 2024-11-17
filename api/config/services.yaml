@@ -21,6 +21,7 @@ parameters:
 
     google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
     server_name: '%env(SERVER_NAME)%'
+    invoice_sender_address: '%env(INVOICE_SENDER_ADDRESS)%'
     rollbar.config:
         access_token: '%env(ROLLBAR_TOKEN)%'
         environment: '%env(APP_ENV)%'

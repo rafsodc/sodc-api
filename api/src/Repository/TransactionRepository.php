@@ -19,6 +19,28 @@ class TransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, Transaction::class);
     }
 
+    /**
+     * Find a transaction with all related data
+     */
+    public function findTransactionWithDetails(int $id): ?Transaction
+    {
+        return $this->createQueryBuilder('t')
+            ->leftJoin('t.basket', 'b')
+            ->addSelect('b')
+            ->leftJoin('b.owner', 'u')
+            ->addSelect('u')
+            ->leftJoin('b.event', 'e')
+            ->addSelect('e')
+            ->leftJoin('b.tickets', 'ti')
+            ->addSelect('ti')
+            ->leftJoin('ti.ticketType', 'tt')
+            ->addSelect('tt')
+            ->andWhere('t.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     // /**
     //  * @return Transaction[] Returns an array of Transaction objects
     //  */

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        @page {
+            margin: 10mm 0;
+        }
+        body {
+            font-family: Helvetica, sans-serif;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .header img {
+            width: 400px;
+        }
+        .from-address {
+            text-align: right;
+            white-space: pre-line; /* Preserve line breaks from nl2br */
+            line-height: 0.8; /* Adjust line spacing */
+            margin: 0; /* Remove any default margin */
+            padding: 0; /* Remove any default padding */
+        }
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 10px 0 30px;
+        }
+        .details-table {
+            width: 100%;
+            margin-bottom: 30px;
+            border-collapse: collapse;
+        }
+        .details-table td {
+            vertical-align: top;
+            padding: 5px;
+        }
+        .details-table .left {
+            width: 70%;
+        }
+        .details-table .right {
+            text-align: right;
+        }
+        .details-table p {
+            margin: 0;
+            line-height: 1.5;
+        }
+        .details-table .right strong {
+            font-weight: bold;
+        }
+        .details-table .payment-status {
+            font-weight: bold;
+        }
+        .details-table .payment-status.paid {
+            color: #4CAF50;
+        }
+        .details-table .payment-status.not-paid {
+            color: #FF5722;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .table th, .table td {
+            text-align: left;
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .table th {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .total {
+            text-align: right;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: gray;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <img src="{{ logo_path }}" alt="{{ logo_path }}">
+            <div class="from-address">
+                {{ sender_address|nl2br }}
+            </div>
+        </div>
+
+        <!-- Title -->
+        <div class="title">Invoice</div>
+
+        <!-- Event Title and Date -->
+        <div class="subtitle">{{ event_title }} - {{ event_date }}</div>
+
+        <!-- Details Table (To, Payment Status) -->
+        <table class="details-table">
+            <tr>
+                <td class="left">
+                    <p><strong>To:</strong> {{ purchaser_name }}</p>
+                    <p><strong>Email:</strong> {{ purchaser_email }}</p>
+                    <p><strong>Date:</strong> {{ transaction_date }}</p>
+                </td>
+                <td class="right">
+                    <p><strong>Payment Status:</strong></p>
+                    <p class="payment-status {{ payment_status_class }}">{{ payment_status }}</p>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Ticket Breakdown -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ticket</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.title }}</td>
+                    <td>£{{ '%.2f'|format(ticket.price) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Total -->
+        <div class="total">
+            <p>Total: £{{ '%.2f'|format(total_price) }}</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>This is not a VAT receipt</p>
+        </div>
+    </div>
+</body>
+</html>

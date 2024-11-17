@@ -12,6 +12,7 @@
         "doctrine/doctrine-bundle": "^2.1",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
+        "dompdf/dompdf": "^3.0",
         "gesdinet/jwt-refresh-token-bundle": "^0.10.1",
         "google/recaptcha": "^1.2",
         "guzzlehttp/guzzle": "^7.0",

@@ -13,6 +13,7 @@ use App\Dto\TransactionOutput;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiProperty;
 
 /**
  * @ORM\Entity(repositoryClass=BasketRepository::class)
@@ -25,6 +26,14 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *          "get"={"security"="is_granted('BASKET_VIEW', object)"},
  *          "patch"={"security"="is_granted('BASKET_EDIT', object)"},
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
+ *     },
+ *     subresourceOperations={
+ *         "api_users_baskets_get_subresource"={
+ *             "method"="GET",
+ *             "path"="/users/{uuid}/baskets",
+ *             "security"="is_granted('ROLE_ADMIN') or user.getUuid() == request.attributes.get('uuid')",
+ *             "normalization_context"={"groups"={"basket:owner"}},
+ *         }
  *     },
  * )
  * @ORM\EntityListeners({"App\Doctrine\BasketListener"})
@@ -240,6 +249,29 @@ class Basket
         }
 
         return $this;
+    }
+
+    /**
+     * @Groups({"basket:owner"})
+     * @ApiProperty(
+     *     attributes={
+     *         "openapi_context"={
+     *             "description"="URL to download the invoice for this basket's transaction",
+     *             "type"="string",
+     *             "example"="/invoice/1"
+     *         }
+     *     }
+     * )
+     */
+    private ?string $invoiceUrl = null;
+
+    /**
+     * Get the URL for the associated transaction invoice.
+     * If no transaction is associated, this returns null.
+     */
+    public function getInvoiceUrl(): ?string
+    {
+        return $this->transaction ? sprintf('/invoices/%d', $this->transaction->getId()) : null;
     }
 
 
