@@ -6,11 +6,18 @@ use App\Repository\TransactionRepository;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class InvoiceController extends AbstractController
 {
+
+    public function __construct(
+        private RequestStack $requestStack
+    ) {}
+
     /**
      * @Route("/invoice/{id}", name="generate_transaction_invoice", methods={"GET"})
      */
@@ -27,6 +34,11 @@ class InvoiceController extends AbstractController
         $basket = $transaction->getBasket();
         $event = $basket->getEvent();
         $owner = $basket->getOwner();
+
+        // Security check: Admins or transaction owners only
+        if (!$this->isGranted('ROLE_ADMIN') && $this->getUser() !== $owner) {
+            throw new AccessDeniedException('You do not have permission to view this invoice.');
+        }
 
         // Extract tickets and calculate total
         $tickets = [];
@@ -45,6 +57,10 @@ class InvoiceController extends AbstractController
             $totalPrice += $ticketType->getPrice();
         }
 
+        // Generate the absolute URL for the logo
+        $request = $this->requestStack->getCurrentRequest();
+        $logoPath = $request->getSchemeAndHttpHost() . '/images/emailbanner.png';
+
         // Prepare data for the template
         $invoiceData = [
             'sender_address' => $this->getParameter('invoice_sender_address'),
@@ -57,6 +73,7 @@ class InvoiceController extends AbstractController
             'payment_status_class' => $transaction->getStatus() === 'APPROVED' ? 'paid' : 'not-paid',
             'tickets' => $tickets,
             'total_price' => $totalPrice,
+            'logo_path' => $logoPath,
         ];
 
         // Render the Twig template to HTML
