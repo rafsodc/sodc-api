@@ -38,6 +38,7 @@ class Transaction
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"basket:owner"})
      */
     private $id;
 

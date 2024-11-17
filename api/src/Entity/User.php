@@ -157,6 +157,7 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=Basket::class, mappedBy="owner")
+     * @ApiSubresource()
      */
     private $baskets;
 
@@ -267,6 +268,7 @@ class User implements UserInterface
         $this->tickets = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->baskets = new ArrayCollection();
         $this->userNotification = new ArrayCollection();
         $this->userSubscriptions = new ArrayCollection();
     }
@@ -735,4 +737,5 @@ class User implements UserInterface
     {
         return $this->subscriptions;
     }
+
 }

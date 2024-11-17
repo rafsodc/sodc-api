@@ -26,6 +26,14 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *          "patch"={"security"="is_granted('BASKET_EDIT', object)"},
  *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
  *     },
+ *     subresourceOperations={
+ *         "api_users_baskets_get_subresource"={
+ *             "method"="GET",
+ *             "path"="/users/{uuid}/baskets",
+ *             "security"="is_granted('ROLE_ADMIN') or user.getUuid() == request.attributes.get('uuid')",
+ *             "normalization_context"={"groups"={"basket:owner"}},
+ *         }
+ *     },
  * )
  * @ORM\EntityListeners({"App\Doctrine\BasketListener"})
  * @ApiFilter(SearchFilter::class, properties={"event": "exact", "owner": "exact"});
@@ -72,7 +80,7 @@ class Basket
 
     /**
      * @ORM\OneToOne(targetEntity=Transaction::class, inversedBy="basket", cascade={"persist", "remove"})
-     * @Groups({"basket:read"})
+     * @Groups({"basket:read", "basket:owner"})
      */
     private $transaction;
 
