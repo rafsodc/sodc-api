@@ -59,7 +59,7 @@ class InvoiceController extends AbstractController
 
         // Generate the absolute URL for the logo
         $request = $this->requestStack->getCurrentRequest();
-        $logoPath = $request->getSchemeAndHttpHost() . '/images/emailbanner.png';
+        $logoPath = 'https://raw.githubusercontent.com/rafsodc/sodc-api/refs/heads/main/api/public/images/emailbanner.png';
 
         // Prepare data for the template
         $invoiceData = [
@@ -69,8 +69,8 @@ class InvoiceController extends AbstractController
             'purchaser_name' => $owner->getFullName(),
             'purchaser_email' => $owner->getEmail(),
             'transaction_date' => $transaction->getCreatedAt()->format('F j, Y'),
-            'payment_status' => ucfirst($transaction->getStatus()),
-            'payment_status_class' => $transaction->getStatus() === 'APPROVED' ? 'paid' : 'not-paid',
+            'payment_status' => $basket->getIsPaid() ? 'Paid' : 'Not Paid',
+            'payment_status_class' => $basket->getIsPaid() ? 'paid' : 'not-paid',
             'tickets' => $tickets,
             'total_price' => $totalPrice,
             'logo_path' => $logoPath,
