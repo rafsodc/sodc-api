@@ -58,8 +58,7 @@ class InvoiceController extends AbstractController
         }
 
         // Generate the absolute URL for the logo
-        $request = $this->requestStack->getCurrentRequest();
-        $logoPath = 'https://raw.githubusercontent.com/rafsodc/sodc-api/refs/heads/main/api/public/images/emailbanner.png';
+        $logoPath = 'https://www.sodc.net/images/emailbanner.png';
 
         // Prepare data for the template
         $invoiceData = [
@@ -82,6 +81,7 @@ class InvoiceController extends AbstractController
         // Configure Dompdf
         $options = new Options();
         $options->set('defaultFont', 'Helvetica');
+        $options->set('isRemoteEnabled', true);
         $dompdf = new Dompdf($options);
 
         // Load HTML into Dompdf

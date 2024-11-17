@@ -19,6 +19,7 @@ RUN apk add --no-cache \
 		git \
 		gnu-libiconv \
 		rabbitmq-c \
+		libpng-dev \
 	;
 
 # install gnu-libiconv and set LD_PRELOAD env to make iconv work fully on Alpine image.
@@ -42,6 +43,7 @@ RUN set -eux; \
 		pdo_pgsql \
 		zip \
 	; \
+	docker-php-ext-install -j$(nproc) gd; \
 	pecl install \
 		apcu-${APCU_VERSION} \
 		amqp \
