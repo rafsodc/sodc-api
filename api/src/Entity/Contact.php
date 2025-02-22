@@ -8,68 +8,52 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Validator\Constraints\Captcha;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
-  * @ApiResource(
- *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_ADMIN')"},
- *          "post"={"security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"},
- *     },
- *     itemOperations={
- *          "get"={"security"="is_granted('ROLE_ADMIN')"},
- *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
- *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
- *     },
- * )
- * @ORM\Entity(repositoryClass=ContactRepository::class)
- */
+#[ORM\Entity(repositoryClass: ContactRepository::class)]
+#[ApiResource(
+    collectionOperations: [
+        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'post' => ['security' => "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"]
+    ],
+    itemOperations: [
+        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'patch' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ]
+)]
 class Contact
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"contact:write", "contact:read"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['contact:write', 'contact:read'])]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"contact:write", "contact:read"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['contact:write', 'contact:read'])]
     private $email;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"contact:write", "contact:read"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['contact:write', 'contact:read'])]
     private $subject;
 
-    /**
-     * @ORM\Column(type="text")
-     * @Groups({"contact:write", "contact:read"})
-     */
+    #[ORM\Column(type: 'text')]
+    #[Groups(['contact:write', 'contact:read'])]
     private $message;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $createdDate;
+
+    #[Captcha]
+    #[Groups(['contact:write'])]
+    private $captcha = "";
 
     public function __construct()
     {
         $this->createdDate = new \DateTimeImmutable();
     }
-
-    /**
-     * @Captcha
-     * @Groups({"contact:write"})
-     */
-    private $captcha = "";
 
     public function setCaptcha(string $captcha): self
     {

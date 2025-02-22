@@ -16,167 +16,117 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use Ramsey\Uuid\UuidInterface;
 use App\Validator\Constraints\TicketPaid;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Dto\EventTicketOutput;
-use Symfony\Component\Serializer\Annotation\MaxDepth;
-use Symfony\Component\Serializer\Annotation\SerializedName;
-/**
- * @ApiResource(
- *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_ADMIN')"},
- *          "post"={"security"="is_granted('ROLE_USER')"},
- *     },
- *     itemOperations={
- *          "get"={"security"="is_granted('TICKET_VIEW', object)"},
- *          "patch"={"security"="is_granted('TICKET_EDIT', object)"},
- *          "delete"={"security"="is_granted('TICKET_DELETE', object)"},
- *     },
- *     attributes={
- *          "pagination_enabled"=false,
- *          "order"={"owner.lastName", "owner.firstName", "lastname", "firstname"}
- *     },
- *     subresourceOperations={
- *         "api_events_tickets_get_subresource"={
- *             "method"="GET",
- *             "path"="/events/{id}/tickets",
- *             "security"="is_granted('ROLE_USER')",
- *             "normalization_context"={"groups"={"ticket:read"}},
- *         },
- *         "api_users_tickets_get_subresource"={
- *             "method"="GET",
- *             "path"="/users/{uuid}/tickets",
- *             "security"="is_granted('ROLE_ADMIN') or user.getUuid() == request.attributes.get('uuid')",
- *             "normalization_context"={"groups"={"ticket:owner"}},
- *         }
- *     }
- * )
- * @ORM\Entity(repositoryClass=TicketRepository::class)
- * @ORM\EntityListeners({"App\Doctrine\TicketSetOwnerListener"})
- * @ApiFilter(SearchFilter::class, properties={"event": "exact", "owner": "exact"});
- * @TicketPaid
- */
+
+#[ORM\Entity(repositoryClass: TicketRepository::class)]
+#[ORM\EntityListeners(['App\Doctrine\TicketSetOwnerListener'])]
+#[ApiResource(
+    collectionOperations: [
+        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'post' => ['security' => "is_granted('ROLE_USER')"]
+    ],
+    itemOperations: [
+        'get' => ['security' => "is_granted('TICKET_VIEW', object)"],
+        'patch' => ['security' => "is_granted('TICKET_EDIT', object)"],
+        'delete' => ['security' => "is_granted('TICKET_DELETE', object)"]
+    ],
+    attributes: [
+        'pagination_enabled' => false,
+        'order' => ['owner.lastName', 'owner.firstName', 'lastname', 'firstname']
+    ],
+    subresourceOperations: [
+        'api_events_tickets_get_subresource' => [
+            'method' => 'GET',
+            'path' => '/events/{id}/tickets',
+            'security' => "is_granted('ROLE_USER')",
+            'normalization_context' => ['groups' => ['ticket:read']]
+        ],
+        'api_users_tickets_get_subresource' => [
+            'method' => 'GET',
+            'path' => '/users/{uuid}/tickets',
+            'security' => "is_granted('ROLE_ADMIN') or user.getUuid() == request.attributes.get('uuid')",
+            'normalization_context' => ['groups' => ['ticket:owner']]
+        ]
+    ]
+)]
+#[ApiFilter(SearchFilter::class, properties: ['event' => 'exact', 'owner' => 'exact'])]
+#[TicketPaid]
 class Ticket
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     * @ApiProperty(identifier=false)
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    #[ApiProperty(identifier: false)]
     private $id;
 
-    /**
-     * @ORM\Column(type="uuid", unique=true)
-     * @Groups({"ticket:write", "basket:read", "event:item:owner", "ticket:read", "ticket:owner"})
-     * @ApiProperty(identifier=true)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[Groups(['ticket:write', 'basket:read', 'event:item:owner', 'ticket:read', 'ticket:owner'])]
+    #[ApiProperty(identifier: true)]
+    #[Assert\NotBlank]
     private $uuid;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tickets")
-     * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
-     * @IsValidOwner()
-     * @Groups({"ticket:write", "ticket:read", "ticket:owner"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'tickets')]
+    #[ORM\JoinColumn(nullable: false, referencedColumnName: 'uuid')]
+    #[IsValidOwner]
+    #[Groups(['ticket:write', 'ticket:read', 'ticket:owner'])]
+    #[Assert\NotBlank]
     private $owner;
 
-    // /**
-    //  * @ORM\Column(type="uuid", nullable=true)
-    //  */
-    // private $tempOwnerId;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="tickets")
-     * @ORM\JoinColumn(nullable=false)
-     * @IsEventOpen()
-     * @Groups({"ticket:write"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'tickets')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[IsEventOpen]
+    #[Groups(['ticket:write'])]
+    #[Assert\NotBlank]
     private $event;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read", "basket:read", "ticket:owner"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['ticket:write', 'ticket:read', 'basket:read', 'ticket:owner'])]
     private $rank;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read", "basket:read", "ticket:owner"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['ticket:write', 'ticket:read', 'basket:read', 'ticket:owner'])]
     private $firstname;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:read", "basket:read", "ticket:owner"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['ticket:write', 'ticket:read', 'basket:read', 'ticket:owner'])]
+    #[Assert\NotBlank]
     private $lastname;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=TicketType::class, inversedBy="tickets")
-     * @ORM\JoinColumn(nullable=false)
-     * @Groups({"ticket:write", "ticket:read", "basket:read", "ticket:owner"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\ManyToOne(targetEntity: TicketType::class, inversedBy: 'tickets')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['ticket:write', 'ticket:read', 'basket:read', 'ticket:owner'])]
+    #[Assert\NotBlank]
     private $ticketType;
 
-    /**
-     * @ORM\Column(type="array")
-     */
+    #[ORM\Column(type: 'array')]
     private $seatingPreference = [];
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"ticket:write", "ticket:owner", "admin:read"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['ticket:write', 'ticket:owner', 'admin:read'])]
     private $dietary;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"ticket:owner", "admin:read"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['ticket:owner', 'admin:read'])]
     private $paid;
 
-    /**
-     * @ORM\Column(type="date")
-     */
+    #[ORM\Column(type: 'date')]
     private $createdDate;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Basket::class, mappedBy="tickets")
-     * @Groups({"ticket:owner"})
-     */
+    #[ORM\ManyToMany(targetEntity: Basket::class, mappedBy: 'tickets')]
+    #[Groups(['ticket:owner'])]
     private $baskets;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=User::class)
-     * @ORM\JoinTable(name="ticket_user",
-     *      joinColumns={@ORM\JoinColumn(name="ticket_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="uuid")}
-     * )
-     * @Groups({"ticket:write", "ticket:owner"})
-     * @ApiProperty(readableLink=false, writableLink=false)
-     */
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'ticket_user',
+        joinColumns: [new ORM\JoinColumn(name: 'ticket_id', referencedColumnName: 'id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'user_id', referencedColumnName: 'uuid')]
+    )]
+    #[Groups(['ticket:write', 'ticket:owner'])]
+    #[ApiProperty(readableLink: false, writableLink: false)]
     private $seatingPreferences;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"admin:write", "ticket:read", "ticket:owner"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['admin:write', 'ticket:read', 'ticket:owner'])]
     private $cancelled = false;
-
-    /**
-     * @Groups({"admin:read"})
-     * @ApiProperty(readableLink=true, writableLink=false)
-     */
-    public function getSeatingPreferencesDetails(): array
-    {
-        // This will return the detailed user data
-        return $this->seatingPreferences->toArray();
-    }
-
 
     public function __construct()
     {
@@ -329,7 +279,7 @@ class Ticket
     {
         if (!$this->baskets->contains($basket)) {
             $this->baskets[] = $basket;
-            $basket->addTickets($this);
+            $basket->addTicket($this);
         }
 
         return $this;
@@ -338,7 +288,7 @@ class Ticket
     public function removeBasket(Basket $basket): self
     {
         if ($this->baskets->removeElement($basket)) {
-            $basket->removeTickets($this);
+            $basket->removeTicket($this);
         }
 
         return $this;
@@ -351,18 +301,6 @@ class Ticket
     {
         return $this->seatingPreferences;
     }
-
-    // /**
-    //  * @return Collection|User[]
-    //  * @Groups({"event_ticket:read"})
-    //  * @SerializedName("seatingPreferences")
-    //  * We already have the serialized name seatingPreferences, but that's only referenced in a ticket:read/write call.  For an event_ticket:read call, we want
-    //  * to display the fullname, and not the IRI.
-    //  */
-    // public function getSeatingPreferenceNames(): Collection
-    // {
-    //     return $this->seatingPreferences;
-    // }
 
     public function addSeatingPreference(User $seatingPreference): self
     {
@@ -392,5 +330,13 @@ class Ticket
         return $this;
     }
 
-
+    /**
+     * @Groups({"admin:read"})
+     * @ApiProperty(readableLink=true, writableLink=false)
+     */
+    public function getSeatingPreferencesDetails(): array
+    {
+        // This will return the detailed user data
+        return $this->seatingPreferences->toArray();
+    }
 }

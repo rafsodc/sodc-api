@@ -24,76 +24,68 @@ use Ramsey\Uuid\UuidInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 
-/**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="`user`")
- * @ApiResource(
- *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "post"={
- *              "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
- *              "validation_groups"={"user:post"}
- *          },
-*          "unsubscribe"={
- *              "method"="POST",
- *              "path"="/unsubscribe/{unsubscribeUuid}",
- *              "controller"=NotificationController::class,
- *              "read"=false,
- *              "openapi_context"={
- *                  "summary"="Unsubscribe user",
- *                  "description"="Unsubscribe a user based on the unsubscribe UUID.",
- *                  "parameters"={
- *                      {
- *                          "name"="unsubscribeUuid",
- *                          "in"="path",
- *                          "required"=true,
- *                          "schema"={"type"="string"},
- *                          "description"="The unsubscribe UUID of the user"
- *                      }
- *                  },
- *                  "responses"={
- *                      "200"={
- *                          "description"="User successfully unsubscribed",
- *                          "content"={
- *                              "application/json"={
- *                                  "schema"={"type"="object"}
- *                              }
- *                          }
- *                      },
- *                      "404"={
- *                          "description"="User not found"
- *                      }
- *                  }
- *              }
- *          }
- *     },
- *     itemOperations={
- *          "get"={"security"="is_granted('USER_VIEW', object)"},
- *          "patch"={
- *              "security"="is_granted('USER_EDIT', object)",
- *              "validation_groups"={"user:item:write"},
- *          },
- *          "approve"={
- *              "method"="POST",
- *              "path"="/users/{uuid}/approve",
- *              "controller"=ApproveUserController::class,
- *              "security"="is_granted('ROLE_ADMIN')",
- *              "validation_groups"={"user:approve"}
- *          },
- *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
- *     },
- *     subresourceOperations={
- *          "api_users_approve_patch_subresource"= {
- *              "method"="PATCH",
- *              "security"="is_granted('ROLE_ADMIN')"
- *          }
- *     }
- * )
- * @UniqueEntity(fields={"email"})
- * @ApiFilter(SearchFilter::class, properties={"uuid": "exact"});
- * @ApiFilter(BooleanFilter::class, properties={"isMember"})
- * @ApiFilter(UserFilter::class)
- */
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
+#[ApiResource(
+    collectionOperations: [
+        'get' => ['security' => "is_granted('ROLE_USER')"],
+        'post' => [
+            'security' => "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
+            'validation_groups' => ['user:post']
+        ],
+        'unsubscribe' => [
+            'method' => 'POST',
+            'path' => '/unsubscribe/{unsubscribeUuid}',
+            'controller' => NotificationController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => 'Unsubscribe user',
+                'description' => 'Unsubscribe a user based on the unsubscribe UUID.',
+                'parameters' => [
+                    [
+                        'name' => 'unsubscribeUuid',
+                        'in' => 'path',
+                        'required' => true,
+                        'schema' => ['type' => 'string'],
+                        'description' => 'The unsubscribe UUID of the user'
+                    ]
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'User successfully unsubscribed',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => ['type' => 'object']
+                            ]
+                        ]
+                    ],
+                    '404' => [
+                        'description' => 'User not found'
+                    ]
+                ]
+            ]
+        ]
+    ],
+    itemOperations: [
+        'get' => ['security' => "is_granted('USER_VIEW', object)"],
+        'patch' => [
+            'security' => "is_granted('USER_EDIT', object)",
+            'validation_groups' => ['user:item:write']
+        ],
+        'approve' => [
+            'method' => 'POST',
+            'path' => '/users/{uuid}/approve',
+            'controller' => ApproveUserController::class,
+            'security' => "is_granted('ROLE_ADMIN')",
+            'validation_groups' => ['user:approve']
+        ],
+        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ]
+)]
+#[UniqueEntity(fields: ['email'])]
+#[ApiFilter(SearchFilter::class, properties: ['uuid' => 'exact'])]
+#[ApiFilter(BooleanFilter::class, properties: ['isMember'])]
+#[ApiFilter(UserFilter::class)]
 class User implements UserInterface
 {
     ///**
@@ -102,165 +94,111 @@ class User implements UserInterface
     // */
     //private $id;
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ApiProperty(identifier=true)
-     * @Groups("user:collection:write")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ApiProperty(identifier: true)]
+    #[Groups(['user:collection:write'])]
     private $uuid;
 
-    /**
-     * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"owner:read", "user:write"})
-     * @Assert\NotBlank()
-     * @Assert\Email()
-     */
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Groups(['owner:read', 'user:write'])]
+    #[Assert\NotBlank]
+    #[Assert\Email]
     private $email;
 
-    /**
-     * @ORM\Column(type="json")
-     * @Groups({"admin:write"})
-     */
+    #[ORM\Column(type: 'json')]
+    #[Groups(['admin:write'])]
     private $roles = [];
 
-    /**
-     * @Groups("user:write")
-     * @SerializedName("password")
-     * @Assert\NotBlank(groups={"user:post"})
-     */
+    #[Groups(['user:write'])]
+    #[SerializedName('password')]
+    #[Assert\NotBlank(groups: ['user:post'])]
     private $plainPassword;
 
-    /**
-     * @var string The hashed password
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     private $password;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"owner:read", "user:write"})
-     */
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    #[Groups(['owner:read', 'user:write'])]
     private $phoneNumber;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="owner", orphanRemoval=true)
-     * @ApiSubresource()
-     */
+    #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'owner', orphanRemoval: true)]
+    #[ApiSubresource]
     private $tickets;
 
-    /**
-     * Returns true if this is the currently authenticated user
-     * @Groups({"user:read"})
-     */
+    #[Groups(['user:read'])]
     private $isMe = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Basket::class, mappedBy="owner")
-     * @ApiSubresource()
-     */
+    #[ORM\OneToMany(targetEntity: Basket::class, mappedBy: 'owner')]
+    #[ApiSubresource]
     private $baskets;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"owner:read", "user:write"})
-     */
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    #[Groups(['owner:read', 'user:write'])]
     private $mobileNumber;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    #[Assert\NotBlank]
     private $firstName;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    #[Assert\NotBlank]
     private $lastName;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
     private $postNominals;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"owner:read", "admin:read", "user:write"})
-     */
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    #[Groups(['owner:read', 'admin:read', 'user:write'])]
     private $serviceNumber;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"owner:read", "admin:read", "user:write"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['owner:read', 'admin:read', 'user:write'])]
     private $modnetEmail;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Rank::class, inversedBy="users")
-     * @Groups({"user:read", "user:write"})
-     */
+    #[ORM\ManyToOne(targetEntity: Rank::class, inversedBy: 'users')]
+    #[Groups(['user:read', 'user:write'])]
     private $rank;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     * @Groups({"owner:read", "admin:read", "user:write"})
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['owner:read', 'admin:read', 'user:write'])]
     private $workDetails;
 
-    /**
-     * @Groups({"owner:read", "user:write"})
-     * @ORM\Column(type="boolean", options={"default":true})
-     * @Assert\Type("bool")
-     * @Assert\NotNull
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    #[Groups(['owner:read', 'user:write'])]
+    #[Assert\Type('bool')]
+    #[Assert\NotNull]
     private $isShared = true;
 
-    /**
-     * @Groups({"admin:read", "user:item:write"})
-     * @ORM\Column(type="boolean", options={"default":true})
-     * @Assert\Type("bool")
-     * @Assert\NotNull
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    #[Groups(['admin:read', 'user:item:write'])]
+    #[Assert\Type('bool')]
+    #[Assert\NotNull]
     private $isSubscribed = true;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default":false})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private $isMember = false;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private $oldUid;
 
-    /**
-     * @Captcha
-     * @Groups({"user:post"})
-     */
+    #[Captcha]
+    #[Groups(['user:post'])]
     private $captcha = "";
 
-    /**
-     * @Groups({"ticket:read", "event_ticket:read", "bulknotification:read", "admin:read"})
-     */
+    #[Groups(['ticket:read', 'event_ticket:read', 'bulknotification:read', 'admin:read'])]
     private $fullName;
 
-    /**
-     * @ORM\OneToMany(targetEntity=UserNotification::class, mappedBy="user", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: UserNotification::class, mappedBy: 'user', orphanRemoval: true)]
     private $userNotifications;
 
-    /**
-     * @ORM\OneToMany(targetEntity=UserSubscription::class, mappedBy="owner", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: UserSubscription::class, mappedBy: 'owner', orphanRemoval: true)]
     private $userSubscriptions;
 
-    /**
-     * @Groups({"user:read", "user:write"})
-     */
+    #[Groups(['user:read', 'user:write'])]
     private $subscriptions = [];
 
     public function __construct()
@@ -679,7 +617,7 @@ class User implements UserInterface
     {
         if (!$this->userNotifications->contains($userNotification)) {
             $this->userNotifications[] = $userNotification;
-            $userNotification->setOwner($this);
+            $userNotification->setUser($this);
         }
 
         return $this;
@@ -689,8 +627,8 @@ class User implements UserInterface
     {
         if ($this->userNotifications->removeElement($userNotification)) {
             // set the owning side to null (unless already changed)
-            if ($userNotification->getOwner() === $this) {
-                $userNotification->setOwner(null);
+            if ($userNotification->getUser() === $this) {
+                $userNotification->setUser(null);
             }
         }
 

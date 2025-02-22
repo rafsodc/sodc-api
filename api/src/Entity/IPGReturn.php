@@ -6,77 +6,49 @@ use App\Repository\IPGReturnRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Validator\Constraints\IPGHash;
 
-/**
- * @ORM\Entity(repositoryClass=IPGReturnRepository::class)
- * @IPGHash
- */
+#[ORM\Entity(repositoryClass: IPGReturnRepository::class)]
+#[IPGHash]
 class IPGReturn
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private $txndate;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $approvalCode;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $notificationHash;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $status;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Transaction::class, inversedBy="IPGReturns")
-     */
+    #[ORM\ManyToOne(targetEntity: Transaction::class, inversedBy: 'IPGReturns')]
     private $transaction;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private $endpointTransactionId;
 
-    /**
-     * @ORM\Column(type="bigint", nullable=true)
-     */
+    #[ORM\Column(type: 'bigint', nullable: true)]
     private $ipgTransactionId;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private $currency;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: 'float', nullable: true)]
     private $total;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $failReason;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private $clientReturn;
 
     public function __construct()
@@ -101,9 +73,9 @@ class IPGReturn
         return $this;
     }
 
-    public function getCreatedDate(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->createdDate;
+        return $this->createdAt;
     }
 
     public function getApprovalCode(): ?string
@@ -171,8 +143,6 @@ class IPGReturn
         }
 
         $this->transaction = $transaction;
-
-        return $this;
 
         return $this;
     }

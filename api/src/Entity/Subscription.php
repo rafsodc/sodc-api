@@ -12,72 +12,56 @@ use Ramsey\Uuid\UuidInterface;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource(
- *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_ADMIN')"},
- *          "post"={
- *              "security"="is_granted('ROLE_ADMIN')",
- *              "validation_groups"={"subscription:write"}
- *           },
- *     },
- *     itemOperations={
- *          "get"={"security"="is_granted('ROLE_ADMIN')"},
- *          "patch"={
- *              "security"="is_granted('ROLE_ADMIN')",
- *              "validation_groups"={"subscription:write"}
- *           },
- *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
- *     },
- *     attributes={
- *          "pagination_enabled"=false,
- *     }
- * )
- * @ORM\Entity(repositoryClass=SubscriptionRepository::class)
- */
+#[ORM\Entity(repositoryClass: SubscriptionRepository::class)]
+#[ApiResource(
+    collectionOperations: [
+        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'post' => [
+            'security' => "is_granted('ROLE_ADMIN')",
+            'validation_groups' => ['subscription:write']
+        ]
+    ],
+    itemOperations: [
+        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'patch' => [
+            'security' => "is_granted('ROLE_ADMIN')",
+            'validation_groups' => ['subscription:write']
+        ],
+        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ],
+    attributes: [
+        'pagination_enabled' => false
+    ]
+)]
 class Subscription
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
-     * @ApiProperty(identifier=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+    #[ApiProperty(identifier: true)]
     private $uuid;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"owner:read", "subscription:read", "subscription:write"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['owner:read', 'subscription:read', 'subscription:write'])]
     private $name;
 
-    /**
-     * @ORM\OneToMany(targetEntity=UserSubscription::class, mappedBy="subscription", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: UserSubscription::class, mappedBy: 'subscription', orphanRemoval: true)]
     private $userSubscriptions;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"subscription:write"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['subscription:write'])]
     private $optout;
 
-    /**
-     * @ORM\Column(type="json")
-     * @Groups({"subscription:write"})
-     */
+    #[ORM\Column(type: 'json')]
+    #[Groups(['subscription:write'])]
     private $roles = [];
 
-    /**
-     * @ORM\OneToMany(targetEntity=BulkNotification::class, mappedBy="subscription", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: BulkNotification::class, mappedBy: 'subscription', orphanRemoval: true)]
     private $bulkNotifications;
 
-    /**
-     * @ORM\OneToOne(targetEntity=Event::class, inversedBy="subscription", cascade={"persist", "remove"})
-     * @Groups({"subscription:write"})
-     */
+    #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'subscription', cascade: ['persist', 'remove'])]
+    #[Groups(['subscription:write'])]
     private $event;
 
     public function __construct()

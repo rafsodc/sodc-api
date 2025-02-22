@@ -17,123 +17,92 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Filters\EventDateFilter;
 
-/**
- * @ORM\Entity(repositoryClass=EventRepository::class)
- * @ORM\Table(name="`event`")
- * @ApiResource(
- *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "post"={"security"="is_granted('ROLE_ADMIN')"}
- *     },
- *     itemOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "getForm"={
- *              "method"="GET",
- *              "path"="/events/{id}/form",
- *              "security"="is_granted('ROLE_ADMIN')",
- *              "validation_groups"={"event:item:getForm"}
- *          },
- *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
- *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
- *     },
- * )
- * @ApiFilter(EventDateFilter::class)
- */
+#[ORM\Entity(repositoryClass: EventRepository::class)]
+#[ORM\Table(name: '`event`')]
+#[ApiResource(
+    collectionOperations: [
+        'get' => ['security' => "is_granted('ROLE_USER')"],
+        'post' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ],
+    itemOperations: [
+        'get' => ['security' => "is_granted('ROLE_USER')"],
+        'getForm' => [
+            'method' => 'GET',
+            'path' => '/events/{id}/form',
+            'security' => "is_granted('ROLE_ADMIN')",
+            'validation_groups' => ['event:item:getForm']
+        ],
+        'patch' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ]
+)]
+#[ApiFilter(EventDateFilter::class)]
 class Event
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     * @Groups({"event:read"})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    #[Groups(['event:read'])]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"event:write", "event:get", "event:item:getForm"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
+    #[Assert\NotBlank]
+    #[ApiProperty(description: 'The event name')]
     private $title;
 
-    /**
-     * @ORM\Column(type="date")
-     * @Groups({"event:write", "event:get", "event:item:getForm"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'date')]
+    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
+    #[Assert\NotBlank]
     private $date;
 
-    /**
-     * @ORM\Column(type="date")
-     * @Groups({"event:write", "event:get", "event:item:getForm"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'date')]
+    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
+    #[Assert\NotBlank]
     private $bookingOpen;
 
-    /**
-     * @ORM\Column(type="date")
-     * @Groups({"event:write", "event:get", "event:item:getForm"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'date')]
+    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
+    #[Assert\NotBlank]
     private $bookingClose;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"event:write", "event:get", "event:item:getForm"})
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
+    #[Assert\NotBlank]
     private $venue;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     * @Groups({"event:write", "event:get", "event:item:getForm"})
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
     private $description;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write", "event:get", "event:item:getForm"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
     private $principalSpeaker;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"event:write", "event:get", "event:item:getForm"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
     private $sponsor;
 
-    /**
-     * @ORM\OneToMany(targetEntity=TicketType::class, mappedBy="event", orphanRemoval=true)
-     * @Groups({"event:get", "event:item:getForm"})
-     * @ORM\OrderBy({"description" = "ASC"})
-     */
+    #[ORM\OneToMany(targetEntity: TicketType::class, mappedBy: 'event', orphanRemoval: true)]
+    #[Groups(['event:get', 'event:item:getForm'])]
+    #[ORM\OrderBy(['description' => 'ASC'])]
     private $ticketTypes;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="event", orphanRemoval=true)
-     * @ApiSubresource()
-     */
+    #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'event', orphanRemoval: true)]
+    #[ApiSubresource]
     private $tickets;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Basket::class, mappedBy="event")
-     */
+    #[ORM\OneToMany(targetEntity: Basket::class, mappedBy: 'event')]
     private $baskets;
 
-    /**
-     * @Groups({"event:get"})
-     */
+    #[Groups(['event:get'])]
     private $isBookingOpen;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Agenda::class, mappedBy="event", orphanRemoval=true)
-     * @ApiSubresource()
-     */
+    #[ORM\OneToMany(targetEntity: Agenda::class, mappedBy: 'event', orphanRemoval: true)]
+    #[ApiSubresource]
     private $agendas;
 
-    /**
-     * @ORM\OneToOne(targetEntity=Subscription::class, mappedBy="event", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToOne(targetEntity: Subscription::class, mappedBy: 'event', cascade: ['persist', 'remove'])]
     private $subscription;
 
     public function __construct()
@@ -318,7 +287,7 @@ class Event
 
     public function addBasket(Basket $basket): self
     {
-        if (!$this->baskets->contains($baskets)) {
+        if (!$this->baskets->contains($basket)) {
             $this->baskets[] = $basket;
             $basket->setEvent($this);
         }

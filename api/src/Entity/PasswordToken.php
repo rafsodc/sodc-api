@@ -6,26 +6,16 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Validator\Constraints\Captcha;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity
- */
+#[ORM\Entity]
 class PasswordToken extends AbstractPasswordToken
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer')]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
     private $id;
 
-    /**
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
-     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false, referencedColumnName: 'uuid')]
     private $user;
 
     // /**
@@ -33,10 +23,8 @@ class PasswordToken extends AbstractPasswordToken
     //  */
     // private $tempUserId;
 
-    /**
-    * @Captcha
-    * @Assert\NotBlank()
-    */
+    #[Captcha]
+    #[Assert\NotBlank]
     private $captcha = "";
 
     public function setCaptcha(string $captcha): self

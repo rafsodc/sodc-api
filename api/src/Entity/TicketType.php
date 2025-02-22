@@ -12,91 +12,67 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ApiResource(
- *     attributes={"order"={"description"}},
- *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "post"={"security"="is_granted('ROLE_ADMIN')"}
- *     },
- *     itemOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
- *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
- *     },
- * )
- * @ORM\Entity(repositoryClass=TicketTypeRepository::class)
- */
+#[ORM\Entity(repositoryClass: TicketTypeRepository::class)]
+#[ApiResource(
+    attributes: ['order' => ['description']],
+    collectionOperations: [
+        'get' => ['security' => "is_granted('ROLE_USER')"],
+        'post' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ],
+    itemOperations: [
+        'get' => ['security' => "is_granted('ROLE_USER')"],
+        'patch' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ]
+)]
 class TicketType
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     * @ApiProperty(identifier=false)
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    #[ApiProperty(identifier: false)]
     private $id;
 
-    /**
-     * @ORM\Column(type="uuid", unique=true)
-     * @ApiProperty(identifier=true)
-     * @Assert\NotBlank()
-     * @Groups({"event:item:getForm", "tickettype:collection:post"})
-     */
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ApiProperty(identifier: true)]
+    #[Assert\NotBlank]
+    #[Groups(['event:item:getForm', 'tickettype:collection:post'])]
     private $uuid;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"tickettype:write", "tickettype:read", "basket:read", "event:item:read","event:item:getForm"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['tickettype:write', 'tickettype:read', 'basket:read', 'event:item:read', 'event:item:getForm'])]
     private $description;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="ticketTypes")
-     * @ORM\JoinColumn(nullable=false)
-     * @Groups({"tickettype:write", "tickettype:read"})
-     */
+    #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'ticketTypes')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['tickettype:write', 'tickettype:read'])]
     private $event;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read", "event:item:getForm"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['tickettype:write', 'tickettype:read', 'ticket:read', 'event_ticket:read', 'event:item:getForm'])]
     private $symposium;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read", "event:item:getForm"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['tickettype:write', 'tickettype:read', 'ticket:read', 'event_ticket:read', 'event:item:getForm'])]
     private $dinner;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read", "event:item:getForm"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['tickettype:write', 'tickettype:read', 'ticket:read', 'event_ticket:read', 'event:item:getForm'])]
     private $serving;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "event:item:getForm"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['tickettype:write', 'tickettype:read', 'event:item:getForm'])]
     private $student;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"tickettype:write", "tickettype:read", "ticket:read", "event_ticket:read", "event:item:getForm"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['tickettype:write', 'tickettype:read', 'ticket:read', 'event_ticket:read', 'event:item:getForm'])]
     private $guest;
 
-    /**
-     * @ORM\Column(type="float")
-     * @Groups({"tickettype:write", "tickettype:read", "event:item:read", "basket:read", "ticket:read", "event_ticket:read", "event:item:getForm"})
-     */
+    #[ORM\Column(type: 'float')]
+    #[Groups(['tickettype:write', 'tickettype:read', 'event:item:read', 'basket:read', 'ticket:read', 'event_ticket:read', 'event:item:getForm'])]
     private $price;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="ticketType")
-     */
+    #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'ticketType')]
     private $tickets;
 
     public function __construct()

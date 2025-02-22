@@ -15,46 +15,40 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 
-/**
- * @ORM\Entity(repositoryClass=BasketRepository::class)
- * @ApiResource(
- *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "post"={"security"="is_granted('ROLE_USER')"},
- *     },
- *     itemOperations={
- *          "get"={"security"="is_granted('BASKET_VIEW', object)"},
- *          "patch"={"security"="is_granted('BASKET_EDIT', object)"},
- *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
- *     },
- *     subresourceOperations={
- *         "api_users_baskets_get_subresource"={
- *             "method"="GET",
- *             "path"="/users/{uuid}/baskets",
- *             "security"="is_granted('ROLE_ADMIN') or user.getUuid() == request.attributes.get('uuid')",
- *             "normalization_context"={"groups"={"basket:owner"}},
- *         }
- *     },
- * )
- * @ORM\EntityListeners({"App\Doctrine\BasketListener"})
- * @ApiFilter(SearchFilter::class, properties={"event": "exact", "owner": "exact"});
- */
+#[ORM\Entity(repositoryClass: BasketRepository::class)]
+#[ORM\EntityListeners(['App\Doctrine\BasketListener'])]
+#[ApiResource(
+    collectionOperations: [
+        'get' => ['security' => "is_granted('ROLE_USER')"],
+        'post' => ['security' => "is_granted('ROLE_USER')"]
+    ],
+    itemOperations: [
+        'get' => ['security' => "is_granted('BASKET_VIEW', object)"],
+        'patch' => ['security' => "is_granted('BASKET_EDIT', object)"],
+        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ],
+    subresourceOperations: [
+        'api_users_baskets_get_subresource' => [
+            'method' => 'GET',
+            'path' => '/users/{uuid}/baskets',
+            'security' => "is_granted('ROLE_ADMIN') or user.getUuid() == request.attributes.get('uuid')",
+            'normalization_context' => ['groups' => ['basket:owner']]
+        ]
+    ]
+)]
+#[ApiFilter(SearchFilter::class, properties: ['event' => 'exact', 'owner' => 'exact'])]
 class Basket
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     * @Groups({"basket:read"})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    #[Groups(['basket:read'])]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="baskets")
-     * @ORM\JoinColumn(nullable=false, referencedColumnName="uuid")
-     * @IsValidOwner()
-     * @Groups({"basket:write", "basket:read"})
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'baskets')]
+    #[ORM\JoinColumn(nullable: false, referencedColumnName: 'uuid')]
+    #[IsValidOwner]
+    #[Groups(['basket:write', 'basket:read'])]
     private $owner;
 
     // /**
@@ -62,45 +56,31 @@ class Basket
     //  */
     // private $tempOwnerId;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Event::class, inversedBy="baskets")
-     * @Groups({"basket:write", "basket:read"})
-     */
+    #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'baskets')]
+    #[Groups(['basket:write', 'basket:read'])]
     private $event;
 
-    /**
-     * @ORM\Column(type="float")
-     * @Groups({"basket:read"})
-     */
+    #[ORM\Column(type: 'float')]
+    #[Groups(['basket:read'])]
     private $amount = 0;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $createdDate;
 
-    /**
-     * @ORM\OneToOne(targetEntity=Transaction::class, inversedBy="basket", cascade={"persist", "remove"})
-     * @Groups({"basket:read"})
-     */
+    #[ORM\OneToOne(targetEntity: Transaction::class, inversedBy: 'basket', cascade: ['persist', 'remove'])]
+    #[Groups(['basket:read'])]
     private $transaction;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"basket:read"})
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['basket:read'])]
     private $isTransaction;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Ticket::class, inversedBy="baskets")
-     * @Groups({"basket:read"})
-     */
+    #[ORM\ManyToMany(targetEntity: Ticket::class, inversedBy: 'baskets')]
+    #[Groups(['basket:read'])]
     private $tickets;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"basket:read"})
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['basket:read'])]
     private $isPaid = false;
 
     public function __construct()

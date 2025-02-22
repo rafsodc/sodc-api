@@ -7,73 +7,52 @@ use App\Repository\PageRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
-* @ApiResource(
- *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_ADMIN')"},
- *          "post"={"security"="is_granted('ROLE_ADMIN')"}
- *     },
- *     itemOperations={
- *          "get"={"security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"},
- *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
- *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
- *     }
- * )
- * @ORM\Entity(repositoryClass=PageRepository::class)
- * @ORM\HasLifecycleCallbacks
- */
+#[ORM\Entity(repositoryClass: PageRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[ApiResource(
+    collectionOperations: [
+        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'post' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ],
+    itemOperations: [
+        'get' => ['security' => "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"],
+        'patch' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ]
+)]
 class Page
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"page:write", "page:read"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['page:write', 'page:read'])]
     private $title;
 
-    /**
-     * @ORM\Column(type="text")
-     * @Groups({"page:write", "page:read"})
-     */
+    #[ORM\Column(type: 'text')]
+    #[Groups(['page:write', 'page:read'])]
     private $content;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $updatedAt;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"page:write", "page:read"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['page:write', 'page:read'])]
     private $isPublished;
 
-    /**
-     * Gets triggered only on insert
-     * We also need to set the updatedAt date when the entity is first created.
-     * @ORM\PrePersist
-     */
+    #[ORM\PrePersist]
     public function onPrePersist()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    /**
-     * Gets triggered every time on update
-     * @ORM\PreUpdate
-     */
+    #[ORM\PreUpdate]
     public function onPreUpdate()
     {
         $this->updatedAt = new \DateTimeImmutable();

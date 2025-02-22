@@ -5,66 +5,42 @@ namespace App\Entity;
 use App\Repository\NotificationReturnRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=NotificationReturnRepository::class)
- */
+#[ORM\Entity(repositoryClass: NotificationReturnRepository::class)]
 class NotificationReturn
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private $id;
 
-    /**
-     * @ORM\Column(type="uuid", nullable=true)
-     */
+    #[ORM\Column(type: 'uuid', nullable: true)]
     private $reference;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $sentTo;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $status;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
+    #[ORM\Column(type: 'datetime_immutable')]
     private $createdAt;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private $completedAt;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private $sentAt;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $notificationType;
 
-    /**
-     * @ORM\Column(type="uuid")
-     */
+    #[ORM\Column(type: 'uuid')]
     private $templateId;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $templateVersion;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=UserNotification::class, inversedBy="notificationReturns")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: UserNotification::class, inversedBy: 'notificationReturns')]
+    #[ORM\JoinColumn(nullable: false)]
     private $userNotification;
 
     public function getId(): ?int

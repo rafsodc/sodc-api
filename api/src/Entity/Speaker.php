@@ -11,79 +11,59 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Entity\MediaObject;
 
-/**
- * @ApiResource(
- *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "post"={"security"="is_granted('ROLE_ADMIN')"},
- *     },
- *     itemOperations={
- *          "get"={"security"="is_granted('ROLE_USER')"},
- *          "patch"={"security"="is_granted('ROLE_ADMIN')"},
- *          "delete"={"security"="is_granted('ROLE_ADMIN')"},
- *     },
- *     attributes={
- *          "pagination_enabled"=false,
- *          "order"={"lastname", "firstname"}
- *     }
- * )
- * @ORM\Entity(repositoryClass=SpeakerRepository::class)
- */
+#[ORM\Entity(repositoryClass: SpeakerRepository::class)]
+#[ApiResource(
+    collectionOperations: [
+        'get' => ['security' => "is_granted('ROLE_USER')"],
+        'post' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ],
+    itemOperations: [
+        'get' => ['security' => "is_granted('ROLE_USER')"],
+        'patch' => ['security' => "is_granted('ROLE_ADMIN')"],
+        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    ],
+    attributes: [
+        'pagination_enabled' => false,
+        'order' => ['lastname', 'firstname']
+    ]
+)]
 class Speaker
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"speaker:read", "speaker:write"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['speaker:read', 'speaker:write'])]
     private $lastname;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"speaker:read", "speaker:write"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['speaker:read', 'speaker:write'])]
     private $firstname;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"speaker:read", "speaker:write"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['speaker:read', 'speaker:write'])]
     private $title;
 
-    /**
-     * @ORM\Column(type="text")
-     * @Groups({"speaker:read", "speaker:write", "agenda:read"})
-     */
+    #[ORM\Column(type: 'text')]
+    #[Groups(['speaker:read', 'speaker:write', 'agenda:read'])]
     private $biography;
 
-    /**
-     * @ORM\OneToOne(targetEntity=MediaObject::class, cascade={"persist", "remove"})
-     * @ApiProperty(iri="http://schema.org/image", readableLink=true, writableLink=false)
-     * @Groups({"speaker:read", "speaker:write", "agenda:read"})
-     */
+    #[ORM\OneToOne(targetEntity: MediaObject::class, cascade: ['persist', 'remove'])]
+    #[ApiProperty(iri: 'http://schema.org/image', readableLink: true, writableLink: false)]
+    #[Groups(['speaker:read', 'speaker:write', 'agenda:read'])]
     private $photograph;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Agenda::class, mappedBy="speakers")
-     */
+    #[ORM\ManyToMany(targetEntity: Agenda::class, mappedBy: 'speakers')]
     private $agendas;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"speaker:read", "speaker:write"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['speaker:read', 'speaker:write'])]
     private $postnominals;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"speaker:read", "speaker:write", "agenda:read"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['speaker:read', 'speaker:write', 'agenda:read'])]
     private $position;
 
     public function __construct()
@@ -166,9 +146,9 @@ class Speaker
 
     public function addAgenda(Agenda $agenda): self
     {
-        if (!$this->agendas->contains($agendas)) {
-            $this->agendas[] = $agendas;
-            $agendas->addSpeaker($this);
+        if (!$this->agendas->contains($agenda)) {
+            $this->agendas[] = $agenda;
+            $agenda->addSpeaker($this);
         }
 
         return $this;
