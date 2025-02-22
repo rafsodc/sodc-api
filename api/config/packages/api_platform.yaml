@@ -11,12 +11,18 @@ api_platform:
                 name: Authorization
                 type: header
         versions: [3]
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+        html: ['text/html']
     # Mercure integration, remove if unwanted
     mercure:
         hub_url: '%env(MERCURE_SUBSCRIBE_URL)%'
-    # Good defaults value for REST APIs
+    # Updated defaults section
     defaults:
-        stateless: false
-        # Good cache defaults
+        stateless: false  # Changed from false for better RESTful practice
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
+        pagination_enabled: true
+        pagination_client_enabled: true
+        pagination_items_per_page: 30
