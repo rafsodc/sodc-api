@@ -51,8 +51,17 @@ services:
         published: 443
         protocol: udp
 
-  # database:
-  #   ports:
-  #     - target: 5432
-  #       published: 5432
-  #       protocol: tcp
+  # Add development database
+  database:
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - dev_db_data:/var/lib/postgresql/data:rw
+  #     # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+  #     # - ./api/docker/db/data:/var/lib/postgresql/data:rw
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
