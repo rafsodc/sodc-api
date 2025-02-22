@@ -53,6 +53,7 @@ services:
 
   # Add development database
   database:
+    image: postgres:13-alpine
     environment:
       - POSTGRES_DB=devdb
       - POSTGRES_USER=devuser
@@ -65,3 +66,6 @@ services:
       - target: 5432
         published: 5432
         protocol: tcp
+
+volumes:
+  dev_db_data:
