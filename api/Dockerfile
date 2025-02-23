@@ -4,7 +4,7 @@
 
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG PHP_VERSION=8.0
+ARG PHP_VERSION=8.1
 ARG CADDY_VERSION=2
 
 # "php" stage
@@ -25,7 +25,7 @@ RUN apk add --no-cache \
 # see https://github.com/docker-library/php/issues/240#issuecomment-763112749
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so
 
-ARG APCU_VERSION=5.1.19
+ARG APCU_VERSION=5.1.24
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
 		$PHPIZE_DEPS \
@@ -112,7 +112,7 @@ ENV SYMFONY_PHPUNIT_VERSION=9
 #COPY docker/php/docker-variables.sh /usr/local/bin/docker-variables
 #RUN chmod +x /usr/local/bin/docker-variables
 
-FROM api_platform as api_platform_php
+FROM api_platform AS api_platform_php
 
 COPY docker/php/docker-healthcheck.sh /usr/local/bin/docker-healthcheck
 RUN chmod +x /usr/local/bin/docker-healthcheck
@@ -124,7 +124,7 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
 
-FROM api_platform as api_platform_transport
+FROM api_platform AS api_platform_transport
 
 COPY docker/transport/docker-healthcheck.sh /usr/local/bin/docker-healthcheck
 RUN chmod +x /usr/local/bin/docker-healthcheck

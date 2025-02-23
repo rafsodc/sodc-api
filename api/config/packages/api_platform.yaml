@@ -26,3 +26,4 @@ api_platform:
         pagination_enabled: true
         pagination_client_enabled: true
         pagination_items_per_page: 30
+    metadata_backward_compatibility_layer: true
