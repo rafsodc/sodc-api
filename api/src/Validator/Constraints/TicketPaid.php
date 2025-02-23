@@ -4,10 +4,9 @@
 namespace App\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
+use Attribute;
 
-/**
- * @Annotation
- */
+#[Attribute]
 class TicketPaid extends Constraint
 {
     public $message = 'Unable to change ticket type if ticket is already paid.';

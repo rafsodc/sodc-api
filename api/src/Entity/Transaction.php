@@ -15,23 +15,6 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=TransactionRepository::class)
- * @ApiResource(
- *     output=TransactionOutput::CLASS,
- *     collectionOperations={
- *          "get"={"security"="is_granted('ROLE_ADMIN')"},
- *          "post"={"security"="is_granted('ROLE_USER')"},
- *     },
- *     itemOperations={
- *          "get"={"security"="is_granted('TRANSACTION_VIEW', object)"},
- *          "patch"={"security"="is_granted('TRANSACTION_EDIT', object)"},
- *          "delete"={"security"="is_granted('ROLE_ADMIN')"}
- *     },
- * )
- * @ApiFilter(SearchFilter::class, properties={"event": "exact", "owner": "exact"});
- * @ApiFilter(BooleanFilter::class, properties={"isValid"});
- */
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ApiResource(
     output: TransactionOutput::class,
@@ -49,33 +32,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(BooleanFilter::class, properties: ['isValid'])]
 class Transaction
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
     #[ORM\Column(type: 'string', length: 255)]
     private $status;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    /**
-     * @ORM\OneToOne(targetEntity=Basket::class, mappedBy="transaction", cascade={"persist", "remove"})
-     * @Groups({"transaction:write"})
-     * @IsBasketFree
-     */
     #[ORM\OneToOne(targetEntity: Basket::class, mappedBy: 'transaction', cascade: ['persist', 'remove'])]
     #[Groups(['transaction:write'])]
     #[IsBasketFree]
@@ -83,9 +50,6 @@ class Transaction
 
     private $isExpired;
 
-    /**
-     * @ORM\OneToMany(targetEntity=IPGReturn::class, mappedBy="transaction")
-     */
     #[ORM\OneToMany(targetEntity: IPGReturn::class, mappedBy: 'transaction')]
     private $IPGReturns;
 

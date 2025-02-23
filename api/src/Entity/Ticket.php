@@ -116,10 +116,9 @@ class Ticket
     private $baskets;
 
     #[ORM\ManyToMany(targetEntity: User::class)]
-    #[ORM\JoinTable(name: 'ticket_user',
-        joinColumns: [new ORM\JoinColumn(name: 'ticket_id', referencedColumnName: 'id')],
-        inverseJoinColumns: [new ORM\JoinColumn(name: 'user_id', referencedColumnName: 'uuid')]
-    )]
+    #[ORM\JoinTable(name: 'ticket_user')]
+    #[ORM\JoinColumn(name: 'ticket_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'user_id', referencedColumnName: 'uuid')]
     #[Groups(['ticket:write', 'ticket:owner'])]
     #[ApiProperty(readableLink: false, writableLink: false)]
     private $seatingPreferences;

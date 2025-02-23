@@ -4,10 +4,9 @@
 namespace App\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
+use Attribute;
 
-/**
- * @Annotation
- */
+#[Attribute]
 class IPGHash extends Constraint
 {
     public $message = 'IPG validation failed.';

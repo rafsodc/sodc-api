@@ -3,10 +3,9 @@
 namespace App\Validator;
 
 use Symfony\Component\Validator\Constraint;
+use Attribute;
 
-/**
- * @Annotation
- */
+#[Attribute]
 class IsBasketFree extends Constraint
 {
     /*

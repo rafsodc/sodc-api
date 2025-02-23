@@ -4,10 +4,9 @@
 namespace App\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
+use Attribute;
 
-/**
- * @Annotation
- */
+#[Attribute]
 class Captcha extends Constraint
 {
     public $message = 'Captcha validation failed.';
