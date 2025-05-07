@@ -146,6 +146,3 @@ services:
         factory: ['@App\Logger\Handler\RollbarHandlerFactory', createRollbarHandler]
         tags:
             - { name: monolog.logger, channel: rollbar }
-
-    App\Security\Voter\PageVoter:
-        tags: ['security.voter']
