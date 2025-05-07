@@ -1,29 +1,64 @@
 api_platform:
-    title: Hello API Platform
+    title: SODC API
     version: 1.0.0
-    mapping:
-        paths: ['%kernel.project_dir%/src/Entity']
-    patch_formats:
-        json: ['application/merge-patch+json']
-    swagger:
-        api_keys:
-            apiKey:
-                name: Authorization
-                type: header
-        versions: [3]
     formats:
         jsonld: ['application/ld+json']
         json: ['application/json']
         html: ['text/html']
-    # Mercure integration, remove if unwanted
-    mercure:
-        hub_url: '%env(MERCURE_SUBSCRIBE_URL)%'
-    # Updated defaults section
+    docs_formats:
+        jsonld: ['application/ld+json']
+        jsonopenapi: ['application/vnd.openapi+json']
+        html: ['text/html']
     defaults:
-        stateless: false  # Changed from false for better RESTful practice
+        stateless: true
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
         pagination_enabled: true
-        pagination_client_enabled: true
         pagination_items_per_page: 30
-    metadata_backward_compatibility_layer: true
+        pagination_maximum_items_per_page: 100
+        pagination_client_items_per_page: true
+        pagination_client_enabled: true
+        pagination_partial: false
+        pagination_via_cursor: ['id']
+        order: []
+        order_direction: 'ASC'
+        order_nulls_comparison: null
+        security: 'is_granted("IS_AUTHENTICATED_ANONYMOUSLY")'
+        security_message: 'Access Denied.'
+        security_post_denormalize: null
+        security_post_denormalize_message: 'Access Denied.'
+        security_post_validation: null
+        security_post_validation_message: 'Access Denied.'
+        swagger:
+            api_keys: []
+        extra_properties:
+            standard_put: true
+            generate_legacy_twig_extension: false
+    patch_formats:
+        json: ['application/merge-patch+json']
+    swagger:
+        api_keys:
+            JWT:
+                name: Authorization
+                type: header
+    oauth:
+        clientId: '%env(OAUTH_CLIENT_ID)%'
+        clientSecret: '%env(OAUTH_CLIENT_SECRET)%'
+        type: oauth2
+        flow: password
+        tokenUrl: /token
+    mapping:
+        paths: ['%kernel.project_dir%/src/Entity']
+    enable_swagger: true
+    enable_swagger_ui: true
+    enable_re_doc: true
+    enable_entrypoint: true
+    enable_docs: true
+    enable_profiler: true
+    collection:
+        pagination:
+            enabled: true
+            enabled_parameter_name: pagination
+            items_per_page_parameter_name: itemsPerPage
+            page_parameter_name: page
+            partial_parameter_name: partial

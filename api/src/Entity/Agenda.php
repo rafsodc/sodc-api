@@ -2,46 +2,69 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiFilter;
 use App\Repository\AgendaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: AgendaRepository::class)]
 #[ApiResource(
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_USER')"],
-        'post' => ['security' => "is_granted('ROLE_ADMIN')"]
+    operations: [
+        new Get(
+            security: "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
+            normalizationContext: ['groups' => ['agenda:read']]
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['agenda:read']],
+            denormalizationContext: ['groups' => ['agenda:write']]
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
+        new GetCollection(
+            security: "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
+            normalizationContext: ['groups' => ['agenda:read']]
+        ),
+        new Post(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['agenda:read']],
+            denormalizationContext: ['groups' => ['agenda:write']]
+        )
     ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('ROLE_USER')"],
-        'patch' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
-    ],
-    attributes: [
-        'pagination_enabled' => false,
-        'order' => ['start' => 'ASC']
-    ],
-    subresourceOperations: [
-        'api_events_agendas_get_subresource' => [
-            'method' => 'GET',
-            'security' => "is_granted('ROLE_USER')",
-            'normalization_context' => ['groups' => ['agenda:read']]
-        ]
-    ]
+    paginationEnabled: false,
+    order: ['start' => 'ASC']
 )]
+#[ApiResource(
+    uriTemplate: '/events/{id}/agendas.{_format}',
+    uriVariables: [
+        'id' => new Link(
+            fromClass: \App\Entity\Event::class,
+            identifiers: ['id']
+        )
+    ],
+    status: 200,
+    operations: [new GetCollection()]
+)]
+#[ORM\Entity(repositoryClass: AgendaRepository::class)]
 class Agenda
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['agenda:read'])]
     private $id;
 
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'agendas')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['agenda:write'])]
+    #[Groups(['agenda:read', 'agenda:write'])]
     private $event;
 
     #[ORM\ManyToMany(targetEntity: Speaker::class, inversedBy: 'agendas')]
@@ -53,7 +76,7 @@ class Agenda
     private $title;
 
     #[ORM\Column(type: 'text')]
-    #[Groups(['agenda:write', 'agenda:read'])]
+    #[Groups(['agenda:read', 'agenda:write'])]
     private $description;
 
     #[ORM\Column(type: 'datetime')]
@@ -94,9 +117,6 @@ class Agenda
         return $this;
     }
 
-    /**
-     * @return Collection|Speaker[]
-     */
     public function getSpeakers(): Collection
     {
         return $this->speakers;

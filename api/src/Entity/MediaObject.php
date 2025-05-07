@@ -3,8 +3,8 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
 use App\Controller\CreateMediaObjectAction;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
@@ -12,22 +12,22 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use App\Dto\MediaObjectOutput;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Get;
 
 #[Vich\Uploadable]
 #[ORM\Entity]
 #[ApiResource(
     output: MediaObjectOutput::class,
-    iri: 'http://schema.org/MediaObject',
-    normalizationContext: [
-        'groups' => ['mediaobject:read']
-    ],
-    collectionOperations: [
-        'post' => [
-            'controller' => CreateMediaObjectAction::class,
-            'deserialize' => false,
-            'security' => "is_granted('ROLE_USER')",
-            'validation_groups' => ['Default', 'mediaobject:create'],
-            'openapi_context' => [
+    operations: [
+        new Post(
+            controller: CreateMediaObjectAction::class,
+            deserialize: false,
+            security: "is_granted('ROLE_USER')",
+            validationContext: ['groups' => ['Default', 'mediaobject:create']],
+            normalizationContext: ['groups' => ['mediaobject:read']],
+            openapiContext: [
                 'requestBody' => [
                     'content' => [
                         'multipart/form-data' => [
@@ -44,23 +44,25 @@ use App\Dto\MediaObjectOutput;
                     ]
                 ]
             ]
-        ],
-        'get'
-    ],
-    itemOperations: [
-        'get' => [
-            'security' => "is_granted('ROLE_USER')"
-        ]
+        ),
+        new GetCollection(
+            normalizationContext: ['groups' => ['mediaobject:read']]
+        ),
+        new Get(
+            security: "is_granted('ROLE_USER')",
+            normalizationContext: ['groups' => ['mediaobject:read']]
+        )
     ]
 )]
 class MediaObject
 {
-    #[ORM\Column(type: 'integer')]
-    #[ORM\GeneratedValue]
     #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    #[Groups(['mediaobject:read'])]
     protected $id;
 
-    #[ApiProperty(iri: 'http://schema.org/contentUrl')]
+    #[ApiProperty(types: ['https://schema.org/name'])]
     #[Groups(['mediaobject:read', 'agenda:read'])]
     public $contentUrl;
 
@@ -69,12 +71,15 @@ class MediaObject
     public $file;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['mediaobject:read'])]
     public $filePath;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['mediaobject:read'])]
     public $mediaMimeType;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['mediaobject:read'])]
     public $mediaSize;
 
     public function getId(): ?int

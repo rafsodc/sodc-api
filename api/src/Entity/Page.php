@@ -2,29 +2,47 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\PageRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: PageRepository::class)]
-#[ORM\HasLifecycleCallbacks]
 #[ApiResource(
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'post' => ['security' => "is_granted('ROLE_ADMIN')"]
-    ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"],
-        'patch' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    operations: [
+        new Get(
+            security: "is_granted('PUBLIC_ACCESS')",
+            normalizationContext: ['groups' => ['page:read']]
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['page:read']],
+            denormalizationContext: ['groups' => ['page:write']]
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['page:read']]
+        ),
+        new Post(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['page:read']],
+            denormalizationContext: ['groups' => ['page:write']]
+        )
     ]
 )]
+#[ORM\Entity(repositoryClass: PageRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Page
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['page:read'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -36,9 +54,11 @@ class Page
     private $content;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['page:read'])]
     private $createdAt;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['page:read'])]
     private $updatedAt;
 
     #[ORM\Column(type: 'boolean')]

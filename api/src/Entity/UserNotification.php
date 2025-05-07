@@ -2,7 +2,9 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserNotificationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,26 +13,32 @@ use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: UserNotificationRepository::class)]
 #[ApiResource(
-    collectionOperations: [
-        'post' => ['security' => "is_granted('ROLE_ADMIN')"]
-    ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('ROLE_ADMIN')"]
+    operations: [
+        new Get(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['usernotification:read']]
+        ),
+        new Post(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['usernotification:read']],
+            denormalizationContext: ['groups' => ['usernotification:write']]
+        )
     ]
 )]
+#[ORM\Entity(repositoryClass: UserNotificationRepository::class)]
 class UserNotification
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     #[ORM\Column(type: 'uuid', unique: true)]
+    #[Groups(['usernotification:read'])]
     private $id;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userNotifications')]
     #[ORM\JoinColumn(nullable: false, referencedColumnName: 'uuid')]
-    #[Groups(['usernotification:write', 'bulknotification:read'])]
+    #[Groups(['usernotification:write', 'usernotification:read', 'bulknotification:read'])]
     private $user;
 
     // /**
@@ -40,12 +48,15 @@ class UserNotification
 
     #[ORM\ManyToOne(targetEntity: BulkNotification::class, inversedBy: 'userNotifications')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['usernotification:read'])]
     private $bulkNotification;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    #[Groups(['usernotification:read'])]
     private $sent = false;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['usernotification:read'])]
     private $status;
 
     #[ORM\Column(type: 'json')]
@@ -57,6 +68,7 @@ class UserNotification
     private $templateId;
 
     #[ORM\OneToMany(targetEntity: NotificationReturn::class, mappedBy: 'userNotification', orphanRemoval: true)]
+    #[Groups(['usernotification:read'])]
     private $notificationReturns;
 
     public function __construct()

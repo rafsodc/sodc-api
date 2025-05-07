@@ -43,7 +43,7 @@ final class PasswordRequestEventListener
         $request = $event->getRequest();
         $routeName = $request->attributes->get('_route');
         
-        if (!$event->isMasterRequest() || 'coop_tilleuls_forgot_password.reset' !== $routeName) {
+        if (!$event->isMainRequest() || 'coop_tilleuls_forgot_password.reset' !== $routeName) {
           return;
         };
 

@@ -31,7 +31,7 @@ final class LoginEventListener
         $request = $event->getRequest();
         $routeName = $request->attributes->get('_route');
         
-        if (!$event->isMasterRequest() || 'app_login' !== $routeName) {
+        if (!$event->isMainRequest() || 'app_login' !== $routeName) {
           return;
         };
 

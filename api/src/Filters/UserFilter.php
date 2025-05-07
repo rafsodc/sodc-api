@@ -2,10 +2,10 @@
 
 namespace App\Filters;
 
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use Doctrine\ORM\QueryBuilder;
-use DateTime;
+use ApiPlatform\Metadata\Operation;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -24,7 +24,7 @@ class UserFilter extends AbstractFilter
         $this->security = $security;
     }
 
-    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null)
+    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
         $alias = $queryBuilder->getRootAliases()[0];
 
@@ -42,7 +42,7 @@ class UserFilter extends AbstractFilter
                 );
                 $queryBuilder
                     ->andWhere($where)
-                    ->setParameter('value', "%$value%");
+                    ->setParameter('value', "%".strtolower($value)."%");
                 break;
 
             case "isMe":
@@ -68,7 +68,7 @@ class UserFilter extends AbstractFilter
                 'type' => 'string',
                 'required' => false,
                 'openapi' => [
-                    'description' => 'Search for users by name, username and email address strings',
+                    'description' => 'Search for users by first or last name',
                 ],
             ],
             'isMe' => [

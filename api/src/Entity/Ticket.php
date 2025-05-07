@@ -2,8 +2,14 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiFilter;
 use App\Repository\TicketRepository;
 use App\Validator\IsEventOpen;
 use App\Validator\IsValidOwner;
@@ -11,45 +17,51 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Ramsey\Uuid\UuidInterface;
 use App\Validator\Constraints\TicketPaid;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Metadata\Link;
 
-#[ORM\Entity(repositoryClass: TicketRepository::class)]
-#[ORM\EntityListeners(['App\Doctrine\TicketSetOwnerListener'])]
 #[ApiResource(
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'post' => ['security' => "is_granted('ROLE_USER')"]
+    operations: [
+        new Get(security: "is_granted('TICKET_VIEW', object)"),
+        new Patch(security: "is_granted('TICKET_EDIT', object)"),
+        new Delete(security: "is_granted('TICKET_DELETE', object)"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
+        new Post(security: "is_granted('ROLE_USER')")
     ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('TICKET_VIEW', object)"],
-        'patch' => ['security' => "is_granted('TICKET_EDIT', object)"],
-        'delete' => ['security' => "is_granted('TICKET_DELETE', object)"]
-    ],
-    attributes: [
-        'pagination_enabled' => false,
-        'order' => ['owner.lastName', 'owner.firstName', 'lastname', 'firstname']
-    ],
-    subresourceOperations: [
-        'api_events_tickets_get_subresource' => [
-            'method' => 'GET',
-            'path' => '/events/{id}/tickets',
-            'security' => "is_granted('ROLE_USER')",
-            'normalization_context' => ['groups' => ['ticket:read']]
-        ],
-        'api_users_tickets_get_subresource' => [
-            'method' => 'GET',
-            'path' => '/users/{uuid}/tickets',
-            'security' => "is_granted('ROLE_ADMIN') or user.getUuid() == request.attributes.get('uuid')",
-            'normalization_context' => ['groups' => ['ticket:owner']]
-        ]
-    ]
+    paginationEnabled: false,
+    order: ['owner.lastName', 'owner.firstName', 'lastname', 'firstname']
 )]
 #[ApiFilter(SearchFilter::class, properties: ['event' => 'exact', 'owner' => 'exact'])]
 #[TicketPaid]
+#[ORM\Entity(repositoryClass: TicketRepository::class)]
+#[ORM\EntityListeners(['App\Doctrine\TicketSetOwnerListener'])]
+// Subresource: /events/{id}/tickets
+#[ApiResource(
+    uriTemplate: '/events/{id}/tickets',
+    uriVariables: [
+        'id' => new Link(
+            fromClass: Event::class,
+            fromProperty: 'tickets'
+        )
+    ],
+    operations: [new GetCollection(security: "is_granted('ROLE_USER')")],
+    normalizationContext: ['groups' => ['ticket:read']]
+)]
+// Subresource: /users/{uuid}/tickets
+#[ApiResource(
+    uriTemplate: '/users/{uuid}/tickets',
+    uriVariables: [
+        'uuid' => new Link(
+            fromClass: User::class,
+            fromProperty: 'tickets'
+        )
+    ],
+    operations: [new GetCollection(security: "is_granted('ROLE_ADMIN') or user.getUuid() == request.attributes.get('uuid')")],
+    normalizationContext: ['groups' => ['ticket:owner']]
+)]
 class Ticket
 {
     #[ORM\Id]
@@ -329,10 +341,8 @@ class Ticket
         return $this;
     }
 
-    /**
-     * @Groups({"admin:read"})
-     * @ApiProperty(readableLink=true, writableLink=false)
-     */
+    #[Groups(['admin:read'])]
+    #[ApiProperty(readableLink: true, writableLink: false)]
     public function getSeatingPreferencesDetails(): array
     {
         // This will return the detailed user data

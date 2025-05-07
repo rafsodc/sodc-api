@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -9,24 +10,24 @@ use Symfony\Component\Security\Core\Security;
 
 class UserVoter extends Voter
 {
+    public const VIEW = 'USER_VIEW';
+    public const EDIT = 'USER_EDIT';
+
     private $security;
     public function __construct(Security $security)
     {
         $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports(string $attribute, mixed $subject): bool
     {
-        // replace with your own logic
-        // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['USER_VIEW', 'USER_EDIT'])
-            && $subject instanceof \App\Entity\User;
+        return in_array($attribute, [self::VIEW, self::EDIT])
+            && $subject instanceof User;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
         }
@@ -35,24 +36,31 @@ class UserVoter extends Voter
             return true;
         }
 
-        // ... (check conditions and return true to grant permission) ...
-        switch ($attribute) {
-            case 'USER_VIEW':
-                /*if($user->getIsShared()) {
-                    return true;
-                }
-                if ($subject === $user) {
-                    return true;
-                }
-                return false;*/
-                return true;
-            case 'USER_EDIT':
-                if ($subject === $user) {
-                    return true;
-                }
-                return false;
-        }
+        /** @var User $targetUser */
+        $targetUser = $subject;
 
-        throw new \Exception(sprintf('Unhandled attribute "%s"', $attribute));
+        return match($attribute) {
+            self::VIEW => $this->canView($targetUser, $user),
+            self::EDIT => $this->canEdit($targetUser, $user),
+            default => false,
+        };
+    }
+
+    private function canView(User $targetUser, UserInterface $user): bool
+    {
+        // Currently allowing all authenticated users to view any user
+        // Uncomment the following code to restrict viewing to self or shared profiles
+        /*
+        if ($targetUser->getIsShared()) {
+            return true;
+        }
+        return $targetUser === $user;
+        */
+        return true;
+    }
+
+    private function canEdit(User $targetUser, UserInterface $user): bool
+    {
+        return $targetUser === $user;
     }
 }

@@ -3,9 +3,10 @@
 
 namespace App\Doctrine;
 
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryItemExtensionInterface;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
+use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Security;
@@ -19,7 +20,7 @@ final class UserQueryExtension implements QueryCollectionExtensionInterface, Que
         $this->security = $security;
     }
 
-    public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null): void
+    public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
         if (User::class !== $resourceClass || $this->security->isGranted('ROLE_ADMIN') || null === $this->security->getUser()) {
             return;
@@ -30,7 +31,7 @@ final class UserQueryExtension implements QueryCollectionExtensionInterface, Que
         $queryBuilder->setParameter('isMember', 'TRUE');
     }
 
-    public function applyToItem(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, array $identifiers, string $operationName = null, array $context = []): void
+    public function applyToItem(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, array $identifiers, Operation $operation = null, array $context = []): void
     {
         if (User::class !== $resourceClass || $this->security->isGranted('ROLE_ADMIN') || null === $user = $this->security->getUser()) {
             return;
@@ -41,15 +42,11 @@ final class UserQueryExtension implements QueryCollectionExtensionInterface, Que
         // Return results if they are a member and sharing details, or if it's this user
         $queryBuilder->andWhere(
             $queryBuilder->expr()->orX(
-                //$queryBuilder->expr()->andX(
-                    sprintf('%s.isMember = :isMember', $rootAlias),
-                //    sprintf('%s.isShared = :isShared', $rootAlias)
-                //),
+                sprintf('%s.isMember = :isMember', $rootAlias),
                 sprintf('%s.id = :id', $rootAlias)
             )
         );
         $queryBuilder->setParameter('isMember', 'TRUE');
-        //$queryBuilder->setParameter('isShared', 'TRUE');
         $queryBuilder->setParameter('id', $user->getId());
     }
 }

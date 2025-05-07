@@ -13,7 +13,7 @@ use App\DataPersister\UserDataPersister;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use ApiPlatform\Core\EventListener\EventPriorities;
+use ApiPlatform\Symfony\EventListener\EventPriorities;
 use App\Entity\Contact;
 
 final class ContactEventSubscriber implements EventSubscriberInterface

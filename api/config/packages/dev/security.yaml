@@ -3,17 +3,20 @@ security:
         refresh:
             pattern: ^/token/refresh
             stateless: true
-            anonymous: true
+            lazy: true
+            security: false
         services:
             pattern: ^/(ipg|notify)
             stateless: true
-            anonymous: true
+            lazy: true
+            security: false
         debug:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
+            lazy: true
             security: false
         dev:
-            anonymous: true
             lazy: true
+            security: false
             provider: app_user_provider
             json_login:
                 check_path: app_login
@@ -23,7 +26,5 @@ security:
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
             logout:
                 path: app_logout
-                handlers: [App\Authentication\LogoutHandler]
-            guard:
-                authenticators:
-                    - lexik_jwt_authentication.jwt_token_authenticator
+            custom_authenticators:
+                - lexik_jwt_authentication.jwt_token_authenticator

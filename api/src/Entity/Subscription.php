@@ -2,37 +2,32 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
 use App\Repository\SubscriptionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiProperty;
 use Ramsey\Uuid\UuidInterface;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: SubscriptionRepository::class)]
 #[ApiResource(
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'post' => [
-            'security' => "is_granted('ROLE_ADMIN')",
-            'validation_groups' => ['subscription:write']
-        ]
+    operations: [
+        new Get(security: "is_granted('ROLE_ADMIN')"),
+        new Patch(security: "is_granted('ROLE_ADMIN')", validationContext: ['groups' => ['subscription:write']]),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
+        new Post(security: "is_granted('ROLE_ADMIN')", validationContext: ['groups' => ['subscription:write']])
     ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'patch' => [
-            'security' => "is_granted('ROLE_ADMIN')",
-            'validation_groups' => ['subscription:write']
-        ],
-        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
-    ],
-    attributes: [
-        'pagination_enabled' => false
-    ]
+    paginationEnabled: false
 )]
+#[ORM\Entity(repositoryClass: SubscriptionRepository::class)]
 class Subscription
 {
     #[ORM\Id]

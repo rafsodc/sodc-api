@@ -2,35 +2,46 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
 use App\Repository\UserSubscriptionRepository;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiProperty;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: UserSubscriptionRepository::class)]
 #[ApiResource(
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'post' => [
-            'security' => "is_granted('ROLE_ADMIN')",
-            'validation_groups' => ['usersubscription:write']
-        ]
+    operations: [
+        new Get(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['usersubscription:read']]
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['usersubscription:read']],
+            denormalizationContext: ['groups' => ['usersubscription:write']],
+            validationContext: ['groups' => ['usersubscription:write']]
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['usersubscription:read']]
+        ),
+        new Post(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['usersubscription:read']],
+            denormalizationContext: ['groups' => ['usersubscription:write']],
+            validationContext: ['groups' => ['usersubscription:write']]
+        )
     ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'patch' => [
-            'security' => "is_granted('ROLE_ADMIN')",
-            'validation_groups' => ['usersubscription:write']
-        ],
-        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
-    ],
-    attributes: [
-        'pagination_enabled' => false
-    ]
+    paginationEnabled: false
 )]
+#[ORM\Entity(repositoryClass: UserSubscriptionRepository::class)]
 class UserSubscription
 {
     #[ORM\Id]
@@ -38,16 +49,17 @@ class UserSubscription
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     #[ApiProperty(identifier: true)]
+    #[Groups(['usersubscription:read'])]
     private $uuid;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userSubscriptions')]
     #[ORM\JoinColumn(nullable: false, referencedColumnName: 'uuid')]
-    #[Groups(['usersubscription:write'])]
+    #[Groups(['usersubscription:write', 'usersubscription:read'])]
     private $owner;
 
     #[ORM\ManyToOne(targetEntity: Subscription::class, inversedBy: 'userSubscriptions')]
     #[ORM\JoinColumn(nullable: false, referencedColumnName: 'uuid')]
-    #[Groups(['owner:read', 'usersubscription:write'])]
+    #[Groups(['owner:read', 'usersubscription:write', 'usersubscription:read'])]
     private $subscription;
 
     public function getUuid(): ?UuidInterface

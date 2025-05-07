@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Transaction;
+use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -10,45 +11,61 @@ use Symfony\Component\Security\Core\Security;
 
 class TransactionVoter extends Voter
 {
+    public const VIEW = 'TRANSACTION_VIEW';
+    public const EDIT = 'TRANSACTION_EDIT';
+    public const DELETE = 'TRANSACTION_DELETE';
+
     private $security;
     public function __construct(Security $security)
     {
         $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports(string $attribute, mixed $subject): bool
     {
-        // replace with your own logic
-        // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['TRANSACTION_VIEW', 'TRANSACTION_EDIT'])
-            && $subject instanceof \App\Entity\Transaction;
+        return in_array($attribute, [self::VIEW, self::EDIT, self::DELETE])
+            && $subject instanceof Transaction;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
-
         $user = $token->getUser();
- 
-        // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
         }
 
-        /** @var Transaction $subject */
+        /** @var Transaction $transaction */
+        $transaction = $subject;
 
-        // ... (check conditions and return true to grant permission) ...
-        switch ($attribute) {
-            case 'TRANSACTION_VIEW':
-            case 'TRANSACTION_EDIT':
-                if ($subject->getBasket()->getOwner() === $user) {
-                    return true;
-                }
-                if ($this->security->isGranted('ROLE_ADMIN')) {
-                    //return true;
-                }
-                return false;
-        }
+        return match($attribute) {
+            self::VIEW => $this->canView($transaction, $user),
+            self::EDIT => $this->canEdit($transaction, $user),
+            self::DELETE => $this->canDelete($transaction, $user),
+            default => false,
+        };
+    }
 
-        throw new \Exception(sprintf('Unhandled attribute "%s"', $attribute));
+    private function canView(Transaction $transaction, UserInterface $user): bool
+    {
+        return $user instanceof User && (
+            $transaction->getBasket()->getOwner() === $user ||
+            in_array('ROLE_ADMIN', $user->getRoles())
+        );
+    }
+
+    private function canEdit(Transaction $transaction, UserInterface $user): bool
+    {
+        return $user instanceof User && (
+            $transaction->getBasket()->getOwner() === $user ||
+            in_array('ROLE_ADMIN', $user->getRoles())
+        );
+    }
+
+    private function canDelete(Transaction $transaction, UserInterface $user): bool
+    {
+        return $user instanceof User && (
+            $transaction->getBasket()->getOwner() === $user ||
+            in_array('ROLE_ADMIN', $user->getRoles())
+        );
     }
 }

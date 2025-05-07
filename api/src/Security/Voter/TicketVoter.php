@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Ticket;
+use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -10,47 +11,61 @@ use Symfony\Component\Security\Core\Security;
 
 class TicketVoter extends Voter
 {
+    public const VIEW = 'TICKET_VIEW';
+    public const EDIT = 'TICKET_EDIT';
+    public const DELETE = 'TICKET_DELETE';
+
     private $security;
     public function __construct(Security $security)
     {
         $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports(string $attribute, mixed $subject): bool
     {
-        // replace with your own logic
-        // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['TICKET_VIEW', 'TICKET_EDIT', 'TICKET_DELETE'])
-            && $subject instanceof \App\Entity\Ticket;
+        return in_array($attribute, [self::VIEW, self::EDIT, self::DELETE])
+            && $subject instanceof Ticket;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
-
         $user = $token->getUser();
-        // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
         }
 
-        if ($this->security->isGranted('ROLE_ADMIN')) {
-            return true;
-        }
+        /** @var Ticket $ticket */
+        $ticket = $subject;
 
-        // ... (check conditions and return true to grant permission) ...
-        switch ($attribute) {
-            case 'TICKET_VIEW':
-            case 'TICKET_EDIT':
-                if ($subject->getOwner() === $user) {
-                    return true;
-                }
-            case 'TICKET_DELETE':
-                if ($subject->getOwner() === $user && !$subject->getPaid()) {
-                     return true;
-                }
-        }
-        return false;
+        return match($attribute) {
+            self::VIEW => $this->canView($ticket, $user),
+            self::EDIT => $this->canEdit($ticket, $user),
+            self::DELETE => $this->canDelete($ticket, $user),
+            default => false,
+        };
+    }
 
-        throw new \Exception(sprintf('Unhandled attribute "%s"', $attribute));
+    private function canView(Ticket $ticket, UserInterface $user): bool
+    {
+        return $user instanceof User && (
+            $ticket->getOwner() === $user ||
+            in_array('ROLE_ADMIN', $user->getRoles())
+        );
+    }
+
+    private function canEdit(Ticket $ticket, UserInterface $user): bool
+    {
+        return $user instanceof User && (
+            $ticket->getOwner() === $user ||
+            in_array('ROLE_ADMIN', $user->getRoles())
+        );
+    }
+
+    private function canDelete(Ticket $ticket, UserInterface $user): bool
+    {
+        return $user instanceof User && (
+            $ticket->getOwner() === $user ||
+            in_array('ROLE_ADMIN', $user->getRoles())
+        );
     }
 }

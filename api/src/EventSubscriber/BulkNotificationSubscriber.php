@@ -2,7 +2,7 @@
 
 namespace App\EventSubscriber;
 
-use ApiPlatform\Core\EventListener\EventPriorities;
+use ApiPlatform\Symfony\EventListener\EventPriorities;
 use App\Entity\BulkNotification;
 use App\Event\BulkNotificationEvent;
 use App\Message\BulkNotificationMessage;

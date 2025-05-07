@@ -2,7 +2,13 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiFilter;
 use App\Repository\TransactionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,47 +16,62 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Validator\IsBasketFree;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Dto\TransactionOutput;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ApiResource(
     output: TransactionOutput::class,
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'post' => ['security' => "is_granted('ROLE_USER')"]
-    ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('TRANSACTION_VIEW', object)"],
-        'patch' => ['security' => "is_granted('TRANSACTION_EDIT', object)"],
-        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    operations: [
+        new Get(
+            security: "is_granted('TRANSACTION_VIEW', object)",
+            normalizationContext: ['groups' => ['transaction:read']]
+        ),
+        new Patch(
+            security: "is_granted('TRANSACTION_EDIT', object)",
+            normalizationContext: ['groups' => ['transaction:read']],
+            denormalizationContext: ['groups' => ['transaction:write']]
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['transaction:read']]
+        ),
+        new Post(
+            security: "is_granted('ROLE_USER')",
+            normalizationContext: ['groups' => ['transaction:read']],
+            denormalizationContext: ['groups' => ['transaction:write']]
+        )
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: ['event' => 'exact', 'owner' => 'exact'])]
 #[ApiFilter(BooleanFilter::class, properties: ['isValid'])]
+#[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['transaction:read'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['transaction:read'])]
     private $status;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['transaction:read'])]
     private $createdAt;
 
     #[ORM\OneToOne(targetEntity: Basket::class, mappedBy: 'transaction', cascade: ['persist', 'remove'])]
-    #[Groups(['transaction:write'])]
+    #[Groups(['transaction:read', 'transaction:write'])]
     #[IsBasketFree]
     private $basket;
 
     private $isExpired;
 
     #[ORM\OneToMany(targetEntity: IPGReturn::class, mappedBy: 'transaction')]
+    #[Groups(['transaction:read'])]
     private $IPGReturns;
 
     public function __construct()

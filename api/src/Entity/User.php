@@ -8,37 +8,62 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use App\Filters\UserFilter;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use App\Validator\Constraints\Captcha;
 use App\Controller\ApproveUserController;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiSubresource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiSubresource;
+use App\Controller\NotificationController;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
 #[ApiResource(
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_USER')"],
-        'post' => [
-            'security' => "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
-            'validation_groups' => ['user:post']
-        ],
-        'unsubscribe' => [
-            'method' => 'POST',
-            'path' => '/unsubscribe/{unsubscribeUuid}',
-            'controller' => NotificationController::class,
-            'read' => false,
-            'openapi_context' => [
+    operations: [
+        new Get(
+            security: "is_granted('USER_VIEW', object)",
+            normalizationContext: ['groups' => ['user:read']]
+        ),
+        new Patch(
+            security: "is_granted('USER_EDIT', object)",
+            normalizationContext: ['groups' => ['user:read']],
+            denormalizationContext: ['groups' => ['user:write']],
+            validationContext: ['groups' => ['user:item:write']]
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
+        new GetCollection(
+            security: "is_granted('ROLE_USER')",
+            normalizationContext: ['groups' => ['user:read']]
+        ),
+        new Post(
+            security: "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
+            normalizationContext: ['groups' => ['user:read']],
+            denormalizationContext: ['groups' => ['user:write']],
+            validationContext: ['groups' => ['user:post']]
+        ),
+        new Post(
+            uriTemplate: '/users/{uuid}/approve',
+            controller: ApproveUserController::class,
+            security: "is_granted('ROLE_ADMIN')",
+            validationContext: ['groups' => ['user:approve']]
+        ),
+        new Post(
+            uriTemplate: '/unsubscribe/{unsubscribeUuid}',
+            controller: NotificationController::class,
+            read: false,
+            openapiContext: [
                 'summary' => 'Unsubscribe user',
                 'description' => 'Unsubscribe a user based on the unsubscribe UUID.',
                 'parameters' => [
@@ -64,28 +89,15 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
                     ]
                 ]
             ]
-        ]
-    ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('USER_VIEW', object)"],
-        'patch' => [
-            'security' => "is_granted('USER_EDIT', object)",
-            'validation_groups' => ['user:item:write']
-        ],
-        'approve' => [
-            'method' => 'POST',
-            'path' => '/users/{uuid}/approve',
-            'controller' => ApproveUserController::class,
-            'security' => "is_granted('ROLE_ADMIN')",
-            'validation_groups' => ['user:approve']
-        ],
-        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+        )
     ]
 )]
-#[UniqueEntity(fields: ['email'])]
 #[ApiFilter(SearchFilter::class, properties: ['uuid' => 'exact'])]
 #[ApiFilter(BooleanFilter::class, properties: ['isMember'])]
 #[ApiFilter(UserFilter::class)]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
+#[UniqueEntity(fields: ['email'])]
 class User implements UserInterface
 {
     ///**
@@ -97,17 +109,17 @@ class User implements UserInterface
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ApiProperty(identifier: true)]
-    #[Groups(['user:collection:write'])]
+    #[Groups(['user:read'])]
     private $uuid;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
-    #[Groups(['owner:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     #[Assert\NotBlank]
     #[Assert\Email]
     private $email;
 
     #[ORM\Column(type: 'json')]
-    #[Groups(['admin:write'])]
+    #[Groups(['user:read', 'user:write'])]
     private $roles = [];
 
     #[Groups(['user:write'])]
@@ -119,11 +131,12 @@ class User implements UserInterface
     private $password;
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    #[Groups(['owner:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     private $phoneNumber;
 
     #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'owner', orphanRemoval: true)]
     #[ApiSubresource]
+    #[Groups(['user:read'])]
     private $tickets;
 
     #[Groups(['user:read'])]
@@ -131,10 +144,11 @@ class User implements UserInterface
 
     #[ORM\OneToMany(targetEntity: Basket::class, mappedBy: 'owner')]
     #[ApiSubresource]
+    #[Groups(['user:read'])]
     private $baskets;
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    #[Groups(['owner:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     private $mobileNumber;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -152,11 +166,11 @@ class User implements UserInterface
     private $postNominals;
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    #[Groups(['owner:read', 'admin:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     private $serviceNumber;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['owner:read', 'admin:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     private $modnetEmail;
 
     #[ORM\ManyToOne(targetEntity: Rank::class, inversedBy: 'users')]
@@ -164,22 +178,23 @@ class User implements UserInterface
     private $rank;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(['owner:read', 'admin:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     private $workDetails;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    #[Groups(['owner:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     #[Assert\Type('bool')]
     #[Assert\NotNull]
     private $isShared = true;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    #[Groups(['admin:read', 'user:item:write'])]
+    #[Groups(['user:read', 'user:write'])]
     #[Assert\Type('bool')]
     #[Assert\NotNull]
     private $isSubscribed = true;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    #[Groups(['user:read'])]
     private $isMember = false;
 
     #[ORM\Column(type: 'integer', nullable: true)]
@@ -189,13 +204,15 @@ class User implements UserInterface
     #[Groups(['user:post'])]
     private $captcha = "";
 
-    #[Groups(['ticket:read', 'event_ticket:read', 'bulknotification:read', 'admin:read'])]
+    #[Groups(['user:read'])]
     private $fullName;
 
     #[ORM\OneToMany(targetEntity: UserNotification::class, mappedBy: 'user', orphanRemoval: true)]
+    #[Groups(['user:read'])]
     private $userNotifications;
 
     #[ORM\OneToMany(targetEntity: UserSubscription::class, mappedBy: 'owner', orphanRemoval: true)]
+    #[Groups(['user:read'])]
     private $userSubscriptions;
 
     #[Groups(['user:read', 'user:write'])]
@@ -238,6 +255,14 @@ class User implements UserInterface
         $this->email = strtolower($email);
 
         return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
     }
 
     /**

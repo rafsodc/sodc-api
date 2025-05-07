@@ -10,6 +10,7 @@ use App\Message\EmailPasswordResetLink;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\DataPersister\UserDataPersister;
+use ApiPlatform\Symfony\EventListener\EventPriorities;
 
 final class ForgotPasswordEventSubscriber implements EventSubscriberInterface
 {

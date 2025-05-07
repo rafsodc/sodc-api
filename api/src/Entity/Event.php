@@ -2,9 +2,14 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Annotation\ApiSubresource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiFilter;
 use App\Repository\EventRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,31 +17,36 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Dto\EventOutput;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Filters\EventDateFilter;
 
+#[ApiResource(
+    operations: [
+        new Get(
+            security: "is_granted('ROLE_USER')",
+            normalizationContext: ['groups' => ['event:read']]
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['event:read']],
+            denormalizationContext: ['groups' => ['event:write']]
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
+        new GetCollection(
+            security: "is_granted('ROLE_USER')",
+            normalizationContext: ['groups' => ['event:read']]
+        ),
+        new Post(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['event:read']],
+            denormalizationContext: ['groups' => ['event:write']]
+        )
+    ],
+    paginationEnabled: false,
+    order: ['startDate' => 'DESC']
+)]
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\Table(name: '`event`')]
-#[ApiResource(
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_USER')"],
-        'post' => ['security' => "is_granted('ROLE_ADMIN')"]
-    ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('ROLE_USER')"],
-        'getForm' => [
-            'method' => 'GET',
-            'path' => '/events/{id}/form',
-            'security' => "is_granted('ROLE_ADMIN')",
-            'validation_groups' => ['event:item:getForm']
-        ],
-        'patch' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
-    ]
-)]
-#[ApiFilter(EventDateFilter::class)]
+#[ApiFilter(filterClass: EventDateFilter::class)]
 class Event
 {
     #[ORM\Id]
@@ -46,64 +56,220 @@ class Event
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
+    #[Groups(['event:read', 'event:write'])]
     #[Assert\NotBlank]
     #[ApiProperty(description: 'The event name')]
     private $title;
 
-    #[ORM\Column(type: 'date')]
-    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
-    #[Assert\NotBlank]
-    private $date;
-
-    #[ORM\Column(type: 'date')]
-    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
-    #[Assert\NotBlank]
-    private $bookingOpen;
-
-    #[ORM\Column(type: 'date')]
-    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
-    #[Assert\NotBlank]
-    private $bookingClose;
-
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
-    #[Assert\NotBlank]
-    private $venue;
-
-    #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
+    #[ORM\Column(type: 'text')]
+    #[Groups(['event:read', 'event:write'])]
     private $description;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
-    private $principalSpeaker;
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['event:read', 'event:write'])]
+    private $startDate;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['event:write', 'event:get', 'event:item:getForm'])]
-    private $sponsor;
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['event:read', 'event:write'])]
+    private $endDate;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['event:read', 'event:write'])]
+    private $location;
+
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['event:read', 'event:write'])]
+    private $isPublished;
 
     #[ORM\OneToMany(targetEntity: TicketType::class, mappedBy: 'event', orphanRemoval: true)]
-    #[Groups(['event:get', 'event:item:getForm'])]
-    #[ORM\OrderBy(['description' => 'ASC'])]
+    #[Groups(['event:read'])]
     private $ticketTypes;
 
     #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'event', orphanRemoval: true)]
-    #[ApiSubresource]
+    #[Groups(['event:read'])]
     private $tickets;
 
     #[ORM\OneToMany(targetEntity: Basket::class, mappedBy: 'event')]
     private $baskets;
 
-    #[Groups(['event:get'])]
+    #[Groups(['event:read'])]
     private $isBookingOpen;
 
     #[ORM\OneToMany(targetEntity: Agenda::class, mappedBy: 'event', orphanRemoval: true)]
-    #[ApiSubresource]
+    #[Groups(['event:read'])]
     private $agendas;
 
     #[ORM\OneToOne(targetEntity: Subscription::class, mappedBy: 'event', cascade: ['persist', 'remove'])]
+    #[Groups(['event:read'])]
     private $subscription;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $image;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageAlt;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageTitle;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageDescription;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageCaption;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageCredit;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageCopyright;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageSource;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageUrl;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageThumbnail;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageMedium;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageLarge;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageXLarge;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageXXLarge;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageXXXLarge;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageOriginal;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageMimeType;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageSize;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageWidth;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageHeight;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageAspectRatio;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageOrientation;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageColor;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageFormat;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageExtension;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageFilename;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imagePath;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageUrlPath;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageThumbnailPath;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageMediumPath;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageLargePath;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageXLargePath;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageXXLargePath;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageXXXLargePath;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageOriginalPath;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageThumbnailUrl;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageMediumUrl;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageLargeUrl;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageXLargeUrl;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageXXLargeUrl;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageXXXLargeUrl;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private $imageOriginalUrl;
 
     public function __construct()
     {
@@ -131,54 +297,6 @@ class Event
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(\DateTimeInterface $date): self
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
-    public function getBookingOpen(): ?\DateTimeInterface
-    {
-        return $this->bookingOpen;
-    }
-
-    public function setBookingOpen(\DateTimeInterface $bookingOpen): self
-    {
-        $this->bookingOpen = $bookingOpen;
-
-        return $this;
-    }
-
-    public function getBookingClose(): ?\DateTimeInterface
-    {
-        return $this->bookingClose;
-    }
-
-    public function setBookingClose(\DateTimeInterface $bookingClose): self
-    {
-        $this->bookingClose = $bookingClose;
-
-        return $this;
-    }
-
-    public function getVenue(): ?string
-    {
-        return $this->venue;
-    }
-
-    public function setVenue(string $venue): self
-    {
-        $this->venue = $venue;
-
-        return $this;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -191,26 +309,50 @@ class Event
         return $this;
     }
 
-    public function getPrincipalSpeaker(): ?string
+    public function getStartDate(): ?\DateTimeInterface
     {
-        return $this->principalSpeaker;
+        return $this->startDate;
     }
 
-    public function setPrincipalSpeaker(?string $principalSpeaker): self
+    public function setStartDate(\DateTimeInterface $startDate): self
     {
-        $this->principalSpeaker = $principalSpeaker;
+        $this->startDate = $startDate;
 
         return $this;
     }
 
-    public function getSponsor(): ?string
+    public function getEndDate(): ?\DateTimeInterface
     {
-        return $this->sponsor;
+        return $this->endDate;
     }
 
-    public function setSponsor(?string $sponsor): self
+    public function setEndDate(\DateTimeInterface $endDate): self
     {
-        $this->sponsor = $sponsor;
+        $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function setLocation(string $location): self
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    public function getIsPublished(): ?bool
+    {
+        return $this->isPublished;
+    }
+
+    public function setIsPublished(bool $isPublished): self
+    {
+        $this->isPublished = $isPublished;
 
         return $this;
     }

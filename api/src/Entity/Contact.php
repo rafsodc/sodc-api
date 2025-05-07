@@ -2,37 +2,55 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ContactRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Validator\Constraints\Captcha;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: ContactRepository::class)]
 #[ApiResource(
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'post' => ['security' => "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')"]
-    ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'patch' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
+    operations: [
+        new Get(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['contact:read']]
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['contact:read']],
+            denormalizationContext: ['groups' => ['contact:write']]
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['contact:read']]
+        ),
+        new Post(
+            security: "is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
+            normalizationContext: ['groups' => ['contact:read']],
+            denormalizationContext: ['groups' => ['contact:write']]
+        )
     ]
 )]
+#[ORM\Entity(repositoryClass: ContactRepository::class)]
 class Contact
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['contact:read'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['contact:write', 'contact:read'])]
+    #[Groups(['contact:read', 'contact:write'])]
     private $name;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['contact:write', 'contact:read'])]
+    #[Groups(['contact:read', 'contact:write'])]
     private $email;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -40,11 +58,12 @@ class Contact
     private $subject;
 
     #[ORM\Column(type: 'text')]
-    #[Groups(['contact:write', 'contact:read'])]
+    #[Groups(['contact:read', 'contact:write'])]
     private $message;
 
     #[ORM\Column(type: 'datetime')]
-    private $createdDate;
+    #[Groups(['contact:read'])]
+    private $createdAt;
 
     #[Captcha]
     #[Groups(['contact:write'])]
@@ -52,7 +71,7 @@ class Contact
 
     public function __construct()
     {
-        $this->createdDate = new \DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function setCaptcha(string $captcha): self
@@ -119,8 +138,8 @@ class Contact
         return $this;
     }
 
-    public function getCreatedDate(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->createdDate;
+        return $this->createdAt;
     }
 }

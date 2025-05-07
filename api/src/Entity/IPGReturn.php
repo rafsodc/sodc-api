@@ -2,10 +2,26 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\IPGReturnRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Validator\Constraints\IPGHash;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Groups;
 
+#[ApiResource(
+    operations: [
+        new Get(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['ipgreturn:read']]
+        ),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['ipgreturn:read']]
+        )
+    ]
+)]
 #[ORM\Entity(repositoryClass: IPGReturnRepository::class)]
 #[IPGHash]
 class IPGReturn
@@ -13,42 +29,55 @@ class IPGReturn
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['ipgreturn:read'])]
     private $id;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(['ipgreturn:read'])]
     private $txndate;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['ipgreturn:read'])]
     private $createdAt;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['ipgreturn:read'])]
     private $approvalCode;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['ipgreturn:read'])]
     private $notificationHash;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['ipgreturn:read'])]
     private $status;
 
     #[ORM\ManyToOne(targetEntity: Transaction::class, inversedBy: 'IPGReturns')]
+    #[Groups(['ipgreturn:read'])]
     private $transaction;
 
     #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups(['ipgreturn:read'])]
     private $endpointTransactionId;
 
     #[ORM\Column(type: 'bigint', nullable: true)]
+    #[Groups(['ipgreturn:read'])]
     private $ipgTransactionId;
 
     #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups(['ipgreturn:read'])]
     private $currency;
 
     #[ORM\Column(type: 'float', nullable: true)]
+    #[Groups(['ipgreturn:read'])]
     private $total;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['ipgreturn:read'])]
     private $failReason;
 
     #[ORM\Column(type: 'boolean')]
+    #[Groups(['ipgreturn:read'])]
     private $clientReturn;
 
     public function __construct()

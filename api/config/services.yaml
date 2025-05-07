@@ -59,14 +59,6 @@ services:
         decorates: 'api_platform.serializer.context_builder'
         arguments: [ '@App\Serializer\AdminGroupsContextBuilder.inner' ]
         
-    App\ApiPlatform\AutoGroupResourceMetadataFactory:
-        decorates: 'api_platform.metadata.resource.metadata_factory'
-        arguments: [ '@App\ApiPlatform\AutoGroupResourceMetadataFactory.inner' ]
-        # causes this to decorate around the cached factory so that
-        # our service is never cached (which, of course, can have performance
-        # implications!)
-        decoration_priority: -20
-        
     App\ApiPlatform\JwtDecorator:
         decorates: 'api_platform.openapi.factory'
         autoconfigure: false
@@ -115,19 +107,6 @@ services:
     App\Doctrine\BasketListener:
         tags: [ doctrine.orm.entity_listener ]
 
-    App\DataPersister\UserDataPersister:
-        bind:
-            $decoratedDataPersister: '@api_platform.doctrine.orm.data_persister'
-        
-    App\DataProvider\UserDataProvider:
-        bind:
-            $collectionDataProvider: '@api_platform.doctrine.orm.default.collection_data_provider'
-
-    App\DataProvider\EventDataProvider:
-        bind:
-            $collectionDataProvider: '@api_platform.doctrine.orm.default.collection_data_provider'
-            $itemDataProvider: '@api_platform.doctrine.orm.default.item_data_provider'
-        
     # Notification Client Settings
     App\Service\NotifyClient:
         arguments:
@@ -167,3 +146,6 @@ services:
         factory: ['@App\Logger\Handler\RollbarHandlerFactory', createRollbarHandler]
         tags:
             - { name: monolog.logger, channel: rollbar }
+
+    App\Security\Voter\PageVoter:
+        tags: ['security.voter']

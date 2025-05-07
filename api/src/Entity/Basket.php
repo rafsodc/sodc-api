@@ -2,7 +2,16 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use App\Repository\BasketRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,33 +19,45 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Validator\IsValidOwner;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Dto\TransactionOutput;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiProperty;
 
+#[ApiResource(
+    operations: [
+        new Get(
+            security: "is_granted('BASKET_VIEW', object)",
+            normalizationContext: ['groups' => ['basket:read']]
+        ),
+        new Patch(
+            security: "is_granted('BASKET_EDIT', object)",
+            normalizationContext: ['groups' => ['basket:read']],
+            denormalizationContext: ['groups' => ['basket:write']]
+        ),
+        new Delete(security: "is_granted('BASKET_DELETE', object)"),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['basket:read']]
+        ),
+        new Post(
+            security: "is_granted('ROLE_USER')",
+            normalizationContext: ['groups' => ['basket:read']],
+            denormalizationContext: ['groups' => ['basket:write']]
+        )
+    ],
+    paginationEnabled: false
+)]
+#[ApiResource(
+    uriTemplate: '/users/{uuid}/baskets.{_format}',
+    uriVariables: [
+        'uuid' => new Link(
+            fromClass: \App\Entity\User::class,
+            identifiers: ['uuid']
+        )
+    ],
+    status: 200,
+    operations: [new GetCollection()]
+)]
 #[ORM\Entity(repositoryClass: BasketRepository::class)]
 #[ORM\EntityListeners(['App\Doctrine\BasketListener'])]
-#[ApiResource(
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_USER')"],
-        'post' => ['security' => "is_granted('ROLE_USER')"]
-    ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('BASKET_VIEW', object)"],
-        'patch' => ['security' => "is_granted('BASKET_EDIT', object)"],
-        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
-    ],
-    subresourceOperations: [
-        'api_users_baskets_get_subresource' => [
-            'method' => 'GET',
-            'path' => '/users/{uuid}/baskets',
-            'security' => "is_granted('ROLE_ADMIN') or user.getUuid() == request.attributes.get('uuid')",
-            'normalization_context' => ['groups' => ['basket:owner']]
-        ]
-    ]
-)]
-#[ApiFilter(SearchFilter::class, properties: ['event' => 'exact', 'owner' => 'exact'])]
+#[ApiFilter(filterClass: SearchFilter::class, properties: ['event' => 'exact', 'owner' => 'exact'])]
 class Basket
 {
     #[ORM\Id]
@@ -48,16 +69,11 @@ class Basket
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'baskets')]
     #[ORM\JoinColumn(nullable: false, referencedColumnName: 'uuid')]
     #[IsValidOwner]
-    #[Groups(['basket:write', 'basket:read'])]
+    #[Groups(['basket:read', 'basket:write'])]
     private $owner;
 
-    // /**
-    //  * @ORM\Column(type="uuid", nullable=true)
-    //  */
-    // private $tempOwnerId;
-
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'baskets')]
-    #[Groups(['basket:write', 'basket:read'])]
+    #[Groups(['basket:read', 'basket:write'])]
     private $event;
 
     #[ORM\Column(type: 'float')]
@@ -65,9 +81,14 @@ class Basket
     private $amount = 0;
 
     #[ORM\Column(type: 'datetime')]
-    private $createdDate;
+    #[Groups(['basket:read'])]
+    private $createdAt;
 
-    #[ORM\OneToOne(targetEntity: Transaction::class, inversedBy: 'basket', cascade: ['persist', 'remove'])]
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['basket:read'])]
+    private $updatedAt;
+
+    #[ORM\OneToOne(targetEntity: Transaction::class, mappedBy: 'basket', cascade: ['persist', 'remove'])]
     #[Groups(['basket:read'])]
     private $transaction;
 
@@ -76,18 +97,18 @@ class Basket
     private $isTransaction;
 
     #[ORM\ManyToMany(targetEntity: Ticket::class, inversedBy: 'baskets')]
-    #[Groups(['basket:read'])]
+    #[Groups(['basket:read', 'basket:write'])]
     private $tickets;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
-    #[Groups(['basket:read'])]
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['basket:read', 'basket:write'])]
     private $isPaid = false;
 
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
-        $this->createdDate = new \DateTimeImmutable();
-        $this->tickets_new = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
         $this->isTransaction = false;
     }
 
@@ -120,9 +141,6 @@ class Basket
         return $this;
     }
 
-    /**
-     * @return Collection|Ticket[]
-     */
     public function getTickets(): Collection
     {
         return $this->tickets;
@@ -174,9 +192,14 @@ class Basket
         return $this;
     }
 
-    public function getCreatedDate(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->createdDate;
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
     }
 
     public function getTransaction(): ?Transaction
@@ -231,18 +254,14 @@ class Basket
         return $this;
     }
 
-    /**
-     * @Groups({"basket:owner"})
-     * @ApiProperty(
-     *     attributes={
-     *         "openapi_context"={
-     *             "description"="URL to download the invoice for this basket's transaction",
-     *             "type"="string",
-     *             "example"="/invoice/1"
-     *         }
-     *     }
-     * )
-     */
+    #[Groups(['basket:owner'])]
+    #[ApiProperty(
+        openapiContext: [
+            'description' => 'URL to download the invoice for this basket\'s transaction',
+            'type' => 'string',
+            'example' => '/invoice/1'
+        ]
+    )]
     private ?string $invoiceUrl = null;
 
     /**
@@ -254,5 +273,16 @@ class Basket
         return $this->transaction ? sprintf('/invoices/%d', $this->transaction->getId()) : null;
     }
 
+    #[ORM\PrePersist]
+    public function onPrePersist()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 
+    #[ORM\PreUpdate]
+    public function onPreUpdate()
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 }

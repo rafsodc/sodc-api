@@ -6,7 +6,7 @@ use App\Entity\UserNotification;
 use Symfony\Component\HttpKernel\KernelEvents;
 use App\Message\UserNotificationMessage as UserNotificationMessage;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use ApiPlatform\Core\EventListener\EventPriorities;
+use ApiPlatform\Symfony\EventListener\EventPriorities;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Psr\Log\LoggerInterface;

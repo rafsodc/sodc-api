@@ -2,8 +2,13 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
 use App\Repository\SpeakerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,59 +16,71 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Entity\MediaObject;
 
-#[ORM\Entity(repositoryClass: SpeakerRepository::class)]
 #[ApiResource(
-    collectionOperations: [
-        'get' => ['security' => "is_granted('ROLE_USER')"],
-        'post' => ['security' => "is_granted('ROLE_ADMIN')"]
+    operations: [
+        new Get(
+            security: "is_granted('ROLE_USER')",
+            normalizationContext: ['groups' => ['speaker:read']]
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['speaker:read']],
+            denormalizationContext: ['groups' => ['speaker:write']]
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
+        new GetCollection(
+            security: "is_granted('ROLE_USER')",
+            normalizationContext: ['groups' => ['speaker:read']]
+        ),
+        new Post(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['speaker:read']],
+            denormalizationContext: ['groups' => ['speaker:write']]
+        )
     ],
-    itemOperations: [
-        'get' => ['security' => "is_granted('ROLE_USER')"],
-        'patch' => ['security' => "is_granted('ROLE_ADMIN')"],
-        'delete' => ['security' => "is_granted('ROLE_ADMIN')"]
-    ],
-    attributes: [
-        'pagination_enabled' => false,
-        'order' => ['lastname', 'firstname']
-    ]
+    paginationEnabled: false,
+    order: ['lastname', 'firstname']
 )]
+#[ORM\Entity(repositoryClass: SpeakerRepository::class)]
 class Speaker
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['speaker:read'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['speaker:read', 'speaker:write'])]
+    #[Groups(['speaker:write', 'speaker:read'])]
     private $lastname;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['speaker:read', 'speaker:write'])]
+    #[Groups(['speaker:write', 'speaker:read'])]
     private $firstname;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['speaker:read', 'speaker:write'])]
+    #[Groups(['speaker:write', 'speaker:read'])]
     private $title;
 
     #[ORM\Column(type: 'text')]
-    #[Groups(['speaker:read', 'speaker:write', 'agenda:read'])]
+    #[Groups(['speaker:write', 'speaker:read', 'agenda:read'])]
     private $biography;
 
     #[ORM\OneToOne(targetEntity: MediaObject::class, cascade: ['persist', 'remove'])]
-    #[ApiProperty(iri: 'http://schema.org/image', readableLink: true, writableLink: false)]
-    #[Groups(['speaker:read', 'speaker:write', 'agenda:read'])]
+    #[ApiProperty(types: 'http://schema.org/image', readableLink: true, writableLink: false)]
+    #[Groups(['speaker:write', 'speaker:read', 'agenda:read'])]
     private $photograph;
 
     #[ORM\ManyToMany(targetEntity: Agenda::class, mappedBy: 'speakers')]
+    #[Groups(['speaker:read'])]
     private $agendas;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['speaker:read', 'speaker:write'])]
+    #[Groups(['speaker:write', 'speaker:read'])]
     private $postnominals;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['speaker:read', 'speaker:write', 'agenda:read'])]
+    #[Groups(['speaker:write', 'speaker:read', 'agenda:read'])]
     private $position;
 
     public function __construct()

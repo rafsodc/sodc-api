@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Exception\InvalidIPGHashHttpException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Api\IriConverterInterface;
 
 /**
  * SecurityController for /login.  This runs when a user has been correctly logged in via json_login.
