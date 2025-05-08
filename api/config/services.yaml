@@ -86,17 +86,6 @@ services:
         tags:
            # - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_authenticated, method: onJWTAuthenticated }
             - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_created, method: onJWTCreated }
-
-    # Authenticate with the cookie content instead of the request json body
-    App\Authentication\CookieRefreshTokenAuthenticator:
-        class: App\Authentication\CookieRefreshTokenAuthenticator
-        decorates: 'gesdinet.jwtrefreshtoken.authenticator'
-        decoration_on_invalid: exception
-        arguments:
-            - "@gesdinet.jwtrefreshtoken.user_checker"
-            - "%gesdinet_jwt_refresh_token.token_parameter_name%"
-            - '@App\Authentication\AuthenticationService'
-        decoration_priority: -20
         
         
     # Service for setting ticket owner

@@ -43,29 +43,21 @@ use ApiPlatform\Metadata\GetCollection;
 class BulkNotification
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'uuid')]
     #[Groups(['bulknotification:read'])]
     private $id;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['bulknotification:read', 'bulknotification:write'])]
-    private $name;
+    #[ORM\Column(type: 'json')]
+    #[Groups(['bulknotification:write', 'bulknotification:read'])]
+    private $data = [];
 
-    #[ORM\Column(type: 'text')]
-    #[Groups(['bulknotification:read', 'bulknotification:write'])]
-    private $message;
+    #[ORM\Column(type: 'uuid')]
+    #[Groups(['bulknotification:write', 'bulknotification:read'])]
+    private $templateId;
 
-    #[ORM\Column(type: 'datetime')]
-    #[Groups(['bulknotification:read'])]
-    private $createdAt;
-
-    #[ORM\Column(type: 'boolean')]
-    #[Groups(['bulknotification:read', 'bulknotification:write'])]
-    private $sent = false;
 
     #[ORM\ManyToOne(targetEntity: Subscription::class, inversedBy: 'bulkNotifications')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: false)]
     #[Groups(['bulknotification:read', 'bulknotification:write'])]
     private $subscription;
 
@@ -83,50 +75,26 @@ class BulkNotification
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getData(): ?array
     {
-        return $this->name;
+        return $this->data;
     }
 
-    public function setName(string $name): self
+    public function setData(array $data): self
     {
-        $this->name = $name;
+        $this->data = $data;
 
         return $this;
     }
 
-    public function getMessage(): ?string
+    public function getTemplateId()
     {
-        return $this->message;
+        return $this->templateId;
     }
 
-    public function setMessage(string $message): self
+    public function setTemplateId($templateId): self
     {
-        $this->message = $message;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function isSent(): bool
-    {
-        return $this->sent;
-    }
-
-    public function setSent(bool $sent): self
-    {
-        $this->sent = $sent;
+        $this->templateId = $templateId;
 
         return $this;
     }

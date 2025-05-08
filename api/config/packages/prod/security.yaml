@@ -1,6 +1,7 @@
 security:
     firewalls:
         refresh:
+            check_path: api_refresh_token
             pattern: ^/token/refresh
             stateless: true
             lazy: true

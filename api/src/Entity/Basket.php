@@ -82,13 +82,9 @@ class Basket
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['basket:read'])]
-    private $createdAt;
+    private $createdDate;
 
-    #[ORM\Column(type: 'datetime')]
-    #[Groups(['basket:read'])]
-    private $updatedAt;
-
-    #[ORM\OneToOne(targetEntity: Transaction::class, mappedBy: 'basket', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: Transaction::class, inversedBy: 'basket', cascade: ['persist', 'remove'])]
     #[Groups(['basket:read'])]
     private $transaction;
 
@@ -100,7 +96,7 @@ class Basket
     #[Groups(['basket:read', 'basket:write'])]
     private $tickets;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: 'boolean', nullable: true)]
     #[Groups(['basket:read', 'basket:write'])]
     private $isPaid = false;
 
@@ -192,14 +188,9 @@ class Basket
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedDate(): ?\DateTimeInterface
     {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
+        return $this->createdDate;
     }
 
     public function getTransaction(): ?Transaction

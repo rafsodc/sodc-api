@@ -63,7 +63,7 @@ class Contact
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['contact:read'])]
-    private $createdAt;
+    private $createdDate;
 
     #[Captcha]
     #[Groups(['contact:write'])]
@@ -138,8 +138,8 @@ class Contact
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedDate(): ?\DateTimeInterface
     {
-        return $this->createdAt;
+        return $this->createdDate;
     }
 }
