@@ -14,32 +14,26 @@ use Symfony\Component\HttpFoundation\Cookie;
  */
 class RefreshCookieAuthenticationSuccessListener
 {
-    /**
-     * @var AuthenticationService
-     */
-    private $authenticationService;
-    private $refreshTokenparameterName;
-
-    public function __construct(AuthenticationService $authenticationService, $refreshTokenparameterName)
-    {
-        $this->authenticationService = $authenticationService;
-        $this->refreshTokenparameterName = $refreshTokenparameterName;
+    public function __construct(
+        private readonly AuthenticationService $authenticationService,
+        private readonly string $refreshTokenParameterName = 'refresh_token'
+    ) {
     }
 
-    public function onAuthenticationSuccessResponse(AuthenticationSuccessEvent $event)
+    public function onAuthenticationSuccessResponse(AuthenticationSuccessEvent $event): void
     {
         $data = $event->getData();
 
-        if (array_key_exists($this->refreshTokenparameterName, $data)) {
-            $refreshTokenString = $data[$this->refreshTokenparameterName];
+        if (isset($data[$this->refreshTokenParameterName])) {
+            $refreshTokenString = $data[$this->refreshTokenParameterName];
             /** @var Cookie $securityCookie */
             $securityCookie = $this->authenticationService->createSecurityCookie($refreshTokenString);
             if ($securityCookie) {
                 $event->getResponse()->headers->setCookie($securityCookie);
             }
             // Don't add the refresh token in the response, the frontend doesn't have to known about it
-            unset($data[$this->refreshTokenparameterName]);
+            //unset($data[$this->refreshTokenParameterName]);
+            $event->setData($data);
         }
-        $event->setData($data);
     }
 }

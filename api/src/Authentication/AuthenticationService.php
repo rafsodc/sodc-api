@@ -8,37 +8,33 @@ use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 
 /**
- * Class AuthenticationService
- * @see https://gist.github.com/Arakmar/91674347dea1a763fec043d56a5855c6
+ * Service to handle authentication-related functionality
  */
 final class AuthenticationService
 {
     public const SECURITY_COOKIE_NAME = 'security';
 
-    /** @var RefreshTokenManagerInterface */
-    private $refreshTokenManager;
-
-    public function __construct(RefreshTokenManagerInterface $refreshTokenManager)
-    {
-        $this->refreshTokenManager = $refreshTokenManager;
+    public function __construct(
+        private readonly RefreshTokenManagerInterface $refreshTokenManager
+    ) {
     }
 
-    public function createSecurityCookie($refreshToken): ?Cookie
+    public function createSecurityCookie(string $refreshToken): ?Cookie
     {
-        $refreshToken = $this->refreshTokenManager->get($refreshToken);
+        $refreshTokenEntity = $this->refreshTokenManager->get($refreshToken);
 
-        if ($refreshToken) {
-            return new Cookie(
-                self::SECURITY_COOKIE_NAME,
-                $refreshToken->getRefreshToken(),
-                $refreshToken->getValid(),
-                null,
-                null,
-                false,
-                true
-            );
-        } else {
+        if (!$refreshTokenEntity) {
             return null;
         }
+
+        return new Cookie(
+            self::SECURITY_COOKIE_NAME,
+            $refreshTokenEntity->getRefreshToken(),
+            $refreshTokenEntity->getValid(),
+            null,
+            null,
+            false,
+            true
+        );
     }
 }

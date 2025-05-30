@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -98,7 +99,7 @@ use App\Controller\NotificationController;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity(fields: ['email'])]
-class User implements UserInterface
+class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
     ///**
     // * @ORM\Column(type="integer")
