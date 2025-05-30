@@ -1,2 +1,5 @@
-api_refresh_token:
-    path:       /token/refresh
+api_token_refresh:
+    path: /token/refresh
+
+api_token_logout:
+    path: /token/logout

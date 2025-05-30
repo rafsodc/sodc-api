@@ -57,20 +57,19 @@ final class JwtDecorator implements OpenApiFactoryInterface
             ],
         ]);
 
-
         $pathItem = new Model\PathItem(
             ref: 'JWT Token',
             description: 'JWT',
             post: new Model\Operation(
                 operationId: 'postCredentialsItem',
-                tags: ['Token'],
+                tags: ['Authentication'],
                 responses: [
-                '200' => [
-                    'description' => 'Get JWT token',
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                '$ref' => '#/components/schemas/Token',
+                    '200' => [
+                        'description' => 'Get JWT token',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    '$ref' => '#/components/schemas/Token',
                                 ],
                             ],
                         ],
@@ -80,23 +79,23 @@ final class JwtDecorator implements OpenApiFactoryInterface
                 requestBody: new Model\RequestBody(
                     description: 'Generate new JWT Token',
                     content: new ArrayObject([
-                    'application/json' => [
-                        'schema' => [
-                            '$ref' => '#/components/schemas/Credentials',
+                        'application/json' => [
+                            'schema' => [
+                                '$ref' => '#/components/schemas/Credentials',
                             ],
                         ],
                     ]),
                 ),
             ),
         );
-        $openApi->getPaths()->addPath('/login', $pathItem);
+        $openApi->getPaths()->addPath('/token/login', $pathItem);
 
         $pathItem = new Model\PathItem(
             ref: 'JWT Token Refresh',
             description: 'JWT',
             post: new Model\Operation(
                 operationId: 'postRefreshToken',
-                tags: ['Token'],
+                tags: ['Authentication'],
                 responses: [
                     '200' => [
                         'description' => 'Get JWT token from Refresh Token',
@@ -127,22 +126,22 @@ final class JwtDecorator implements OpenApiFactoryInterface
 
         $pathItem = new Model\PathItem(
             ref: 'JWT Token Logout',
-            description: 'Logout',
+            description: 'Invalidates tokens',
             post: new Model\Operation(
                 operationId: 'getLogout',
-                tags: ['Token'],
+                tags: ['Authentication'],
                 responses: [
                 '200' => [
-                    'description' => 'Logout',
+                    'description' => 'Invalidates tokens',
                     'content' => [
                         'application/json' => [
                             ],
                         ],
                     ],
                 ],
-                summary: 'Logout user',
+                summary: 'Invalidates tokens',
                 requestBody: new Model\RequestBody(
-                    description: 'Logout user',
+                    description: 'Invalidates tokens',
                     content: new ArrayObject([
                         'application/json' => [
                         ],
@@ -151,7 +150,7 @@ final class JwtDecorator implements OpenApiFactoryInterface
             ),
         );
 
-        $openApi->getPaths()->addPath('/logout', $pathItem);
+        $openApi->getPaths()->addPath('/token/logout', $pathItem);
 
         return $openApi;
     }

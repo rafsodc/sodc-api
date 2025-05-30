@@ -64,11 +64,6 @@ services:
         autoconfigure: false
         decoration_priority: -20
 
-    # Add the refresh token as a cookie
-    App\Authentication\RefreshCookieAuthenticationSuccessListener:
-        tags:
-            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse, priority: -10 }
-
     # Add user data to JWT
     App\Authentication\AddUserDataToJwtListener:
         tags:
@@ -78,14 +73,6 @@ services:
     App\Authentication\SplitJwtResponseListener:
         tags:
             - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccess, priority: -20 }
-
-    # # Add iri to JWT
-    # App\Authentication\SetIriJWTCreatedListener:
-    #     class: App\Authentication\SetIriJWTCreatedListener
-    #     tags:
-    #        # - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_authenticated, method: onJWTAuthenticated }
-    #         - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_created, method: onJWTCreated }
-        
         
     # Service for setting ticket owner
     App\Doctrine\TicketSetOwnerListener:

@@ -8,10 +8,10 @@ security:
             lazy: true
             security: false
         login:
-            pattern: ^/login
+            pattern: ^/token/login
             stateless: true
             json_login:
-                check_path: /login_check
+                check_path: /token/login
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
         api:
@@ -24,5 +24,7 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
             refresh_jwt:
-                check_path: api_refresh_token
+                check_path: api_token_refresh
             jwt: ~
+            logout:
+                path: api_token_logout

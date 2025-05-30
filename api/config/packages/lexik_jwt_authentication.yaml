@@ -10,6 +10,9 @@ lexik_jwt_authentication:
             cookies:
                 - jwt_hp
                 - jwt_s
+    blocklist_token:
+        enabled: true
+        cache: cache.app
     remove_token_from_body_when_cookies_used: false
     set_cookies:
         jwt_hp:
@@ -22,7 +25,6 @@ lexik_jwt_authentication:
             split:
                 - header
                 - payload
-
         jwt_s:
             lifetime: 0
             samesite: strict

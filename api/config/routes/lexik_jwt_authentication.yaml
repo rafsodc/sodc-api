@@ -1,2 +1,5 @@
-api_login_check:
-    path: /login_check
+api_token_login:
+    path: /token/login
+
+api_token_logout:
+    path: /token/logout
