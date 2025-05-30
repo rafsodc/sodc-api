@@ -1,27 +1,28 @@
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
 security:
     firewalls:
-        refresh:
-            check_path: api_refresh_token
-            pattern: ^/token/refresh
-            stateless: true
-            lazy: true
-            security: false
         services:
             pattern: ^/(ipg|notify)
             stateless: true
             lazy: true
             security: false
-        main:
-            lazy: true
-            security: true
-            provider: app_user_provider
+        login:
+            pattern: ^/login
+            stateless: true
+            json_login:
+                check_path: /login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api:
+            stateless: true
+            entry_point: jwt
             json_login:
                 check_path: app_login
                 username_path: email
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
-            logout:
-                path: app_logout
-            custom_authenticators:
-                - lexik_jwt_authentication.jwt_token_authenticator
+            refresh_jwt:
+                check_path: api_refresh_token
+            jwt: ~

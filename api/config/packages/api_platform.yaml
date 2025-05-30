@@ -41,12 +41,6 @@ api_platform:
             JWT:
                 name: Authorization
                 type: header
-    oauth:
-        clientId: '%env(OAUTH_CLIENT_ID)%'
-        clientSecret: '%env(OAUTH_CLIENT_SECRET)%'
-        type: oauth2
-        flow: password
-        tokenUrl: /token
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
     enable_swagger: true

@@ -64,28 +64,28 @@ services:
         autoconfigure: false
         decoration_priority: -20
 
-    # Check refresh cookie each time the JWT token is decoded and verified
-    App\Authentication\CheckRefreshCookieListener:
-        class: App\Authentication\CheckRefreshCookieListener
-        arguments: [ '@request_stack' ]
-        tags:
-            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_decoded, method: onJWTDecoded }
+    # # Check refresh cookie each time the JWT token is decoded and verified
+    # App\Authentication\CheckRefreshCookieListener:
+    #     class: App\Authentication\CheckRefreshCookieListener
+    #     arguments: [ '@request_stack' ]
+    #     tags:
+    #         - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_decoded, method: onJWTDecoded }
 
-    # Add the refresh token as a cookie
-    App\Authentication\RefreshCookieAuthenticationSuccessListener:
-        class: App\Authentication\RefreshCookieAuthenticationSuccessListener
-        arguments:
-            - '@App\Authentication\AuthenticationService'
-            - "%gesdinet_jwt_refresh_token.token_parameter_name%"
-        tags:
-            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse, priority: -10 }
+    # # Add the refresh token as a cookie
+    # App\Authentication\RefreshCookieAuthenticationSuccessListener:
+    #     class: App\Authentication\RefreshCookieAuthenticationSuccessListener
+    #     arguments:
+    #         - '@App\Authentication\AuthenticationService'
+    #         - "%gesdinet_jwt_refresh_token.token_parameter_name%"
+    #     tags:
+    #         - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse, priority: -10 }
                 
-    # Add iri to JWT
-    App\Authentication\SetIriJWTCreatedListener:
-        class: App\Authentication\SetIriJWTCreatedListener
-        tags:
-           # - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_authenticated, method: onJWTAuthenticated }
-            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_created, method: onJWTCreated }
+    # # Add iri to JWT
+    # App\Authentication\SetIriJWTCreatedListener:
+    #     class: App\Authentication\SetIriJWTCreatedListener
+    #     tags:
+    #        # - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_authenticated, method: onJWTAuthenticated }
+    #         - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_created, method: onJWTCreated }
         
         
     # Service for setting ticket owner

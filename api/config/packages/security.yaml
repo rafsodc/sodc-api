@@ -11,22 +11,21 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
+        
 
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/forgot_password, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/notify, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/unsubscribe/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/pages, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/ipg, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/docs, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/forgot_password, roles: PUBLIC_ACCESS }
+        - { path: ^/notify, roles: PUBLIC_ACCESS }
+        - { path: ^/unsubscribe/, roles: PUBLIC_ACCESS }
+        - { path: ^/pages, roles: PUBLIC_ACCESS }
+        - { path: ^/ipg, roles: PUBLIC_ACCESS }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/docs, roles: PUBLIC_ACCESS }
+        - { path: ^/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/contacts, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/ranks, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
-        - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: PUBLIC_ACCESS }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         #- { path: ^/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }
