@@ -3,35 +3,48 @@
 
 namespace App\DataProvider;
 
-use ApiPlatform\Core\DataProvider\CollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\DenormalizedIdentifiersAwareItemDataProviderInterface;
-use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use ApiPlatform\Metadata\CollectionOperationInterface;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
+use ApiPlatform\State\ProviderInterface;
 use App\Entity\User;
 use App\Entity\Subscription;
 use Symfony\Component\Security\Core\Security;
 use Doctrine\ORM\EntityManagerInterface;
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Api\IriConverterInterface;
 
-class UserDataProvider implements ContextAwareCollectionDataProviderInterface, DenormalizedIdentifiersAwareItemDataProviderInterface, RestrictedDataProviderInterface
+class UserDataProvider implements ProviderInterface
 {
-    private $collectionDataProvider;
     private $security;
     private $entityManager;
     private $iriConverter;
+    private $resourceMetadataCollectionFactory;
 
-    public function __construct(CollectionDataProviderInterface $collectionDataProvider, Security $security, EntityManagerInterface $entityManager, IriConverterInterface $iriConverter)
-    {
-        $this->collectionDataProvider = $collectionDataProvider;
+    public function __construct(
+        Security $security,
+        EntityManagerInterface $entityManager,
+        IriConverterInterface $iriConverter,
+        ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory
+    ) {
         $this->security = $security;
         $this->entityManager = $entityManager;
         $this->iriConverter = $iriConverter;
+        $this->resourceMetadataCollectionFactory = $resourceMetadataCollectionFactory;
     }
 
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    {
+        if ($operation instanceof CollectionOperationInterface) {
+            return $this->getCollection($operation, $context);
+        }
+
+        return $this->getItem($operation, $uriVariables, $context);
+    }
+
+    private function getCollection(Operation $operation, array $context = []): array
     {
         /** @var User[] $users */
-        $users = $this->collectionDataProvider->getCollection($resourceClass, $operationName, $context);
+        $users = $this->entityManager->getRepository(User::class)->findAll();
 
         $currentUser = $this->security->getUser();
         foreach ($users as $user) {
@@ -41,15 +54,10 @@ class UserDataProvider implements ContextAwareCollectionDataProviderInterface, D
         return $users;
     }
 
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return $resourceClass === User::class;
-    }
-
-    public function getItem(string $resourceClass, $id, string $operationName = null, array $context = [])
+    private function getItem(Operation $operation, array $uriVariables, array $context = []): ?User
     {
         /** @var User|null $user */
-        $user = $this->entityManager->getRepository($resourceClass)->find($id);
+        $user = $this->entityManager->getRepository(User::class)->find($uriVariables['uuid']);
         if (!$user) {
             return null;
         }

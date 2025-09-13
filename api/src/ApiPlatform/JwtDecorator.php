@@ -46,26 +46,26 @@ final class JwtDecorator implements OpenApiFactoryInterface
         $schemas['Credentials'] = new ArrayObject([
             'type' => 'object',
             'properties' => [
-                'email' => [
+                'username' => [
                     'type' => 'string',
                     'example' => 'johndoe@example.com',
                 ],
                 'password' => [
                     'type' => 'string',
-                    'example' => 'apassword',
+                    'example' => 'password',
                 ],
             ],
         ]);
 
         $pathItem = new Model\PathItem(
             ref: 'JWT Token',
-            description: 'JWT',
+            description: 'Creates a user token',
             post: new Model\Operation(
                 operationId: 'postCredentialsItem',
                 tags: ['Authentication'],
                 responses: [
                     '200' => [
-                        'description' => 'Get JWT token',
+                        'description' => 'User token created',
                         'content' => [
                             'application/json' => [
                                 'schema' => [
@@ -75,9 +75,9 @@ final class JwtDecorator implements OpenApiFactoryInterface
                         ],
                     ],
                 ],
-                summary: 'Get JWT token to login.',
+                summary: 'Creates a user token.',
                 requestBody: new Model\RequestBody(
-                    description: 'Generate new JWT Token',
+                    description: 'The login data',
                     content: new ArrayObject([
                         'application/json' => [
                             'schema' => [

@@ -101,12 +101,6 @@ use App\Controller\NotificationController;
 #[UniqueEntity(fields: ['email'])]
 class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
-    ///**
-    // * @ORM\Column(type="integer")
-    // * @ApiProperty(identifier=false)
-    // */
-    //private $id;
-
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ApiProperty(identifier: true)]
@@ -229,10 +223,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->userSubscriptions = new ArrayCollection();
     }
 
-    public function getId(): UuidInterface
-    {
-        return $this->uuid;
-    }
+    // public function getId(): UuidInterface
+    // {
+    //     return $this->uuid;
+    // }
 
     public function setUuid(UuidInterface $uuid): self
     {

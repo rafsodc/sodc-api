@@ -51,11 +51,11 @@ class UserFilter extends AbstractFilter
                 if (!$authenticatedUser) {
                     return;
                 }
-                $query = $queryBuilder->expr()->eq(sprintf('%s.id', $alias), ':id');
+                $query = $queryBuilder->expr()->eq(sprintf('%s.uuid', $alias), ':uuid');
                 $where = ($value === "true") ? $query : $queryBuilder->expr()->not($query);
                 $queryBuilder
                     ->andWhere($where)
-                    ->setParameter('id', $authenticatedUser->getId());
+                    ->setParameter('uuid', $authenticatedUser->getUuid());
                 break;
             default:
         }

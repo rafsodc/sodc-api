@@ -1,5 +1,5 @@
 <?php
-// api/src/Controller/CreateBookPublication.php
+// api/src/Controller/ApproveUserController.php
 
 namespace App\Controller;
 
@@ -22,7 +22,7 @@ class ApproveUserController
     public function __invoke(User $data): User
     {
         $data->addRole("ROLE_USER");
-        $message = new UserApprove($data->getId());
+        $message = new UserApprove($data->getUuid());
         $this->messageBus->dispatch($message);
 
         return $data;

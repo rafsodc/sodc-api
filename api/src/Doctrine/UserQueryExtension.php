@@ -43,10 +43,10 @@ final class UserQueryExtension implements QueryCollectionExtensionInterface, Que
         $queryBuilder->andWhere(
             $queryBuilder->expr()->orX(
                 sprintf('%s.isMember = :isMember', $rootAlias),
-                sprintf('%s.id = :id', $rootAlias)
+                sprintf('%s.uuid = :uuid', $rootAlias)
             )
         );
         $queryBuilder->setParameter('isMember', 'TRUE');
-        $queryBuilder->setParameter('id', $user->getId());
+        $queryBuilder->setParameter('uuid', $user->getUuid());
     }
 }

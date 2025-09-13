@@ -50,8 +50,8 @@ use ApiPlatform\Metadata\Link;
             validationContext: ['groups' => ['event:item:getForm']]
         )
     ],
-    paginationEnabled: false,
-    order: ['startDate' => 'DESC']
+    paginationEnabled: true,
+    order: ['date' => 'DESC']
 )]
 #[ApiResource(
     uriTemplate: '/events/{id}/tickets',
