@@ -22,6 +22,7 @@ use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Metadata\ApiSubresource;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\Link;
+use Ramsey\Uuid\UuidInterface;
 
 #[ApiResource(
     operations: [
@@ -37,7 +38,9 @@ use ApiPlatform\Metadata\Link;
         new Delete(security: "is_granted('ROLE_ADMIN')"),
         new GetCollection(
             security: "is_granted('ROLE_USER')",
-            normalizationContext: ['groups' => ['event:read']]
+            normalizationContext: ['groups' => ['event:read']],
+            order: ['date' => 'DESC'],
+            paginationViaCursor: [['field' => 'date', 'direction' => 'DESC']]
         ),
         new Post(
             security: "is_granted('ROLE_ADMIN')",
@@ -50,13 +53,12 @@ use ApiPlatform\Metadata\Link;
             validationContext: ['groups' => ['event:item:getForm']]
         )
     ],
-    paginationEnabled: true,
-    order: ['date' => 'DESC']
+    paginationEnabled: true
 )]
 #[ApiResource(
     uriTemplate: '/events/{id}/tickets',
     uriVariables: [
-        'id' => new Link(fromClass: Event::class, fromProperty: 'tickets')
+        'id' => new Link(fromClass: Event::class, fromProperty: 'tickets', identifiers: ['id'])
     ],
     operations: [new GetCollection(security: "is_granted('ROLE_USER')")],
     normalizationContext: ['groups' => ['event:read']]
@@ -64,7 +66,7 @@ use ApiPlatform\Metadata\Link;
 #[ApiResource(
     uriTemplate: '/events/{id}/agendas',
     uriVariables: [
-        'id' => new Link(fromClass: Event::class, fromProperty: 'agendas')
+        'id' => new Link(fromClass: Event::class, fromProperty: 'agendas', identifiers: ['id'])
     ],
     operations: [new GetCollection(security: "is_granted('ROLE_USER')")],
     normalizationContext: ['groups' => ['event:read']]

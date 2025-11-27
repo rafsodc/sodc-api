@@ -19,9 +19,11 @@ api_platform:
         pagination_client_items_per_page: true
         pagination_client_enabled: true
         pagination_partial: false
-        pagination_via_cursor: ['id']
+        pagination_via_cursor:
+            - field: 'id'
+              direction: 'DESC'
         order: []
-        order_direction: 'ASC'
+        order_direction: 'DESC'
         order_nulls_comparison: null
         security: 'is_granted("IS_AUTHENTICATED_ANONYMOUSLY")'
         security_message: 'Access Denied.'
