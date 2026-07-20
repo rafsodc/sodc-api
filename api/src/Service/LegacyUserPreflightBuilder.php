@@ -36,6 +36,14 @@ final class LegacyUserPreflightBuilder
 
         foreach ($users as $user) {
             ++$report['totalUsers'];
+            $roles = $user->getRoles();
+            if (in_array('ROLE_DELETED', $roles, true)) {
+                ++$report['eligibility']['excludedRoleDeleted'];
+                continue;
+            }
+
+            ++$report['eligibility']['includedUsers'];
+            ++$report['membershipStatuses'][$this->membershipStatus($roles, $user->getIsMember())];
             $this->countEmailQuality($user->getEmail(), $report, $exactEmails, $normalisedEmails);
             $this->countValue($user->getFirstName(), $report['fieldCompleteness']['firstName']);
             $this->countValue($user->getLastName(), $report['fieldCompleteness']['lastName']);
@@ -82,7 +90,7 @@ final class LegacyUserPreflightBuilder
             $relationshipCount = count($validSubscriptionIds);
             $subscriptionsPerUser[$relationshipCount] = ($subscriptionsPerUser[$relationshipCount] ?? 0) + 1;
             $hasSubscriptions = $relationshipCount > 0;
-            ++$report['subscriptionSummary'][$hasSubscriptions ? 'usersWithSubscriptions' : 'usersWithoutSubscriptions'];
+            ++$report['hasSubscriptions'][$hasSubscriptions ? 'true' : 'false'];
             $correlationKey = $this->booleanKey($user->getIsSubscribed()).'|'.($hasSubscriptions ? 'true' : 'false');
             $report['subscriptionCorrelation'][$correlationKey] = ($report['subscriptionCorrelation'][$correlationKey] ?? 0) + 1;
         }
@@ -111,6 +119,8 @@ final class LegacyUserPreflightBuilder
             'schemaVersion' => self::SCHEMA_VERSION,
             'generatedAt' => $generatedAt->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s\Z'),
             'totalUsers' => 0,
+            'eligibility' => ['excludedRoleDeleted' => 0, 'includedUsers' => 0],
+            'membershipStatuses' => ['active' => 0, 'pending' => 0, 'resigned' => 0, 'deceased' => 0, 'lost' => 0],
             'emailQuality' => ['missing' => 0, 'blank' => 0, 'invalid' => 0, 'leadingOrTrailingWhitespace' => 0, 'duplicateExact' => 0, 'duplicateNormalized' => 0],
             'identityQuality' => ['oldUid' => ['missing' => 0, 'present' => 0, 'duplicate' => 0]],
             'fieldCompleteness' => [
@@ -125,7 +135,8 @@ final class LegacyUserPreflightBuilder
             'rankQuality' => ['missing' => 0],
             'sharing' => ['true' => 0, 'false' => 0, 'null' => 0],
             'legacyIsSubscribed' => ['true' => 0, 'false' => 0, 'null' => 0],
-            'subscriptionSummary' => ['catalogueSize' => 0, 'usersWithSubscriptions' => 0, 'usersWithoutSubscriptions' => 0, 'relationshipCount' => 0, 'subscriptionsPerUser' => ['minimum' => 0, 'maximum' => 0, 'distribution' => []]],
+            'hasSubscriptions' => ['true' => 0, 'false' => 0],
+            'subscriptionSummary' => ['catalogueSize' => 0, 'relationshipCount' => 0, 'subscriptionsPerUser' => ['minimum' => 0, 'maximum' => 0, 'distribution' => []]],
             'subscriptionCorrelation' => [],
             'relationshipQuality' => ['missingSubscription' => 0, 'missingFromCatalogue' => 0, 'duplicateUserSubscriptionPairs' => 0],
             'subscriptions' => [],
@@ -193,6 +204,21 @@ final class LegacyUserPreflightBuilder
     private function booleanKey(?bool $value): string
     {
         return null === $value ? 'null' : ($value ? 'true' : 'false');
+    }
+
+    private function membershipStatus(array $roles, ?bool $isMember): string
+    {
+        foreach ([
+            'ROLE_RESIGNED' => 'resigned',
+            'ROLE_DECEASED' => 'deceased',
+            'ROLE_LOST' => 'lost',
+        ] as $role => $status) {
+            if (in_array($role, $roles, true)) {
+                return $status;
+            }
+        }
+
+        return true === $isMember ? 'active' : 'pending';
     }
 
     private function countRoles(User $user, array &$report, array &$combinations): void
