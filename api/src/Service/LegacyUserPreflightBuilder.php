@@ -43,7 +43,10 @@ final class LegacyUserPreflightBuilder
             }
 
             ++$report['eligibility']['includedUsers'];
-            ++$report['membershipStatuses'][$this->membershipStatus($roles, $user->getIsMember())];
+            $membershipStatus = $this->membershipStatus($roles, $user->getIsMember());
+            ++$report['membershipStatuses'][$membershipStatus];
+            $oldUidCohort = null === $user->getOldUid() ? 'missing' : 'set';
+            $this->countOldUidCohortAttributes($user, $roles, $membershipStatus, $report['attributesByOldUid'][$oldUidCohort]);
             $this->countEmailQuality($user->getEmail(), $report, $exactEmails, $normalisedEmails);
             $this->countValue($user->getFirstName(), $report['fieldCompleteness']['firstName']);
             $this->countValue($user->getLastName(), $report['fieldCompleteness']['lastName']);
@@ -91,6 +94,7 @@ final class LegacyUserPreflightBuilder
             $subscriptionsPerUser[$relationshipCount] = ($subscriptionsPerUser[$relationshipCount] ?? 0) + 1;
             $hasSubscriptions = $relationshipCount > 0;
             ++$report['hasSubscriptions'][$hasSubscriptions ? 'true' : 'false'];
+            ++$report['attributesByOldUid'][$oldUidCohort]['hasSubscriptions'][$hasSubscriptions ? 'true' : 'false'];
             $correlationKey = $this->booleanKey($user->getIsSubscribed()).'|'.($hasSubscriptions ? 'true' : 'false');
             $report['subscriptionCorrelation'][$correlationKey] = ($report['subscriptionCorrelation'][$correlationKey] ?? 0) + 1;
         }
@@ -123,6 +127,10 @@ final class LegacyUserPreflightBuilder
             'membershipStatuses' => ['active' => 0, 'pending' => 0, 'resigned' => 0, 'deceased' => 0, 'lost' => 0],
             'emailQuality' => ['missing' => 0, 'blank' => 0, 'invalid' => 0, 'leadingOrTrailingWhitespace' => 0, 'duplicateExact' => 0, 'duplicateNormalized' => 0],
             'identityQuality' => ['oldUid' => ['missing' => 0, 'present' => 0, 'duplicate' => 0]],
+            'attributesByOldUid' => [
+                'set' => $this->emptyOldUidCohort(),
+                'missing' => $this->emptyOldUidCohort(),
+            ],
             'fieldCompleteness' => [
                 'firstName' => $fieldCount(), 'lastName' => $fieldCount(), 'serviceNumber' => $fieldCount(),
                 'mobileNumber' => $fieldCount(), 'phoneNumber' => $fieldCount(), 'postNominals' => $fieldCount(),
@@ -167,6 +175,47 @@ final class LegacyUserPreflightBuilder
     private function countValue(?string $value, array &$counts): void
     {
         ++$counts[null === $value ? 'null' : ('' === $value ? 'blank' : 'present')];
+    }
+
+    private function emptyOldUidCohort(): array
+    {
+        $valueCounts = static fn (): array => ['null' => 0, 'blank' => 0, 'present' => 0];
+
+        return [
+            'users' => 0,
+            'attributes' => [
+                'email' => $valueCounts(),
+                'firstName' => $valueCounts(),
+                'lastName' => $valueCounts(),
+                'mobileNumber' => $valueCounts(),
+                'phoneNumber' => $valueCounts(),
+                'postNominals' => $valueCounts(),
+                'serviceNumber' => $valueCounts(),
+                'rank' => ['missing' => 0, 'present' => 0],
+                'roles' => ['empty' => 0, 'present' => 0],
+                'passwordHash' => ['blank' => 0, 'present' => 0],
+                'isShared' => ['true' => 0, 'false' => 0, 'null' => 0],
+            ],
+            'membershipStatuses' => ['active' => 0, 'pending' => 0, 'resigned' => 0, 'deceased' => 0, 'lost' => 0],
+            'hasSubscriptions' => ['true' => 0, 'false' => 0],
+        ];
+    }
+
+    private function countOldUidCohortAttributes(User $user, array $roles, string $membershipStatus, array &$cohort): void
+    {
+        ++$cohort['users'];
+        $this->countValue($user->getEmail(), $cohort['attributes']['email']);
+        $this->countValue($user->getFirstName(), $cohort['attributes']['firstName']);
+        $this->countValue($user->getLastName(), $cohort['attributes']['lastName']);
+        $this->countValue($user->getMobileNumber(), $cohort['attributes']['mobileNumber']);
+        $this->countValue($user->getPhoneNumber(), $cohort['attributes']['phoneNumber']);
+        $this->countValue($user->getPostNominals(), $cohort['attributes']['postNominals']);
+        $this->countValue($user->getServiceNumber(), $cohort['attributes']['serviceNumber']);
+        ++$cohort['attributes']['rank'][null === $user->getRank() ? 'missing' : 'present'];
+        ++$cohort['attributes']['roles'][empty($roles) ? 'empty' : 'present'];
+        ++$cohort['attributes']['passwordHash']['' === $user->getPassword() ? 'blank' : 'present'];
+        $this->countBoolean($user->getIsShared(), $cohort['attributes']['isShared']);
+        ++$cohort['membershipStatuses'][$membershipStatus];
     }
 
     private function countOldUid(?int $oldUid, array &$report, array &$oldUids): void

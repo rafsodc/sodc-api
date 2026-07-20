@@ -49,6 +49,14 @@ final class LegacyUserPreflightBuilderTest extends TestCase
         self::assertSame(['excludedRoleDeleted' => 0, 'includedUsers' => 2], $report['eligibility']);
         self::assertSame(['active' => 1, 'pending' => 1, 'resigned' => 0, 'deceased' => 0, 'lost' => 0], $report['membershipStatuses']);
         self::assertSame(['true' => 1, 'false' => 1], $report['hasSubscriptions']);
+        self::assertSame(2, $report['attributesByOldUid']['set']['users']);
+        self::assertSame(0, $report['attributesByOldUid']['missing']['users']);
+        self::assertSame(['null' => 0, 'blank' => 0, 'present' => 2], $report['attributesByOldUid']['set']['attributes']['email']);
+        self::assertSame(['null' => 0, 'blank' => 1, 'present' => 1], $report['attributesByOldUid']['set']['attributes']['firstName']);
+        self::assertSame(['missing' => 1, 'present' => 1], $report['attributesByOldUid']['set']['attributes']['rank']);
+        self::assertSame(['empty' => 1, 'present' => 1], $report['attributesByOldUid']['set']['attributes']['roles']);
+        self::assertSame(['active' => 1, 'pending' => 1, 'resigned' => 0, 'deceased' => 0, 'lost' => 0], $report['attributesByOldUid']['set']['membershipStatuses']);
+        self::assertSame(['true' => 1, 'false' => 1], $report['attributesByOldUid']['set']['hasSubscriptions']);
         self::assertSame(1, $report['emailQuality']['duplicateNormalized']);
         self::assertSame(1, $report['emailQuality']['leadingOrTrailingWhitespace']);
         self::assertSame(1, $report['identityQuality']['oldUid']['duplicate']);
@@ -106,6 +114,17 @@ final class LegacyUserPreflightBuilderTest extends TestCase
             'lost' => 1,
         ], $report['membershipStatuses']);
         self::assertSame(['true' => 0, 'false' => 5], $report['hasSubscriptions']);
+        self::assertSame(0, $report['attributesByOldUid']['set']['users']);
+        self::assertSame(5, $report['attributesByOldUid']['missing']['users']);
+        self::assertSame(['null' => 0, 'blank' => 0, 'present' => 5], $report['attributesByOldUid']['missing']['attributes']['email']);
+        self::assertSame([
+            'active' => 1,
+            'pending' => 1,
+            'resigned' => 1,
+            'deceased' => 1,
+            'lost' => 1,
+        ], $report['attributesByOldUid']['missing']['membershipStatuses']);
+        self::assertSame(['true' => 0, 'false' => 5], $report['attributesByOldUid']['missing']['hasSubscriptions']);
         self::assertSame(0, $report['emailQuality']['invalid']);
         self::assertSame(0, $report['emailQuality']['missing']);
     }
