@@ -35,6 +35,7 @@ final class LegacyUserPreflightBuilderTest extends TestCase
         $nonMember->setRoles([]);
         $nonMember->setFirstName('');
         $nonMember->setLastName(null);
+        $nonMember->setPhoneNumber('01234567890');
         $nonMember->setPassword('not-a-supported-hash');
 
         $report = (new LegacyUserPreflightBuilder())->build(
@@ -47,15 +48,19 @@ final class LegacyUserPreflightBuilderTest extends TestCase
         self::assertSame('2026-07-19T14:00:00Z', $report['generatedAt']);
         self::assertSame(2, $report['totalUsers']);
         self::assertSame(['excludedRoleDeleted' => 0, 'includedUsers' => 2], $report['eligibility']);
-        self::assertSame(['active' => 1, 'pending' => 1, 'resigned' => 0, 'deceased' => 0, 'lost' => 0], $report['membershipStatuses']);
+        self::assertSame(['active' => 1, 'pending' => 1, 'resigned' => 0, 'deceased' => 0, 'lost' => 0, 'regular' => 0, 'retired' => 0], $report['membershipStatuses']);
         self::assertSame(['true' => 1, 'false' => 1], $report['hasSubscriptions']);
         self::assertSame(2, $report['attributesByOldUid']['set']['users']);
         self::assertSame(0, $report['attributesByOldUid']['missing']['users']);
         self::assertSame(['null' => 0, 'blank' => 0, 'present' => 2], $report['attributesByOldUid']['set']['attributes']['email']);
         self::assertSame(['null' => 0, 'blank' => 1, 'present' => 1], $report['attributesByOldUid']['set']['attributes']['firstName']);
+        self::assertSame(['null' => 0, 'blank' => 0, 'present' => 2], $report['fieldCompleteness']['mobileNumber']);
+        self::assertSame(['mobileNumber' => 1, 'phoneNumberFallback' => 1, 'none' => 0], $report['mobileNumberSource']);
+        self::assertSame(['null' => 0, 'blank' => 0, 'present' => 2], $report['attributesByOldUid']['set']['attributes']['mobileNumber']);
+        self::assertSame(['mobileNumber' => 1, 'phoneNumberFallback' => 1, 'none' => 0], $report['attributesByOldUid']['set']['attributes']['mobileNumberSource']);
         self::assertSame(['missing' => 1, 'present' => 1], $report['attributesByOldUid']['set']['attributes']['rank']);
         self::assertSame(['empty' => 1, 'present' => 1], $report['attributesByOldUid']['set']['attributes']['roles']);
-        self::assertSame(['active' => 1, 'pending' => 1, 'resigned' => 0, 'deceased' => 0, 'lost' => 0], $report['attributesByOldUid']['set']['membershipStatuses']);
+        self::assertSame(['active' => 1, 'pending' => 1, 'resigned' => 0, 'deceased' => 0, 'lost' => 0, 'regular' => 0, 'retired' => 0], $report['attributesByOldUid']['set']['membershipStatuses']);
         self::assertSame(['true' => 1, 'false' => 1], $report['attributesByOldUid']['set']['hasSubscriptions']);
         self::assertSame(1, $report['emailQuality']['duplicateNormalized']);
         self::assertSame(1, $report['emailQuality']['leadingOrTrailingWhitespace']);
@@ -78,6 +83,7 @@ final class LegacyUserPreflightBuilderTest extends TestCase
         $encoded = json_encode($report, JSON_THROW_ON_ERROR);
         self::assertStringNotContainsString('Member@Example.org', $encoded);
         self::assertStringNotContainsString('07123456789', $encoded);
+        self::assertStringNotContainsString('01234567890', $encoded);
         self::assertStringNotContainsString('$2y$', $encoded);
     }
 
@@ -87,7 +93,7 @@ final class LegacyUserPreflightBuilderTest extends TestCase
         $deleted->setRoles(['ROLE_DELETED', 'ROLE_RESIGNED']);
 
         $resigned = $this->user('00000000-0000-0000-0000-000000000021', 'resigned@example.org', true, true);
-        $resigned->setRoles(['ROLE_LOST', 'ROLE_DECEASED', 'ROLE_RESIGNED']);
+        $resigned->setRoles(['ROLE_RETIRED', 'ROLE_SERVING', 'ROLE_LOST', 'ROLE_DECEASED', 'ROLE_RESIGNED']);
 
         $deceased = $this->user('00000000-0000-0000-0000-000000000022', 'deceased@example.org', true, true);
         $deceased->setRoles(['ROLE_LOST', 'ROLE_DECEASED']);
@@ -95,36 +101,50 @@ final class LegacyUserPreflightBuilderTest extends TestCase
         $lost = $this->user('00000000-0000-0000-0000-000000000023', 'lost@example.org', true, true);
         $lost->setRoles(['ROLE_LOST']);
 
+        $regular = $this->user('00000000-0000-0000-0000-000000000026', 'regular@example.org', true, true);
+        $regular->setRoles(['ROLE_RETIRED', 'ROLE_SERVING']);
+
+        $retired = $this->user('00000000-0000-0000-0000-000000000027', 'retired@example.org', true, true);
+        $retired->setRoles(['ROLE_RETIRED']);
+
         $pending = $this->user('00000000-0000-0000-0000-000000000024', 'pending@example.org', false, true);
+        $pending->setMobileNumber('');
+        $pending->setPhoneNumber('must-not-be-used');
         $active = $this->user('00000000-0000-0000-0000-000000000025', 'active@example.org', true, true);
 
         $report = (new LegacyUserPreflightBuilder())->build(
-            [$deleted, $resigned, $deceased, $lost, $pending, $active],
+            [$deleted, $resigned, $deceased, $lost, $regular, $retired, $pending, $active],
             [],
             new \DateTimeImmutable('2026-07-19T14:00:00+00:00')
         );
 
-        self::assertSame(6, $report['totalUsers']);
-        self::assertSame(['excludedRoleDeleted' => 1, 'includedUsers' => 5], $report['eligibility']);
+        self::assertSame(8, $report['totalUsers']);
+        self::assertSame(['excludedRoleDeleted' => 1, 'includedUsers' => 7], $report['eligibility']);
         self::assertSame([
             'active' => 1,
             'pending' => 1,
             'resigned' => 1,
             'deceased' => 1,
             'lost' => 1,
+            'regular' => 1,
+            'retired' => 1,
         ], $report['membershipStatuses']);
-        self::assertSame(['true' => 0, 'false' => 5], $report['hasSubscriptions']);
+        self::assertSame(['true' => 0, 'false' => 7], $report['hasSubscriptions']);
         self::assertSame(0, $report['attributesByOldUid']['set']['users']);
-        self::assertSame(5, $report['attributesByOldUid']['missing']['users']);
-        self::assertSame(['null' => 0, 'blank' => 0, 'present' => 5], $report['attributesByOldUid']['missing']['attributes']['email']);
+        self::assertSame(7, $report['attributesByOldUid']['missing']['users']);
+        self::assertSame(['null' => 0, 'blank' => 0, 'present' => 7], $report['attributesByOldUid']['missing']['attributes']['email']);
+        self::assertSame(['null' => 6, 'blank' => 1, 'present' => 0], $report['attributesByOldUid']['missing']['attributes']['mobileNumber']);
+        self::assertSame(['mobileNumber' => 1, 'phoneNumberFallback' => 0, 'none' => 6], $report['attributesByOldUid']['missing']['attributes']['mobileNumberSource']);
         self::assertSame([
             'active' => 1,
             'pending' => 1,
             'resigned' => 1,
             'deceased' => 1,
             'lost' => 1,
+            'regular' => 1,
+            'retired' => 1,
         ], $report['attributesByOldUid']['missing']['membershipStatuses']);
-        self::assertSame(['true' => 0, 'false' => 5], $report['attributesByOldUid']['missing']['hasSubscriptions']);
+        self::assertSame(['true' => 0, 'false' => 7], $report['attributesByOldUid']['missing']['hasSubscriptions']);
         self::assertSame(0, $report['emailQuality']['invalid']);
         self::assertSame(0, $report['emailQuality']['missing']);
     }

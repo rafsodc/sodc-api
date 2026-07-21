@@ -51,8 +51,7 @@ final class LegacyUserPreflightBuilder
             $this->countValue($user->getFirstName(), $report['fieldCompleteness']['firstName']);
             $this->countValue($user->getLastName(), $report['fieldCompleteness']['lastName']);
             $this->countValue($user->getServiceNumber(), $report['fieldCompleteness']['serviceNumber']);
-            $this->countValue($user->getMobileNumber(), $report['fieldCompleteness']['mobileNumber']);
-            $this->countValue($user->getPhoneNumber(), $report['fieldCompleteness']['phoneNumber']);
+            $this->countExportMobileNumber($user, $report['fieldCompleteness']['mobileNumber'], $report['mobileNumberSource']);
             $this->countValue($user->getPostNominals(), $report['fieldCompleteness']['postNominals']);
             $this->countOldUid($user->getOldUid(), $report, $oldUids);
             $this->countPassword($user->getPassword(), $report);
@@ -124,7 +123,7 @@ final class LegacyUserPreflightBuilder
             'generatedAt' => $generatedAt->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s\Z'),
             'totalUsers' => 0,
             'eligibility' => ['excludedRoleDeleted' => 0, 'includedUsers' => 0],
-            'membershipStatuses' => ['active' => 0, 'pending' => 0, 'resigned' => 0, 'deceased' => 0, 'lost' => 0],
+            'membershipStatuses' => ['active' => 0, 'pending' => 0, 'resigned' => 0, 'deceased' => 0, 'lost' => 0, 'regular' => 0, 'retired' => 0],
             'emailQuality' => ['missing' => 0, 'blank' => 0, 'invalid' => 0, 'leadingOrTrailingWhitespace' => 0, 'duplicateExact' => 0, 'duplicateNormalized' => 0],
             'identityQuality' => ['oldUid' => ['missing' => 0, 'present' => 0, 'duplicate' => 0]],
             'attributesByOldUid' => [
@@ -133,8 +132,9 @@ final class LegacyUserPreflightBuilder
             ],
             'fieldCompleteness' => [
                 'firstName' => $fieldCount(), 'lastName' => $fieldCount(), 'serviceNumber' => $fieldCount(),
-                'mobileNumber' => $fieldCount(), 'phoneNumber' => $fieldCount(), 'postNominals' => $fieldCount(),
+                'mobileNumber' => $fieldCount(), 'postNominals' => $fieldCount(),
             ],
+            'mobileNumberSource' => ['mobileNumber' => 0, 'phoneNumberFallback' => 0, 'none' => 0],
             'passwords' => ['present' => 0, 'blank' => 0, 'supported' => 0, 'unsupportedOrMalformed' => 0, 'algorithms' => ['bcrypt' => 0, 'argon2i' => 0, 'argon2id' => 0]],
             'roles' => ['empty' => 0, 'counts' => []],
             'roleCombinations' => [],
@@ -188,7 +188,7 @@ final class LegacyUserPreflightBuilder
                 'firstName' => $valueCounts(),
                 'lastName' => $valueCounts(),
                 'mobileNumber' => $valueCounts(),
-                'phoneNumber' => $valueCounts(),
+                'mobileNumberSource' => ['mobileNumber' => 0, 'phoneNumberFallback' => 0, 'none' => 0],
                 'postNominals' => $valueCounts(),
                 'serviceNumber' => $valueCounts(),
                 'rank' => ['missing' => 0, 'present' => 0],
@@ -196,7 +196,7 @@ final class LegacyUserPreflightBuilder
                 'passwordHash' => ['blank' => 0, 'present' => 0],
                 'isShared' => ['true' => 0, 'false' => 0, 'null' => 0],
             ],
-            'membershipStatuses' => ['active' => 0, 'pending' => 0, 'resigned' => 0, 'deceased' => 0, 'lost' => 0],
+            'membershipStatuses' => ['active' => 0, 'pending' => 0, 'resigned' => 0, 'deceased' => 0, 'lost' => 0, 'regular' => 0, 'retired' => 0],
             'hasSubscriptions' => ['true' => 0, 'false' => 0],
         ];
     }
@@ -207,8 +207,7 @@ final class LegacyUserPreflightBuilder
         $this->countValue($user->getEmail(), $cohort['attributes']['email']);
         $this->countValue($user->getFirstName(), $cohort['attributes']['firstName']);
         $this->countValue($user->getLastName(), $cohort['attributes']['lastName']);
-        $this->countValue($user->getMobileNumber(), $cohort['attributes']['mobileNumber']);
-        $this->countValue($user->getPhoneNumber(), $cohort['attributes']['phoneNumber']);
+        $this->countExportMobileNumber($user, $cohort['attributes']['mobileNumber'], $cohort['attributes']['mobileNumberSource']);
         $this->countValue($user->getPostNominals(), $cohort['attributes']['postNominals']);
         $this->countValue($user->getServiceNumber(), $cohort['attributes']['serviceNumber']);
         ++$cohort['attributes']['rank'][null === $user->getRank() ? 'missing' : 'present'];
@@ -216,6 +215,26 @@ final class LegacyUserPreflightBuilder
         ++$cohort['attributes']['passwordHash']['' === $user->getPassword() ? 'blank' : 'present'];
         $this->countBoolean($user->getIsShared(), $cohort['attributes']['isShared']);
         ++$cohort['membershipStatuses'][$membershipStatus];
+    }
+
+    private function countExportMobileNumber(User $user, array &$valueCounts, array &$sourceCounts): void
+    {
+        $mobileNumber = $user->getMobileNumber();
+        if (null !== $mobileNumber) {
+            ++$sourceCounts['mobileNumber'];
+            $this->countValue($mobileNumber, $valueCounts);
+            return;
+        }
+
+        $phoneNumber = $user->getPhoneNumber();
+        if (null !== $phoneNumber) {
+            ++$sourceCounts['phoneNumberFallback'];
+            $this->countValue($phoneNumber, $valueCounts);
+            return;
+        }
+
+        ++$sourceCounts['none'];
+        $this->countValue(null, $valueCounts);
     }
 
     private function countOldUid(?int $oldUid, array &$report, array &$oldUids): void
@@ -261,6 +280,8 @@ final class LegacyUserPreflightBuilder
             'ROLE_RESIGNED' => 'resigned',
             'ROLE_DECEASED' => 'deceased',
             'ROLE_LOST' => 'lost',
+            'ROLE_SERVING' => 'regular',
+            'ROLE_RETIRED' => 'retired',
         ] as $role => $status) {
             if (in_array($role, $roles, true)) {
                 return $status;
