@@ -18,6 +18,7 @@ RUN apk add --no-cache \
 		gettext \
 		git \
 		gnu-libiconv \
+		gnupg \
 		rabbitmq-c \
 	;
 
